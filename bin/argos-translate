@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+
+from argos_translate import app
+
+app.main()

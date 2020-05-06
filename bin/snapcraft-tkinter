@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+
+from tkinter_demo import app
+
+app.main()

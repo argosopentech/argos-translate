@@ -1,0 +1,62 @@
+name: argos-translate
+base: core18 
+version: '1.0' 
+summary: Argos Translate
+description: |
+  Offline translation app
+icon: snap/gui/icon.png
+
+grade: devel
+confinement: strict
+
+apps:
+  argos-translate: 
+    adapter: full
+    command: bin/argos-translate
+    plugs:
+      - desktop
+      - desktop-legacy
+      - gsettings
+      - opengl
+      - unity7
+      - wayland
+      - x11
+    command-chain:
+    - bin/debian-multiarch-triplet-provider-launch
+    - bin/tcltk-launch
+
+parts:
+  # https://forum.snapcraft.io/t/the-debian-multiarch-triplet-provider-launch-stage-snap/11738
+  debian-multiarch-triplet-provider-launch:
+    plugin: nil
+    stage-snaps:
+    - debian-multiarch-triplet-provider-launch
+
+  # https://forum.snapcraft.io/t/the-tcltk-launch-stage-snap/11740
+  tcltk-launch:
+    plugin: nil
+    stage-snaps:
+    - tcltk-launch
+
+  argos-translate:
+    plugin: python
+    python-version: python3
+    source: .
+    stage-packages:
+      - python3-tk
+      - python3-pil.imagetk
+      - fontconfig-config
+      - fonts-dejavu-core
+      - fonts-dejavu-extra
+      - locales-all
+    after:
+      - desktop-glib-only
+
+  desktop-glib-only:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: glib-only
+    plugin: make
+    build-packages:
+      - libglib2.0-dev
+    stage-packages:
+      - libglib2.0-bin
