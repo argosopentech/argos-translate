@@ -3,7 +3,7 @@
 from tkinter import *
 from tkinter import scrolledtext
 from tkinter.ttk import *
-import subprocess
+import os
 
 class GUI:
     output_scrolledtext = None
@@ -17,7 +17,7 @@ class GUI:
         input_text = GUI.input_scrolledtext.get("1.0",END)
         print('input:')
         print(input_text)
-        result = subprocess.check_output('echo "' + input_text + '" | apertium en-es', shell=True)
+        result = os.popen('echo \'' + input_text + '\' | apertium en-es').read()
         print(result)
         print('-----------------------------------------------------------')
         GUI.output_scrolledtext.delete(1.0,END)

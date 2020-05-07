@@ -49,6 +49,8 @@ parts:
       - fonts-dejavu-core
       - fonts-dejavu-extra
       - locales-all
+      - apertium
+      - apertium-en-es
     after:
       - desktop-glib-only
 
@@ -60,3 +62,78 @@ parts:
       - libglib2.0-dev
     stage-packages:
       - libglib2.0-bin
+
+layout:
+  /usr/share/apertium:
+    symlink: $SNAP/usr/share/apertium
+  /usr/bin/apertium:
+    symlink: $SNAP/usr/bin/apertium
+  /usr/bin/apertium-deshtml:
+    symlink: $SNAP/usr/bin/apertium-deshtml
+  /usr/bin/apertium-deslatex:
+    symlink: $SNAP/usr/bin/apertium-deslatex
+  /usr/bin/apertium-desmediawiki:
+    symlink: $SNAP/usr/bin/apertium-desmediawiki
+  /usr/bin/apertium-desodt:
+    symlink: $SNAP/usr/bin/apertium-desodt
+  /usr/bin/apertium-despptx:
+    symlink: $SNAP/usr/bin/apertium-despptx
+  /usr/bin/apertium-desrtf:
+    symlink: $SNAP/usr/bin/apertium-desrtf
+  /usr/bin/apertium-destxt:
+    symlink: $SNAP/usr/bin/apertium-destxt
+  /usr/bin/apertium-deswxml:
+    symlink: $SNAP/usr/bin/apertium-deswxml
+  /usr/bin/apertium-desxlsx:
+    symlink: $SNAP/usr/bin/apertium-desxlsx
+  /usr/bin/apertium-desxpresstag:
+    symlink: $SNAP/usr/bin/apertium-desxpresstag
+  /usr/bin/apertium-interchuck:
+    symlink: $SNAP/usr/bin/apertium-interchuck
+  /usr/bin/apertium-multiple-translation:
+    symlink: $SNAP/usr/bin/apertium-multiple-translation
+  /usr/bin/apertium-postchunk:
+    symlink: $SNAP/usr/bin/apertium-postchunk
+  /usr/bin/apertium-postlatex:
+    symlink: $SNAP/usr/bin/apertium-postlatex
+  /usr/bin/apertium-postlatex-raw:
+    symlink: $SNAP/usr/bin/apertium-postlatex-raw
+  /usr/bin/apertium-prelatex:
+    symlink: $SNAP/usr/bin/apertium-prelatex
+  /usr/bin/apertium-preprocess-transfer:
+    symlink: $SNAP/usr/bin/apertium-preprocess-transfer
+  /usr/bin/apertium-pretransfer:
+    symlink: $SNAP/usr/bin/apertium-pretransfer
+  /usr/bin/apertium-rehtml:
+    symlink: $SNAP/usr/bin/apertium-rehtml
+  /usr/bin/apertium-rehtml-noent:
+    symlink: $SNAP/usr/bin/apertium-rehtml-noent
+  /usr/bin/apertium-relatex:
+    symlink: $SNAP/usr/bin/apertium-relatex
+  /usr/bin/apertium-remediawiki:
+    symlink: $SNAP/usr/bin/apertium-remediawiki
+  /usr/bin/apertium-reodt:
+    symlink: $SNAP/usr/bin/apertium-reodt
+  /usr/bin/apertium-repptx:
+    symlink: $SNAP/usr/bin/apertium-repptx
+  /usr/bin/apertium-rertf:
+    symlink: $SNAP/usr/bin/apertium-rertf
+  /usr/bin/apertium-retxt:
+    symlink: $SNAP/usr/bin/apertium-retxt
+  /usr/bin/apertium-rewxml:
+    symlink: $SNAP/usr/bin/apertium-rewxml
+  /usr/bin/apertium-rexlsx:
+    symlink: $SNAP/usr/bin/apertium-rexlsx
+  /usr/bin/apertium-rexpresstax:
+    symlink: $SNAP/usr/bin/apertium-rexpresstax
+  /usr/bin/apertium-tagger:
+    symlink: $SNAP/usr/bin/apertium-tagger
+  /usr/bin/apertium-tmxbuild:
+    symlink: $SNAP/usr/bin/apertium-tmxbuild
+  /usr/bin/apertium-transfer:
+    symlink: $SNAP/usr/bin/apertium-transfer
+  /usr/bin/apertium-unformat:
+    symlink: $SNAP/usr/bin/apertium-unformat
+  /usr/bin/apertium-utils-fixlatex:
+    symlink: $SNAP/usr/bin/apertium-utils-fixlatex
+
