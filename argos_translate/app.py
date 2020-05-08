@@ -5,6 +5,8 @@ from tkinter import scrolledtext
 from tkinter.ttk import *
 import os
 
+from argos_translate import translate
+
 class GUI:
     output_scrolledtext = None
     input_scrolledtext = None
@@ -17,7 +19,7 @@ class GUI:
         input_text = GUI.input_scrolledtext.get("1.0",END)
         print('input:')
         print(input_text)
-        result = os.popen('echo \'' + input_text + '\' | apertium en-es').read()
+        result = translate.en_es.translate_function(input_text)
         print(result)
         print('-----------------------------------------------------------')
         GUI.output_scrolledtext.delete(1.0,END)
