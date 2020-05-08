@@ -1,11 +1,14 @@
 import os
 
+languages = []
+
 class Language:
     def __init__(self, code, name):
         self.code = code
         self.name = name
         self.translations_from = []
         self.translations_to = []
+        languages.append(self)
 
 class Translation:
     def __init__(self, from_lang, to_lang, translate_function):
@@ -26,6 +29,4 @@ es = Language('es', 'English')
 
 # Translations
 en_es = Translation(en, es, apertium_translation(en, es))
-
-
-
+es_en = Translation(es, en, apertium_translation(es, en))

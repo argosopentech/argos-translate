@@ -8,29 +8,19 @@ import os
 from argos_translate import translate
 
 class GUI:
-    output_scrolledtext = None
-    input_scrolledtext = None
+    def __init__(self):
+        self.output_scrolledtext = None
+        self.input_scrolledtext = None
 
-    def switch_button_clicked():
-        print('switch_button clicked')
-
-    def translate_button_clicked():
-        print('translate_button clicked')
-        input_text = GUI.input_scrolledtext.get("1.0",END)
-        print('input:')
-        print(input_text)
+    def translate_button_clicked(self):
+        input_text = self.input_scrolledtext.get("1.0",END)
         result = translate.en_es.translate_function(input_text)
-        print(result)
-        print('-----------------------------------------------------------')
-        GUI.output_scrolledtext.delete(1.0,END)
-        GUI.output_scrolledtext.insert(INSERT,result)
+        self.output_scrolledtext.delete(1.0,END)
+        self.output_scrolledtext.insert(INSERT,result)
 
-    def main_loop():
-        ## Gui ##
+    def main_loop(self):
         window = Tk()
         window.title("Argos Translate")
-
-        GUI.output_scrolledtext = scrolledtext.ScrolledText(window,width=40,height=10)
 
         output_combo = Combobox(window)
         output_combo['values']= ('English')
@@ -42,21 +32,19 @@ class GUI:
         input_combo.current(0) 
         input_combo.grid(column=2, row=1)
 
-        GUI.input_scrolledtext = scrolledtext.ScrolledText(window,width=40,height=10)
+        self.input_scrolledtext = scrolledtext.ScrolledText(window,width=40,height=10)
+        self.input_scrolledtext.grid(column=0, row=2)
+        self.input_scrolledtext.insert(INSERT, 'Text to translate from')
 
-        GUI.input_scrolledtext.grid(column=0, row=2)
-        GUI.input_scrolledtext.insert(INSERT, 'Text to translate from')
+        self.output_scrolledtext = scrolledtext.ScrolledText(window,width=40,height=10)
+        self.output_scrolledtext.grid(column=2, row=2)
+        self.output_scrolledtext.insert(INSERT, 'Text to translate to')
 
-        switch_button = Button(window, text='⟷', command=GUI.switch_button_clicked)
-        switch_button.grid(column=1, row=2)
-
-        GUI.output_scrolledtext.grid(column=2, row=2)
-        GUI.output_scrolledtext.insert(INSERT, 'Text to translate to')
-
-        translate_button = Button(window, text='Translate', command=GUI.translate_button_clicked)
+        translate_button = Button(window, text='Translate', command=self.translate_button_clicked)
         translate_button.grid(column=1, row=3)
 
         window.mainloop()
 
 def main():
-    GUI.main_loop()
+    gui = GUI()
+    gui.main_loop()
