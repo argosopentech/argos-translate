@@ -27,15 +27,15 @@ class GUI:
         self.output_combo.current(1) 
         self.output_combo.grid(column=1, row=1)
 
-        self.input_scrolledtext = scrolledtext.ScrolledText(window,width=40,height=10)
+        self.input_scrolledtext = scrolledtext.ScrolledText(window,width=80,height=50)
         self.input_scrolledtext.grid(column=0, row=2)
         self.input_scrolledtext.insert(INSERT, 'Text to translate from')
 
-        self.output_scrolledtext = scrolledtext.ScrolledText(window,width=40,height=10)
+        self.output_scrolledtext = scrolledtext.ScrolledText(window,width=80,height=50)
         self.output_scrolledtext.grid(column=1, row=2)
         self.output_scrolledtext.insert(INSERT, 'Text to translate to')
 
-        translate_button = Button(window, text='Translate', command=self.translate_button_clicked)
+        translate_button = Button(window, text='→', command=self.translate_button_clicked)
         translate_button.grid(column=0, row=3)
 
         window.mainloop()
