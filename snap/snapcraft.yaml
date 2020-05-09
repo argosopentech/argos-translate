@@ -54,6 +54,7 @@ parts:
       - locales-all
       - apertium
       - apertium-en-es
+      - apertium-eo-en
     after:
       - desktop-glib-only
 
