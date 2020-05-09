@@ -11,25 +11,20 @@ class GUI:
     def __init__(self):
         self.output_scrolledtext = None
         self.input_scrolledtext = None
-
-    def translate_button_clicked(self):
-        input_text = self.input_scrolledtext.get("1.0",END)
-        result = translate.en_es.translate_function(input_text)
-        self.output_scrolledtext.delete(1.0,END)
-        self.output_scrolledtext.insert(INSERT,result)
-
-    def main_loop(self):
+        
         window = Tk()
         window.title("Argos Translate")
 
+        language_names = tuple([language.name for language in translate.languages])
+
         output_combo = Combobox(window)
-        output_combo['values']= ('English')
+        output_combo['values'] = language_names
         output_combo.current(0) 
         output_combo.grid(column=0, row=1)
 
         input_combo = Combobox(window)
-        input_combo['values']= ('Spanish')
-        input_combo.current(0) 
+        input_combo['values'] = language_names
+        input_combo.current(1) 
         input_combo.grid(column=2, row=1)
 
         self.input_scrolledtext = scrolledtext.ScrolledText(window,width=40,height=10)
@@ -45,6 +40,11 @@ class GUI:
 
         window.mainloop()
 
+    def translate_button_clicked(self):
+        input_text = self.input_scrolledtext.get("1.0",END)
+        result = translate.en_es.translate_function(input_text)
+        self.output_scrolledtext.delete(1.0,END)
+        self.output_scrolledtext.insert(INSERT,result)
+
 def main():
     gui = GUI()
-    gui.main_loop()

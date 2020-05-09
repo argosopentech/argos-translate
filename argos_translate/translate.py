@@ -25,7 +25,7 @@ def apertium_translation(from_lang, to_lang):
 
 # Languages
 en = Language('en', 'English')
-es = Language('es', 'English')
+es = Language('es', 'Spanish')
 
 # Translations
 en_es = Translation(en, es, apertium_translation(en, es))
