@@ -10,6 +10,15 @@ class Language:
         self.translations_to = []
         languages.append(self)
 
+    def __str__(self):
+        return self.name
+
+    def get_translation(self, to):
+        valid_translations = list(filter(lambda x: x.to_lang.code == to.code, self.translations_from))
+        if len(valid_translations) > 0:
+            return valid_translations[0]
+        return None
+
 class Translation:
     def __init__(self, from_lang, to_lang, translate_function):
         self.from_lang = from_lang
