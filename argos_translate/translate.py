@@ -40,6 +40,7 @@ en = Language('en', 'English')
 es = Language('es', 'Spanish')
 eo = Language('eo', 'Esperanto')
 ca = Language('ca', 'Catalan')
+fr = Language('fr', 'French')
 
 # Translations
 en_es = Translation(en, es, apertium_translation('en', 'es'))
@@ -48,6 +49,8 @@ en_eo = Translation(en, eo, apertium_translation('en', 'eo'))
 eo_en = Translation(eo, en, apertium_translation('eo', 'en'))
 en_ca = Translation(en, ca, apertium_translation('en', 'ca'))
 ca_en = Translation(ca, en, apertium_translation('ca', 'en'))
+fr_es = Translation(fr, es, apertium_translation('fr', 'es'))
+es_fr = Translation(es, fr, apertium_translation('es', 'fr'))
 
 
 # Everything can translate to itself
