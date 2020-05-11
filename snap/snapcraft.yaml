@@ -55,6 +55,7 @@ parts:
       - apertium
       - apertium-en-es
       - apertium-eo-en
+      - apertium-en-ca
     after:
       - desktop-glib-only
 
