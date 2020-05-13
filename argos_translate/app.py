@@ -43,6 +43,14 @@ class GUI:
         self.input_scrolledtext.bind("<Control-Key-a>", select_all_input)
         self.output_scrolledtext.bind("<Control-Key-a>", select_all_input)
 
+        # Enable <Enter> to translate
+        def enter_clicked(event):
+            self.translate_button_clicked()
+        def enter_clicked_back(event):
+            self.translate_button_clicked_back()
+        self.input_scrolledtext.bind('<Return>', enter_clicked)
+        self.output_scrolledtext.bind('<Return>', enter_clicked_back)
+
         translate_button = Button(window, text='→', command=self.translate_button_clicked)
         translate_button.grid(column=0, row=3)
 
