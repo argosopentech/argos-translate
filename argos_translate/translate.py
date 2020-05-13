@@ -32,6 +32,8 @@ class Translation:
 
 def apertium_translation(from_code, to_code):
     def to_return(input_text):
+        input_text = input_text.replace('\'', '\'"\'"\'')
+        print(input_text)
         return os.popen('echo \'' + input_text + '\' | apertium ' + from_code + '-' + to_code + '').read()
     return to_return
 
