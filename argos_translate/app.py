@@ -41,6 +41,7 @@ class GUI:
         translate_button_back = Button(window, text='←', command=self.translate_button_clicked_back)
         translate_button_back.grid(column=1, row=3)
 
+        self.translate_button_clicked()
         window.mainloop()
 
     def translate_button_clicked(self):
