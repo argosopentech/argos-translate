@@ -35,6 +35,14 @@ class GUI:
         self.output_scrolledtext.grid(column=1, row=2)
         self.output_scrolledtext.insert(INSERT, 'Text to translate to')
 
+        # Enable Ctrl-A
+        def select_all_input(event):
+            event.widget.tag_add(SEL, "1.0", END) 
+            event.widget.mark_set(INSERT, "1.0")
+            return "break"
+        self.input_scrolledtext.bind("<Control-Key-a>", select_all_input)
+        self.output_scrolledtext.bind("<Control-Key-a>", select_all_input)
+
         translate_button = Button(window, text='→', command=self.translate_button_clicked)
         translate_button.grid(column=0, row=3)
 
