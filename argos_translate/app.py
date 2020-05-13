@@ -38,6 +38,9 @@ class GUI:
         translate_button = Button(window, text='→', command=self.translate_button_clicked)
         translate_button.grid(column=0, row=3)
 
+        translate_button_back = Button(window, text='←', command=self.translate_button_clicked_back)
+        translate_button_back.grid(column=1, row=3)
+
         window.mainloop()
 
     def translate_button_clicked(self):
@@ -50,6 +53,17 @@ class GUI:
         result = translation.translate_function(input_text)
         self.output_scrolledtext.delete(1.0,END)
         self.output_scrolledtext.insert(INSERT,result)
+
+    def translate_button_clicked_back(self):
+        input_text = self.output_scrolledtext.get("1.0",END)
+        input_combo_value = self.output_combo.current()
+        input_language = translate.languages[input_combo_value]
+        output_combo_value = self.input_combo.current()
+        output_language = translate.languages[output_combo_value]
+        translation = input_language.get_translation(output_language)
+        result = translation.translate_function(input_text)
+        self.input_scrolledtext.delete(1.0,END)
+        self.input_scrolledtext.insert(INSERT,result)
 
 def main():
     gui = GUI()
