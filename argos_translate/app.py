@@ -12,28 +12,39 @@ class GUI:
         self.output_scrolledtext = None
         self.input_scrolledtext = None
         
-        window = Tk()
-        window.title("Argos Translate")
+        self.window = Tk()
+        self.window.title("Argos Translate")
+        self.window.columnconfigure(0, weight=1)
+        self.window.rowconfigure(0, weight=1)
+        self.window.columnconfigure(0, weight=1)
+        self.window.columnconfigure(1, weight=1)
+        self.window.rowconfigure(1, weight=1)
+        self.window.rowconfigure(0, weight=0)
 
         language_names = tuple([language.name for language in translate.languages])
 
-        self.input_combo = Combobox(window)
+        self.input_combo = Combobox(self.window)
         self.input_combo['values'] = language_names
         self.input_combo.current(0) 
-        self.input_combo.grid(column=0, row=1)
+        self.input_combo.grid(column=0, row=0, sticky=N)
 
-        self.output_combo = Combobox(window)
+        self.output_combo = Combobox(self.window)
         self.output_combo['values'] = language_names
         self.output_combo.current(1) 
-        self.output_combo.grid(column=1, row=1)
+        self.output_combo.grid(column=1, row=0, sticky=N)
 
-        self.input_scrolledtext = scrolledtext.ScrolledText(window,width=80,height=50)
-        self.input_scrolledtext.grid(column=0, row=2)
+        self.input_scrolledtext = scrolledtext.ScrolledText(self.window,width=80,height=50)
+        self.input_scrolledtext.grid(column=0, row=1, sticky='NSEW')
         self.input_scrolledtext.insert(INSERT, 'Text to translate from')
+        self.input_scrolledtext.columnconfigure(0, weight=1)
+        self.input_scrolledtext.rowconfigure(2, weight=1)
 
-        self.output_scrolledtext = scrolledtext.ScrolledText(window,width=80,height=50)
-        self.output_scrolledtext.grid(column=1, row=2)
+        self.output_scrolledtext = scrolledtext.ScrolledText(self.window,width=80,height=50)
+        self.output_scrolledtext.grid(column=1, row=1, sticky='NSEW')
         self.output_scrolledtext.insert(INSERT, 'Text to translate to')
+        self.output_scrolledtext.columnconfigure(1, weight=1)
+        self.input_scrolledtext.rowconfigure(2, weight=1)
+
 
         # Enable Ctrl-A
         def select_all_input(event):
@@ -51,14 +62,14 @@ class GUI:
         self.input_scrolledtext.bind('<Return>', enter_clicked)
         self.output_scrolledtext.bind('<Return>', enter_clicked_back)
 
-        translate_button = Button(window, text='→', command=self.translate_button_clicked)
-        translate_button.grid(column=0, row=3)
+        translate_button = Button(self.window, text='→', command=self.translate_button_clicked)
+        translate_button.grid(column=0, row=2)
 
-        translate_button_back = Button(window, text='←', command=self.translate_button_clicked_back)
-        translate_button_back.grid(column=1, row=3)
+        translate_button_back = Button(self.window, text='←', command=self.translate_button_clicked_back)
+        translate_button_back.grid(column=1, row=2)
 
         self.translate_button_clicked()
-        window.mainloop()
+        self.window.mainloop()
 
     def translate_button_clicked(self):
         input_text = self.input_scrolledtext.get("1.0",END)
