@@ -6,7 +6,7 @@ description: |
   Offline translation app
 icon: snap/gui/icon.png
 
-grade: devel
+grade: stable
 confinement: strict
 
 apps:
