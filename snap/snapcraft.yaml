@@ -13,6 +13,7 @@ apps:
   argos-translate: 
     adapter: full
     command: bin/argos-translate
+    extensions: [gnome-3-28]
     environment:
       LC_ALL: C.UTF-8
       LANG: C.UTF-8
@@ -60,15 +61,6 @@ parts:
       - apertium-es-pt
     after:
       - desktop-glib-only
-
-  desktop-glib-only:
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-subdir: glib-only
-    plugin: make
-    build-packages:
-      - libglib2.0-dev
-    stage-packages:
-      - libglib2.0-bin
 
 layout:
   /usr/share/apertium:
