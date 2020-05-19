@@ -59,8 +59,6 @@ parts:
       - apertium-en-ca
       - apertium-fr-es
       - apertium-es-pt
-    after:
-      - desktop-glib-only
 
 layout:
   /usr/share/apertium:
