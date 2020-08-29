@@ -4,7 +4,11 @@ from pathlib import Path
 import ctranslate2
 import sentencepiece as spm
 
-MODELS_DIR = Path('models/')
+if 'SNAP' in os.environ:
+    path_to_models = os.environ['SNAP'] + '/'
+else:
+    path_to_models = ''
+MODELS_DIR = Path(path_to_models + 'models/')
 
 languages = []
 
