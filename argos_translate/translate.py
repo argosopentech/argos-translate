@@ -1,6 +1,10 @@
 import os
+from pathlib import Path
+
 import ctranslate2
 import sentencepiece as spm
+
+MODELS_DIR = Path('models/')
 
 languages = []
 
@@ -32,21 +36,15 @@ class Translation:
     def __str__(self):
         return str(self.from_lang) + ' -> ' + str(self.to_lang)
 
-def apertium_translation(from_code, to_code):
+def c_translation(from_code, to_code):
     def to_return(input_text):
-        input_text = input_text.replace('\'', '\'"\'"\'')
-        return os.popen('echo \'' + input_text + '\' | apertium ' + from_code + '-' + to_code + '').read()
-    return to_return
-
-def c_translation():
-    def to_return(input_text):
-        translator = ctranslate2.Translator('translations/en-de')
-        s = spm.SentencePieceProcessor(model_file='translations/en-es/sentence_piece.model')
-        tokenized = s.encode(input_text, out_type=str)
+        model_dir = MODELS_DIR / (from_code + '_' + to_code)
+        translator = ctranslate2.Translator(str(model_dir / 'converted_model/'))
+        sp_processor = spm.SentencePieceProcessor(model_file=str(model_dir / 'sentencepiece.model'))
+        tokenized = sp_processor.encode(input_text, out_type=str)
         translated = translator.translate_batch([tokenized])
         translated = translated[0][0]['tokens']
         detokenized = ''.join(translated)
-        print(detokenized)
         detokenized = detokenized.replace('▁', ' ')
         return detokenized
     return to_return
@@ -54,25 +52,9 @@ def c_translation():
 # Languages
 en = Language('en', 'English')
 es = Language('es', 'Spanish')
-eo = Language('eo', 'Esperanto')
-ca = Language('ca', 'Catalan')
-fr = Language('fr', 'French')
-pt = Language('pt', 'Portuguese')
-de = Language('de', 'German')
 
 # Translations
-en_es = Translation(en, es, apertium_translation('en', 'es'))
-es_en = Translation(es, en, apertium_translation('es', 'en'))
-en_eo = Translation(en, eo, apertium_translation('en', 'eo'))
-eo_en = Translation(eo, en, apertium_translation('eo', 'en'))
-en_ca = Translation(en, ca, apertium_translation('en', 'ca'))
-ca_en = Translation(ca, en, apertium_translation('ca', 'en'))
-fr_es = Translation(fr, es, apertium_translation('fr', 'es'))
-es_fr = Translation(es, fr, apertium_translation('es', 'fr'))
-es_pt = Translation(es, pt, apertium_translation('es', 'pt'))
-pt_es = Translation(pt, es, apertium_translation('pt', 'es'))
-en_de = Translation(en, de, c_translation())
-
+en_es = Translation(en, es, c_translation('en', 'es'))
 
 # Everything can translate to itself
 for language in languages:
