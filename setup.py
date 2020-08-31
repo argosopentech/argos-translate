@@ -12,5 +12,5 @@ setup(
     url='https://www.argosopentech.com',
     packages=find_packages(),
     install_requires=required_packages,
-    scripts=['bin/argos-translate']
+    scripts=['bin/argos-translate'],
 )

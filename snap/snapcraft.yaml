@@ -54,9 +54,9 @@ parts:
       - fonts-dejavu-extra
       - locales-all
 
-  model-files:
-    source: models
-    plugin: dump
-    organize:
-      '*' : models/
+#  model-files:
+#    source: models
+#    plugin: dump
+#    organize:
+#      '*' : models/
 
