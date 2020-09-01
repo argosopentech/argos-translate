@@ -1,3 +1,4 @@
 argos_translate
 ctranslate2
 sentencepiece
+nltk

@@ -3,7 +3,6 @@
 from tkinter import *
 from tkinter import scrolledtext, filedialog, messagebox
 from tkinter.ttk import *
-import os
 
 from argos_translate import translate, package, settings
 
@@ -33,13 +32,13 @@ class GUI:
         # Input combo
         self.input_combo = Combobox(self.window)
         self.input_combo['values'] = language_names
-        self.input_combo.current(0) 
+        if len(language_names) > 0: self.input_combo.current(0) 
         self.input_combo.grid(column=0, row=0, sticky=N)
 
         # Output combo
         self.output_combo = Combobox(self.window)
         self.output_combo['values'] = language_names
-        self.output_combo.current(1) 
+        if len(language_names) > 0: self.output_combo.current(1) 
         self.output_combo.grid(column=1, row=0, sticky=N)
 
         # Input Scrolled Text
@@ -84,6 +83,8 @@ class GUI:
         self.window.mainloop()
 
     def translate_button_clicked(self):
+        if len(self.languages) < 1:
+            return
         input_text = self.input_scrolledtext.get("1.0",END)
         input_combo_value = self.input_combo.current()
         input_language = self.languages[input_combo_value]
@@ -98,6 +99,8 @@ class GUI:
             messagebox.showerror('Error', 'No translation between these languages installed')
 
     def translate_button_clicked_back(self):
+        if len(self.languages) < 1:
+            return
         input_text = self.output_scrolledtext.get("1.0",END)
         input_combo_value = self.output_combo.current()
         input_language = self.languages[input_combo_value]
@@ -116,7 +119,7 @@ class GUI:
                 filetypes=[('Argos Models', '.argosmodel')])
         if file_path:
             package.install_from_path(file_path)
-            messagebox.showinfo('Package Installed', 'Package successfully installed')
+            messagebox.showinfo('Package Installed', 'Package successfully installed. Please restart GUI.')
 
 def main():
     gui = GUI()

@@ -1,8 +1,8 @@
-import os
 from pathlib import Path
 
 import ctranslate2
 import sentencepiece as spm
+import nltk
 
 from argos_translate import package
 
@@ -56,12 +56,18 @@ def load_languages_from_packages():
             translator = ctranslate2.Translator(model_path)
             sp_model_path = str(pkg.package_path / 'sentencepiece.model')
             sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
-            tokenized = sp_processor.encode(input_text, out_type=str)
-            translated = translator.translate_batch([tokenized])
-            translated = translated[0][0]['tokens']
-            detokenized = ''.join(translated)
-            detokenized = detokenized.replace('▁', ' ')
-            return detokenized
+            punkt_path = str(pkg.package_path / 'punkt.pickle')
+            punkt = nltk.data.load(punkt_path)
+            sentences = punkt.tokenize(input_text.strip())
+            to_return = ''
+            for sentence in sentences:
+                tokenized = sp_processor.encode(sentence, out_type=str)
+                translated = translator.translate_batch([tokenized])
+                translated = translated[0][0]['tokens']
+                detokenized = ''.join(translated)
+                detokenized = detokenized.replace('▁', ' ')
+                to_return += detokenized
+            return to_return
 
         Translation(language_of_code[pkg.from_code],
                 language_of_code[pkg.to_code], translate_function)
