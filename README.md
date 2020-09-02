@@ -47,6 +47,7 @@ cd argos-translate
 ```
 snapcraft
 ```
+Any unzipped package files in package/ will be automatically included in the snap archive.
 5. Install the snap package:
 ```
 sudo snap install --devmode argos-translate_<version information>.snap

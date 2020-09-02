@@ -44,10 +44,10 @@ class Package:
             self.to_name = metadata.get('to_name')
 
 def check_data_dir():
-    """Checks that data dirs are setup correctly.
+    """Checks that data dir is setup correctly.
 
-    Checks that the data directories in settings.py exist
-    and creates them if they don't"""
+    Checks that the data directory in settings.py exist
+    and creates it if it doesn't"""
 
     if not os.path.exists(settings.data_dir):
         os.makedirs(settings.data_dir)
@@ -64,6 +64,10 @@ def install_from_path(path):
 def get_installed_packages():
     """Return a list of installed packages"""
     check_data_dir()
-    return [Package(path) for path in settings.data_dir.iterdir()
-            if path.is_dir()]
+    to_return = []
+    for directory in settings.package_dirs:
+        for path in directory.iterdir():
+            if path.is_dir():
+                to_return.append(Package(path))
+    return to_return
 
