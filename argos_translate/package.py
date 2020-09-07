@@ -33,7 +33,7 @@ class Package:
         metadata_path = package_path / 'metadata.json'
         if not metadata_path.exists():
             raise Exception('Error opening package at ' +
-                    str(metadata_path) + 'no metadata.json')
+                    str(metadata_path) + ' no metadata.json')
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
             self.package_version = metadata.get('package_version')

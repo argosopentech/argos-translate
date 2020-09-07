@@ -2,7 +2,7 @@ from pathlib import Path
 
 import ctranslate2
 import sentencepiece as spm
-import nltk
+import stanza
 
 from argos_translate import package
 
@@ -56,9 +56,11 @@ def load_languages_from_packages():
             translator = ctranslate2.Translator(model_path)
             sp_model_path = str(pkg.package_path / 'sentencepiece.model')
             sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
-            punkt_path = str(pkg.package_path / 'punkt.pickle')
-            punkt = nltk.data.load(punkt_path)
-            sentences = punkt.tokenize(input_text.strip())
+            stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
+                    dir=str(pkg.package_path / 'stanza'),
+                    processors='tokenize', use_gpu=False)
+            tokenized = stanza_pipeline(input_text)
+            sentences = [sentence.text for sentence in tokenized.sentences]
             to_return = ''
             for sentence in sentences:
                 tokenized = sp_processor.encode(sentence, out_type=str)
