@@ -4,10 +4,20 @@ import ctranslate2
 import sentencepiece as spm
 import stanza
 
-from argos_translate import package
+from argostranslate import package
 
 class Language:
-    """Represents a language that can be translated from/to"""
+    """Represents a language that can be translated from/to.
+
+    Attributes:
+        code (str): The code representing the language.
+        name (str): The human readable name of the language.
+        translations_from ([Translation]): A list of the translations
+            that translate from this language.
+        translations_to ([Translation]): A list of the translations
+            that translate to this language
+
+    """
 
     def __init__(self, code, name):
         self.code = code
@@ -19,6 +29,16 @@ class Language:
         return self.name
 
     def get_translation(self, to):
+        """Gets a translation from this Language to another Language.
+
+        Args:
+            to (Language): The Language to look for a Translation to.
+
+        Returns:
+            Translation: A valid Translation if there is one in translations_from
+                else None.
+
+        """
         valid_translations = list(filter(lambda x: x.to_lang.code == to.code,
                 self.translations_from))
         if len(valid_translations) > 0:
@@ -26,7 +46,15 @@ class Language:
         return None
 
 class Translation:
-    """Respresents a translation between two Languages"""
+    """Respresents a translation between two Languages
+
+    Attributes:
+        from_lang (Language): The Language this Translation translates from.
+        to_lang (Language): The Language this Translation translates to.
+        translate_function (str -> str): A function that translates a str
+            from from_lang to to_lang.
+
+    """
 
     def __init__(self, from_lang, to_lang, translate_function):
         self.from_lang = from_lang
@@ -38,8 +66,8 @@ class Translation:
     def __str__(self):
         return str(self.from_lang) + ' -> ' + str(self.to_lang)
 
-def load_languages_from_packages():
-    """Returns a list of Languages loaded from packages"""
+def load_installed_languages():
+    """Returns a list of Languages installed from packages"""
     
     packages = package.get_installed_packages()
     language_of_code = dict()
@@ -69,7 +97,7 @@ def load_languages_from_packages():
                 detokenized = ''.join(translated)
                 detokenized = detokenized.replace('▁', ' ')
                 to_return += detokenized
-            return to_return
+            return to_return.strip()
 
         Translation(language_of_code[pkg.from_code],
                 language_of_code[pkg.to_code], translate_function)

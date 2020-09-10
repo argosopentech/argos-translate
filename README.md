@@ -12,6 +12,16 @@ Currently there are models available to translate between:
 - Spanish
 
 ![Screenshot](/img/Screenshot.png)
+```
+>>> from argostranslate import package, translate
+>>> package.install_from_path('en_es.argosmodel')
+>>> installed_languages = translate.load_installed_languages()
+>>> [str(lang) for lang in installed_languages]
+['English', 'Spanish']
+>>> translation_en_es = installed_languages[0].get_translation(installed_languages[1])
+>>> translation_en_es.translate_function("Hello World!")
+'¡Hola Mundo!'
+```
 
 ## Installation
 Argos Translate is being developed/tested to run on Linux. However since it is written in Python it should run with minimal modifications on other platforms.

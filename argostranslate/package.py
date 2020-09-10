@@ -2,17 +2,25 @@ import zipfile
 import os
 import json
 
-from argos_translate import settings
+from argostranslate import settings
 
 class Package:
-    """A package is a an installable model.
+    """An installed package.
+
+    Attributes:
+        package_version (str): The version of the package.
+        argos_version (str): The version of Argos Translate the package is intended for.
+        from_code (str): The code of the language the package translates from.
+        from_name (str): Human readable name of the language the package translates from.
+        to_code (str): The code of the language the package translates to.
+        to_name (str): Human readable name of the language the package translates to.
 
     Packages are a zip archive of a directory with metadata.json
     in its root the .argosmodel file extension. By default a 
     OpenNMT CTranslate directory named model/ created using 
     ct2-opennmt-tf-converter is expected in the root directory
     along with a sentencepiece model named sentencepiece.model
-    for tokenizing and NLTK punkt pickle named punkt.pickle.
+    for tokenizing and Stanza for sentence boundary detection. 
     Packages may also optionally have a README.md in the root.
 
     from_code and to_code should be ISO 639-1 codes if applicable.
@@ -26,9 +34,16 @@ class Package:
         "to_code": "es",
         "to_name": "Spanish"
     }
+
     """
 
     def __init__(self, package_path):
+        """Create a new Package.
+
+        Args:
+            package_path (str): Path to installed package directory.
+
+        """
         self.package_path = package_path
         metadata_path = package_path / 'metadata.json'
         if not metadata_path.exists():
@@ -44,28 +59,40 @@ class Package:
             self.to_name = metadata.get('to_name')
 
 def check_data_dir():
-    """Checks that data dir is setup correctly.
+    """Checks that data dir is set up correctly.
 
     Checks that the data directory in settings.py exist
-    and creates it if it doesn't"""
-
+    and creates it if it doesn't
+    
+    """
     if not os.path.exists(settings.data_dir):
         os.makedirs(settings.data_dir)
 
 def install_from_path(path):
-    """Install a package (zip archive ending in .argosmodel)."""
+    """Install a package (zip archive ending in .argosmodel).
 
+    Args:
+        path (str): The path to the .argosmodel file to install.
+
+    """
     if not zipfile.is_zipfile(path):
         raise Error('Not a valid Argos Model (must be a zip archive)')
     check_data_dir()
     with zipfile.ZipFile(path, 'r') as zip:
         zip.extractall(path=settings.data_dir)
 
-def get_installed_packages():
-    """Return a list of installed packages"""
+def get_installed_packages(path=None):
+    """Return a list of installed Packages
+
+    Args:
+        path (str): Path to look for installed package directories in.
+            Defaults to the path in settings module.
+
+    """
     check_data_dir()
     to_return = []
-    for directory in settings.package_dirs:
+    packages_path = settings.package_dirs if path == None else path
+    for directory in packages_path:
         for path in directory.iterdir():
             if path.is_dir():
                 to_return.append(Package(path))

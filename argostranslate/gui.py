@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import scrolledtext, filedialog, messagebox
 from tkinter.ttk import *
 
-from argos_translate import translate, package, settings
+from argostranslate import translate, package, settings
 
 class GUIWindow:
     def __init__(self):
@@ -83,7 +83,7 @@ class GUIWindow:
         self.window.mainloop()
 
     def load_languages(self):
-        self.languages = translate.load_languages_from_packages()
+        self.languages = translate.load_installed_languages()
         language_names = tuple([language.name for language in self.languages])
         self.left_combo['values'] = language_names
         if len(language_names) > 0: self.left_combo.current(0) 
