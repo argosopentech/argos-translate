@@ -1,4 +1,3 @@
-argostranslate
 ctranslate2
 sentencepiece
 stanza

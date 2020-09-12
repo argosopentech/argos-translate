@@ -31,6 +31,13 @@ Currently there are models available to translate between:
 Argos Translate is being developed/tested to run on Linux. However since it is written in Python it should run with minimal modifications on other platforms.
 
 ### Python installation
+#### Dependencies
+Requires Python3 and Tkinter, to install on Ubuntu run:
+```
+sudo apt-get update
+sudo apt-get install -y python3 python3-tk
+```
+#### Install
 1. Clone this repo:
 ```
 git clone https://github.com/argosopentech/argos-translate.git
@@ -43,7 +50,8 @@ source env/bin/activate
 ```
 3. Install this package with pip:
 ```
-pip install .
+python3 -m pip install --upgrade pip
+python3 -m pip install .
 ```
 
 ### Snap installation
