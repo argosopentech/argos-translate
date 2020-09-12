@@ -124,9 +124,10 @@ def apply_packaged_translation(pkg, input_text):
     sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
     stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
             dir=str(pkg.package_path / 'stanza'),
-            processors='tokenize', use_gpu=False)
-    tokenized = stanza_pipeline(input_text)
-    sentences = [sentence.text for sentence in tokenized.sentences]
+            processors='tokenize', use_gpu=False,
+            logging_level='WARNING')
+    stanza_sbd = stanza_pipeline(input_text)
+    sentences = [sentence.text for sentence in stanza_sbd.sentences]
     to_return = ''
     for sentence in sentences:
         tokenized = sp_processor.encode(sentence, out_type=str)
@@ -143,7 +144,6 @@ def load_installed_languages():
     packages = package.get_installed_packages()
     language_of_code = dict()
     for pkg in packages:
-        print(pkg.package_path)
         if pkg.from_code not in language_of_code:
             language_of_code[pkg.from_code] = Language(
                     pkg.from_code, pkg.from_name)
