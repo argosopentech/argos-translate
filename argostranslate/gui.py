@@ -46,7 +46,7 @@ class GUIWindow:
 
         # Translate buttons
         translate_button = Button(self.window, text='→',
-                command=self.translate_forward)
+                command=self.translate)
         translate_button.grid(column=0, row=2)
         translate_button_back = Button(self.window, text='←',
                 command=self.translate_backward)
@@ -71,7 +71,7 @@ class GUIWindow:
 
         # Enable <Enter> to translate
         def handle_enter_clicked(event):
-            self.translate_forward()
+            self.translate()
         def handle_enter_clicked_back(event):
             self.translate_backward()
         self.left_scrolledtext.bind('<Return>', handle_enter_clicked)
@@ -79,7 +79,7 @@ class GUIWindow:
 
         # Final setup for window
         self.load_languages()
-        self.translate_forward()
+        self.translate()
         self.window.mainloop()
 
     def load_languages(self):
@@ -90,7 +90,7 @@ class GUIWindow:
         self.right_combo['values'] = language_names
         if len(language_names) > 0: self.right_combo.current(1) 
 
-    def translate_forward(self, translate_backwards=False):
+    def translate(self, translate_backwards=False):
         if len(self.languages) < 1: return
         if not translate_backwards:
             from_scrolledtext = self.left_scrolledtext
@@ -109,14 +109,14 @@ class GUIWindow:
         output_language = self.languages[output_combo_value]
         translation = input_language.get_translation(output_language)
         if translation:
-            result = translation.translate_function(input_text)
+            result = translation.translate(input_text)
             to_scrolledtext.delete("1.0", END)
             to_scrolledtext.insert("1.0", result)
         else:
             messagebox.showerror('Error', 'No translation between these languages installed')
 
     def translate_backward(self):
-        self.translate_forward(True)
+        self.translate(True)
 
     def open_model_filedialog(self):
         filepaths = filedialog.askopenfilenames(

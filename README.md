@@ -11,7 +11,11 @@ Currently there are models available to translate between:
 - English
 - Spanish
 
+## Examples
+### GUI
 ![Screenshot](/img/Screenshot.png)
+
+### Python
 ```
 >>> from argostranslate import package, translate
 >>> package.install_from_path('en_es.argosmodel')
@@ -19,7 +23,7 @@ Currently there are models available to translate between:
 >>> [str(lang) for lang in installed_languages]
 ['English', 'Spanish']
 >>> translation_en_es = installed_languages[0].get_translation(installed_languages[1])
->>> translation_en_es.translate_function("Hello World!")
+>>> translation_en_es.translate("Hello World!")
 '¡Hola Mundo!'
 ```
 

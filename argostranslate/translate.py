@@ -1,5 +1,4 @@
 from pathlib import Path
-from functools import partial
 
 import ctranslate2
 import sentencepiece as spm
@@ -60,19 +59,62 @@ class Translation:
         self.from_lang = from_lang
         self.to_lang = to_lang
         self.pkg = pkg
-        self.translate_function = partial(translate_function, self.pkg)
         from_lang.translations_from.append(self)
         to_lang.translations_to.append(self)
+
+    def translate(self, input_text):
+        """Translates a string using self.pkg.
+
+        Args:
+            input_text (str): The text to be translated.
+
+        Returns:
+            str: input_text translated.
+
+        """
+        return apply_packaged_translation(self.pkg, input_text)
 
     def __str__(self):
         return str(self.from_lang) + ' -> ' + str(self.to_lang)
 
-def translate_function(pkg, input_text): 
-    """Uses the translation in pkg to translate input_text.
+class IdentityTranslation(Translation):
+    """A Translation that doesn't modify input_text"""
+
+    def __init__(self, lang):
+        """Creates an IdentityTranslation.
+
+        Args:
+            lang (Language): The Language this Translation translates
+                from and to.
+        """
+        super().__init__(lang, lang, None)
+
+class CompositeTranslation(Translation):
+    """A Translation that is performed by chaining two Translations
+    
+    Attributes:
+        t1 (Translation): The first Translation to apply.
+        t2 (Translation): The second Translation to apply.
+
+    """
+
+    def __init__(self, t1, t2):
+        super().__init__(self, t1.from_lang, t2.to_lang, None)
+        self.t1 = t1
+        self.t2 = t2
+
+    def translate(self, input_text):
+        return t2.translate(t1.translate(input_text))
+
+def apply_packaged_translation(pkg, input_text): 
+    """Applies the translation in pkg to translate input_text.
 
     Args:
         pkg (Package): The package that provides the translation.
         input_text (str): The text to be translated.
+
+    Returns:
+        str: The translated text.
 
     """
 
@@ -115,7 +157,7 @@ def load_installed_languages():
     languages = list(language_of_code.values())
     # Everything can translate to itself
     for language in languages:
-        Translation(language, language, lambda x: x)
+        IdentityTranslation(language)
 
     # Pivot through other languages to add translations
     def composite_fun(first, second):
@@ -130,9 +172,7 @@ def load_installed_languages():
                         # The language currently doesn't have a way to translate
                         # to this language
                         keep_adding_translations = True
-                        trans_fun = composite_fun(translation.translate_function,
-                                translation_2.translate_function)
-                        Translation(language, translation_2.to_lang, trans_fun)  
+                        CompositeTranslation(translation, translation_2)
     languages.sort(key=lambda x: x.code)
     return languages
 
