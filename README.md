@@ -4,6 +4,8 @@ Open source offline translation app written in Python. Uses OpenNMT for translat
 
 Argos Translate supports installing model files which are a zip archive with an ".argosmodel" extension that contain an OpenNMT CTranslate model, a SentencePiece model, a Stanza tokenizer model, and metadata about the model. Pretrained models can be downloaded [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i). To install a model click "Install model" from the toolbar in the GUI and select your model file. By default models are stored in ~/.argos-translate, this can be changed in settings.py.
 
+Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct installation between installed for. For example, if you have a es -> en and en -> fr translation installed you are able to translate from es -> fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
+
 ## Models
 The models are a work in progress and are being trained using [this](https://github.com/argosopentech/onmt-models) training script. 
 
