@@ -1,4 +1,5 @@
 # Argos Translate
+[Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com)
 
 Open source offline translation app written in Python. Uses OpenNMT for translations, SentencePiece for tokenization, Stanza for sentence boundary detection, and Tkinter for GUI.
 
