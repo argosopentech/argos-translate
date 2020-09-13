@@ -156,6 +156,13 @@ class GUIWindow:
         for widget in window.winfo_children():
             widget.destroy()
 
+    def open_package_readme(self, pkg):
+        readme_window = Tk()
+        readme_window.title(str(pkg))
+        text = Label(readme_window, text=pkg.get_readme(),
+                wraplength=750)
+        text.pack(padx=15, pady=15)
+
     def populate_package_manager_window(self):
         window = self.package_manager_window
         packages = package.get_installed_packages()
@@ -164,25 +171,30 @@ class GUIWindow:
                 command=self.install_packages)
         install_pkg_button.grid(row=row, column=0, padx=5, pady=5)
         row += 1
-        GUIWindow.make_table_cell(window, row, 0, 'package_version', True)
-        GUIWindow.make_table_cell(window, row, 1, 'argos_version', True)
-        GUIWindow.make_table_cell(window, row, 2, 'from_code', True)
-        GUIWindow.make_table_cell(window, row, 3, 'from_name', True)
-        GUIWindow.make_table_cell(window, row, 4, 'to_code', True)
-        GUIWindow.make_table_cell(window, row, 5, 'to_name', True)
-        GUIWindow.make_table_cell(window, row, 6, 'Delete', True)
+        GUIWindow.make_table_cell(window, row, 1, 'package_version', True)
+        GUIWindow.make_table_cell(window, row, 2, 'argos_version', True)
+        GUIWindow.make_table_cell(window, row, 3, 'from_code', True)
+        GUIWindow.make_table_cell(window, row, 4, 'from_name', True)
+        GUIWindow.make_table_cell(window, row, 5, 'to_code', True)
+        GUIWindow.make_table_cell(window, row, 6, 'to_name', True)
+        GUIWindow.make_table_cell(window, row, 7, 'Delete', True)
         row += 1
         row_offset = row
         for pkg in packages:
-            GUIWindow.make_table_cell(window, row, 0, pkg.package_version)
-            GUIWindow.make_table_cell(window, row, 1, pkg.argos_version)
-            GUIWindow.make_table_cell(window, row, 2, pkg.from_code)
-            GUIWindow.make_table_cell(window, row, 3, pkg.from_name)
-            GUIWindow.make_table_cell(window, row, 4, pkg.to_code)
-            GUIWindow.make_table_cell(window, row, 5, pkg.to_name)
+            view_readme_button = Button(window, text='README', command=(
+                lambda pkg=pkg: self.open_package_readme(pkg)))
+            view_readme_button.grid(row=row, column=0,
+                    padx=GUIWindow.TABLE_CELL_PADDING,
+                    pady=GUIWindow.TABLE_CELL_PADDING)
+            GUIWindow.make_table_cell(window, row, 1, pkg.package_version)
+            GUIWindow.make_table_cell(window, row, 2, pkg.argos_version)
+            GUIWindow.make_table_cell(window, row, 3, pkg.from_code)
+            GUIWindow.make_table_cell(window, row, 4, pkg.from_name)
+            GUIWindow.make_table_cell(window, row, 5, pkg.to_code)
+            GUIWindow.make_table_cell(window, row, 6, pkg.to_name)
             delete_button = Button(window, text='x', command=(
                 lambda pkg=pkg: self.uninstall_package(pkg)))
-            delete_button.grid(row=row, column=6,
+            delete_button.grid(row=row, column=7,
                     padx=GUIWindow.TABLE_CELL_PADDING,
                     pady=GUIWindow.TABLE_CELL_PADDING)
             row += 1

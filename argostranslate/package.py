@@ -60,6 +60,25 @@ class Package:
             self.to_code = metadata.get('to_code')
             self.to_name = metadata.get('to_name')
 
+    def get_readme(self):
+        """Returns the text of the README.md in this package.
+
+        Returns:
+            (str): The text of the package README.md, None
+                if README.md can't be read
+
+        """
+        readme_path = self.package_path / 'README.md'
+        if not readme_path.is_file():
+            return None
+        with open(readme_path, 'r') as readme_file:
+            return readme_file.read()
+        return None
+
+    def __str__(self):
+        return "{} -> {}".format(self.from_name, self.to_name)
+
+
 def check_data_dirs():
     """Checks that data and package dir is set up correctly.
 
