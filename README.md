@@ -86,4 +86,7 @@ sudo snap install --devmode argos-translate_<version information>.snap
 argos-translate
 ```
 
+## Contributing
+Contributions are welcome! In particular packaging for other platforms, at some point I'd like to add .deb and .rpm Linux packaging and an installer for Windows and OSX.
+
 Dual licensed under the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) and [CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
