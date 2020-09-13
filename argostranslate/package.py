@@ -64,7 +64,7 @@ def check_data_dirs():
     """Checks that data and package dir is set up correctly.
 
     Checks that the data directory in settings.py exist
-    and creates it if it doesn't
+    and creates it if it doesn't.
     
     """
     if not os.path.exists(settings.data_dir):
@@ -90,6 +90,7 @@ def uninstall(pkg):
 
     Args:
         pkg (Package): The package to uninstall
+
     """
     shutil.rmtree(pkg.package_path)
 

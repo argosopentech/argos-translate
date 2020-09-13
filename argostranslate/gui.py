@@ -79,7 +79,7 @@ class GUIWindow:
 
         # Final setup for window
         self.load_languages()
-        self.translate()
+        self.translate(showError=False)
         self.window.mainloop()
 
     def load_languages(self):
@@ -90,7 +90,15 @@ class GUIWindow:
         self.right_combo['values'] = language_names
         if len(language_names) > 0: self.right_combo.current(1) 
 
-    def translate(self, translate_backwards=False):
+    def translate(self, translate_backwards=False, showError=True):
+        """Try to translate based on languages selected.
+
+        Args:
+            translate_backwards (bool): If True translate from the right 
+                ScrolledText to the left one.
+            showError (bool): If True show an error messagebox if the
+                currently selected translation isn't installed
+        """
         if len(self.languages) < 1: return
         if not translate_backwards:
             from_scrolledtext = self.left_scrolledtext
@@ -113,7 +121,8 @@ class GUIWindow:
             to_scrolledtext.delete("1.0", END)
             to_scrolledtext.insert("1.0", result)
         else:
-            messagebox.showerror('Error', 'No translation between these languages installed')
+            if showError:
+                messagebox.showerror('Error', 'No translation between these languages installed')
 
     def translate_backward(self):
         self.translate(True)

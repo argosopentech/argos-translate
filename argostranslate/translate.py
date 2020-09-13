@@ -78,7 +78,7 @@ class Translation:
         return str(self.from_lang) + ' -> ' + str(self.to_lang)
 
 class IdentityTranslation(Translation):
-    """A Translation that doesn't modify input_text"""
+    """A Translation that doesn't modify input_text."""
 
     def __init__(self, lang):
         """Creates an IdentityTranslation.
@@ -86,6 +86,7 @@ class IdentityTranslation(Translation):
         Args:
             lang (Language): The Language this Translation translates
                 from and to.
+
         """
         super().__init__(lang, lang, None)
 
