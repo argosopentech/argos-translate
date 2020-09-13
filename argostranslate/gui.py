@@ -24,7 +24,7 @@ class GUIWindow:
         # Menu Bar
         self.menubar = Menu(self.window)
         self.window.config(menu=self.menubar)
-        self.menubar.add_command(label='Install model', command=self.open_model_filedialog)
+        self.menubar.add_command(label='Manage Packages', command=self.open_package_manager)
 
         # Left combo
         self.left_combo = Combobox(self.window)
@@ -117,6 +117,71 @@ class GUIWindow:
 
     def translate_backward(self):
         self.translate(True)
+
+    TABLE_CELL_PADDING = 10
+
+    def make_table_cell(parent, row, column, text, isUnderlined=False):
+        if isUnderlined:
+            table_cell = Label(parent, text=text, font=('Arial', 12, 'bold', 'underline'))
+        else:
+            table_cell = Label(parent, text=text)
+        table_cell.grid(row=row, column=column,
+                padx=GUIWindow.TABLE_CELL_PADDING,
+                pady=GUIWindow.TABLE_CELL_PADDING)
+
+    def reload_package_manager_window(self):
+        self.clear_package_manager_window()
+        self.populate_package_manager_window()
+        self.package_manager_window.lift()
+
+    def uninstall_package(self, pkg):
+        package.uninstall(pkg)
+        self.reload_package_manager_window()
+
+    def install_packages(self):
+        self.open_model_filedialog()
+        self.reload_package_manager_window()
+
+    def clear_package_manager_window(self):
+        window = self.package_manager_window
+        for widget in window.winfo_children():
+            widget.destroy()
+
+    def populate_package_manager_window(self):
+        window = self.package_manager_window
+        packages = package.get_installed_packages()
+        row = 0
+        install_pkg_button = Button(window, text='Install Package', 
+                command=self.install_packages)
+        install_pkg_button.grid(row=row, column=0, padx=5, pady=5)
+        row += 1
+        GUIWindow.make_table_cell(window, row, 0, 'package_version', True)
+        GUIWindow.make_table_cell(window, row, 1, 'argos_version', True)
+        GUIWindow.make_table_cell(window, row, 2, 'from_code', True)
+        GUIWindow.make_table_cell(window, row, 3, 'from_name', True)
+        GUIWindow.make_table_cell(window, row, 4, 'to_code', True)
+        GUIWindow.make_table_cell(window, row, 5, 'to_name', True)
+        GUIWindow.make_table_cell(window, row, 6, 'Delete', True)
+        row += 1
+        row_offset = row
+        for pkg in packages:
+            GUIWindow.make_table_cell(window, row, 0, pkg.package_version)
+            GUIWindow.make_table_cell(window, row, 1, pkg.argos_version)
+            GUIWindow.make_table_cell(window, row, 2, pkg.from_code)
+            GUIWindow.make_table_cell(window, row, 3, pkg.from_name)
+            GUIWindow.make_table_cell(window, row, 4, pkg.to_code)
+            GUIWindow.make_table_cell(window, row, 5, pkg.to_name)
+            delete_button = Button(window, text='x', command=(
+                lambda pkg=pkg: self.uninstall_package(pkg)))
+            delete_button.grid(row=row, column=6,
+                    padx=GUIWindow.TABLE_CELL_PADDING,
+                    pady=GUIWindow.TABLE_CELL_PADDING)
+            row += 1
+
+    def open_package_manager(self):
+        self.package_manager_window = Tk()
+        self.package_manager_window.title("Package Manager")
+        self.populate_package_manager_window()
 
     def open_model_filedialog(self):
         filepaths = filedialog.askopenfilenames(

@@ -1,6 +1,7 @@
 import zipfile
 import os
 import json
+import shutil
 
 from argostranslate import settings
 
@@ -8,6 +9,7 @@ class Package:
     """An installed package.
 
     Attributes:
+        package_path (Path): The path to the installed package.
         package_version (str): The version of the package.
         argos_version (str): The version of Argos Translate the package is intended for.
         from_code (str): The code of the language the package translates from.
@@ -80,6 +82,14 @@ def install_from_path(path):
     check_data_dir()
     with zipfile.ZipFile(path, 'r') as zip:
         zip.extractall(path=settings.data_dir)
+
+def uninstall(pkg):
+    """Uninstalls a package.
+
+    Args:
+        pkg (Package): The package to uninstall
+    """
+    shutil.rmtree(pkg.package_path)
 
 def get_installed_packages(path=None):
     """Return a list of installed Packages
