@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+from pathlib import Path
+import os
+
 from tkinter import *
 from tkinter import scrolledtext, filedialog, messagebox
 from tkinter.ttk import *
@@ -13,6 +16,11 @@ class GUIWindow:
         
         self.window = Tk()
         self.window.title("Argos Translate")
+
+        # Add icon
+        image_path = Path(os.path.dirname(__file__)) / 'img' / 'icon.png'
+        icon_photo = PhotoImage(file=image_path)
+        self.window.iconphoto(False, icon_photo)
 
         # Manage window resizing
         self.window.columnconfigure(0, weight=1)
