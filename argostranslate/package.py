@@ -116,6 +116,11 @@ def uninstall(pkg):
 def get_installed_packages(path=None):
     """Return a list of installed Packages
 
+    Looks for packages in <home>/.argos-translate/packages by
+    default. Will also look in the directory specified
+    in the ARGOS_TRANSLATE_PACKAGE_DIR environment variable
+    if it is set.
+
     Args:
         path (str): Path to look for installed package directories in.
             Defaults to the path in settings module.
