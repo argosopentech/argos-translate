@@ -220,4 +220,7 @@ class GUIWindow:
         self.load_languages()
 
 def main():
-    gui = GUIWindow()
+    try:
+        gui = GUIWindow()
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
