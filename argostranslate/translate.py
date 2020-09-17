@@ -127,17 +127,21 @@ def apply_packaged_translation(pkg, input_text):
             dir=str(pkg.package_path / 'stanza'),
             processors='tokenize', use_gpu=False,
             logging_level='WARNING')
-    stanza_sbd = stanza_pipeline(input_text)
-    sentences = [sentence.text for sentence in stanza_sbd.sentences]
-    to_return = ''
-    for sentence in sentences:
-        tokenized = sp_processor.encode(sentence, out_type=str)
-        translated = translator.translate_batch([tokenized])
-        translated = translated[0][0]['tokens']
-        detokenized = ''.join(translated)
-        detokenized = detokenized.replace('▁', ' ')
-        to_return += detokenized
-    return to_return.strip()
+    split_by_newlines = input_text.split('\n')
+    translated_paragraphs = []
+    for paragraph in split_by_newlines:
+        stanza_sbd = stanza_pipeline(paragraph)
+        sentences = [sentence.text for sentence in stanza_sbd.sentences]
+        translated_paragraph = ''
+        for sentence in sentences:
+            tokenized = sp_processor.encode(sentence, out_type=str)
+            translated = translator.translate_batch([tokenized])
+            translated = translated[0][0]['tokens']
+            detokenized = ''.join(translated)
+            detokenized = detokenized.replace('▁', ' ')
+            translated_paragraph += detokenized
+        translated_paragraphs.append(translated_paragraph)
+    return '\n'.join(translated_paragraphs)
 
 def load_installed_languages():
     """Returns a list of Languages installed from packages"""
