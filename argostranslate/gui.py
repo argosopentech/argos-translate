@@ -32,6 +32,7 @@ class GUIWindow:
         # Menu Bar
         self.menubar = Menu(self.window)
         self.window.config(menu=self.menubar)
+        self.menubar.add_command(label='About', command=self.open_about)
         self.menubar.add_command(label='Manage Packages', command=self.open_package_manager)
 
         # Left combo
@@ -218,6 +219,13 @@ class GUIWindow:
         for file_path in filepaths:
             package.install_from_path(file_path)
         self.load_languages()
+
+    def open_about(self):
+        readme_window = Tk()
+        readme_window.title('About')
+        text = Label(readme_window, text=settings.about_text,
+                wraplength=750)
+        text.pack(padx=15, pady=15)
 
 def main():
     try:

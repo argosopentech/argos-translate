@@ -12,3 +12,9 @@ if 'SNAP' in os.environ:
 if 'ARGOS_TRANSLATE_PACKAGE_DIR' in os.environ:
     package_dirs.append(Path(os.environ[
             'ARGOS_TRANSLATE_PACKAGE_DIR']))
+
+about_text = """
+Argos Translate is an open source neural machine
+translation application created by Argos Open
+Technologies, LLC (www.argosopentech.com). 
+"""
