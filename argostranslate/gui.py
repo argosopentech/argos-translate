@@ -77,34 +77,48 @@ class GUIWindow:
         icon_photo = PhotoImage(file=image_path)
         self.window.iconphoto(False, icon_photo)
 
-        # Manage window resizing
-        self.window.columnconfigure(0, weight=1)
-        self.window.columnconfigure(1, weight=1)
-        self.window.rowconfigure(0, weight=0)
-        self.window.rowconfigure(1, weight=1)
-
         # Menu Bar
         self.menubar = Menu(self.window)
         self.window.config(menu=self.menubar)
         self.menubar.add_command(label='About', command=self.open_about)
         self.menubar.add_command(label='Manage Packages', command=self.open_package_manager)
 
+        # Row frames
+        self.language_bar_frame = Frame(self.window)
+        self.language_bar_frame.pack(fill=X)
+        self.text_frame = Frame(self.window)
+        self.text_frame.pack(fill=BOTH, expand=1)
+        self.text_frame.columnconfigure(0, weight=1)
+        self.text_frame.columnconfigure(1, weight=1)
+        self.text_frame.rowconfigure(0, weight=1)
+
         # Left combo
-        self.left_combo = Combobox(self.window)
-        self.left_combo.grid(column=0, row=0, sticky=N)
+        self.left_language_bar_frame = Frame(self.language_bar_frame)
+        self.left_language_bar_frame.pack(fill=X, side=LEFT, expand=1)
+        self.left_combo = Combobox(self.left_language_bar_frame)
+        self.left_combo.pack()
+
+        # Languages swap button
+        self.center_language_bar_frame = Frame(self.language_bar_frame)
+        self.center_language_bar_frame.pack(fill=X, side=LEFT)
+        self.language_swap_button = Button(self.center_language_bar_frame,
+                text='↔', width=2, command=self.swap_languages)
+        self.language_swap_button.pack()
 
         # Right combo
-        self.right_combo = Combobox(self.window)
-        self.right_combo.grid(column=1, row=0, sticky=N)
+        self.right_language_bar_frame = Frame(self.language_bar_frame)
+        self.right_language_bar_frame.pack(fill=X, side=LEFT, expand=1)
+        self.right_combo = Combobox(self.right_language_bar_frame)
+        self.right_combo.pack()
 
         # Left Scrolled Text
-        self.left_scrolledtext = EventText(self.window,width=80,height=50)
-        self.left_scrolledtext.grid(column=0, row=1, sticky='NSEW')
+        self.left_scrolledtext = EventText(self.text_frame, width=80,height=50)
+        self.left_scrolledtext.grid(row=0, column=0, sticky='NSEW')
         self.left_scrolledtext.insert(INSERT, 'Text to translate from')
 
         # Right Scrolled Text
-        self.right_scrolledtext = Text(self.window,width=80,height=50)
-        self.right_scrolledtext.grid(column=1, row=1, sticky='NSEW')
+        self.right_scrolledtext = Text(self.text_frame, width=80,height=50)
+        self.right_scrolledtext.grid(row=0, column=1, sticky='NSEW')
 
         # Enable Ctrl-a and Ctrl-v (Tkinter is goofy)
         def handle_select_all_event(event):
@@ -160,13 +174,18 @@ class GUIWindow:
         self.worker_thread.join()
         self.window.destroy()
 
+    def swap_languages(self):
+        old_left_value = self.left_combo.current()
+        self.left_combo.current(self.right_combo.current())
+        self.right_combo.current(old_left_value)
+
     def load_languages(self):
         self.languages = translate.load_installed_languages()
         language_names = tuple([language.name for language in self.languages])
         self.left_combo['values'] = language_names
         if len(language_names) > 0: self.left_combo.current(0) 
         self.right_combo['values'] = language_names
-        if len(language_names) > 0: self.right_combo.current(1) 
+        if len(language_names) > 1: self.right_combo.current(1) 
 
     def translation_work(self, translation, show_loading_message):
         if show_loading_message:
