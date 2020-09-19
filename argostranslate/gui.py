@@ -2,15 +2,70 @@
 
 from pathlib import Path
 import os
-
+import threading
+import functools
 from tkinter import *
 from tkinter import scrolledtext, filedialog, messagebox
 from tkinter.ttk import *
 
 from argostranslate import translate, package, settings
 
+# Based on Stack Overflow answer
+# https://stackoverflow.com/questions/40617515/python-tkinter-text-modified-callback
+class EventText(Text):
+    """Tkinter Text widget that has a <<TextModified>> event"""
+    def __init__(self, *args, **kwargs):
+        Text.__init__(self, *args, **kwargs)
+        self.original = self._w + '_original'
+        self.tk.call('rename', self._w, self.original)
+        self.tk.createcommand(self._w, self.proxy)
+
+    def proxy(self, command, *args):
+        cmd = (self.original, command) + args
+        result = self.tk.call(cmd)
+
+        if command in ['insert', 'delete', 'replace']:
+            self.event_generate('<<TextModified>>')
+
+        return result
+
 class GUIWindow:
+
+    # Time delay between refreshes of self.right_text
+    REFRESH_TIME = 100
+
+    # Above this number of characters in the input text will show a 
+    # message in the output text while the translation
+    # is happening
+    SHOW_LOADING_THRESHOLD = 300
+
     def __init__(self):
+        # Threading variables
+        # self.right_text is the text that
+        # the right text field should be set to by
+        # the main thread. None if it should be left as is.
+        # self.work_to_do is a bound function for the worker
+        # thread to run.
+        # *** These variables are shared between threads ***
+        # and self.lock needs to be used to access them.
+        self.lock = threading.Lock()
+        with self.lock:
+            self.right_text = 'Text to translate to'
+            self.work_to_do = None
+
+        # self.work_semaphore represents if there is work to be done.
+        # The worker thread blocks on self.work_semaphore when
+        # there is no work and to add work the main thread sets
+        # self.work_to_do to a bound function for the worker thread
+        # to execute and increments self.work_semaphore. 
+        # The worker thread should set self.work_to_do
+        # to None after copying it so that the main thread can 
+        # overwrite self.work_to_do without incrementing work_semaphore
+        # if there is existing work. Since you always want the most
+        # recent translation the main thread will want to overwrite
+        # work that hasn't been done yet.
+        self.work_semaphore = threading.Semaphore(value=0)
+
         self.output_scrolledtext = None
         self.input_scrolledtext = None
         
@@ -27,7 +82,6 @@ class GUIWindow:
         self.window.columnconfigure(1, weight=1)
         self.window.rowconfigure(0, weight=0)
         self.window.rowconfigure(1, weight=1)
-        self.window.rowconfigure(2, weight=0)
 
         # Menu Bar
         self.menubar = Menu(self.window)
@@ -44,52 +98,67 @@ class GUIWindow:
         self.right_combo.grid(column=1, row=0, sticky=N)
 
         # Left Scrolled Text
-        self.left_scrolledtext = scrolledtext.ScrolledText(self.window,width=80,height=50)
+        self.left_scrolledtext = EventText(self.window,width=80,height=50)
         self.left_scrolledtext.grid(column=0, row=1, sticky='NSEW')
         self.left_scrolledtext.insert(INSERT, 'Text to translate from')
 
         # Right Scrolled Text
-        self.right_scrolledtext = scrolledtext.ScrolledText(self.window,width=80,height=50)
+        self.right_scrolledtext = Text(self.window,width=80,height=50)
         self.right_scrolledtext.grid(column=1, row=1, sticky='NSEW')
-        self.right_scrolledtext.insert(INSERT, 'Text to translate to')
-
-        # Translate buttons
-        translate_button = Button(self.window, text='→',
-                command=self.translate)
-        translate_button.grid(column=0, row=2)
-        translate_button_back = Button(self.window, text='←',
-                command=self.translate_backward)
-        translate_button_back.grid(column=1, row=2)
 
         # Enable Ctrl-a and Ctrl-v (Tkinter is goofy)
         def handle_select_all_event(event):
-            event.widget.tag_add(SEL, "1.0", END) 
-            event.widget.mark_set(INSERT, "1.0")
-            return "break"
-        def handle_paste_event(event):
-            try:
-                event.widget.delete('sel.first', 'sel.last')
-            except:
-                pass
-            event.widget.insert(INSERT, event.widget.clipboard_get())
+            event.widget.tag_add(SEL, '1.0', END) 
+            event.widget.mark_set(INSERT, '1.0')
             return 'break'
-        self.left_scrolledtext.bind("<Control-Key-a>", handle_select_all_event)
-        self.right_scrolledtext.bind("<Control-Key-a>", handle_select_all_event)
-        self.left_scrolledtext.bind('<Control-Key-v>', handle_paste_event)
-        self.right_scrolledtext.bind('<Control-Key-v>', handle_paste_event)
-
-        # Enable <Enter> to translate
-        def handle_enter_clicked(event):
-            self.translate()
-        def handle_enter_clicked_back(event):
-            self.translate_backward()
-        self.left_scrolledtext.bind('<Return>', handle_enter_clicked)
-        self.right_scrolledtext.bind('<Return>', handle_enter_clicked_back)
+        self.left_scrolledtext.bind('<Control-Key-a>', handle_select_all_event)
+        self.right_scrolledtext.bind('<Control-Key-a>', handle_select_all_event)
 
         # Final setup for window
         self.load_languages()
         self.translate(showError=False)
+
+        # Translate automatically on left text edited
+        self.left_scrolledtext.bind('<<TextModified>>', lambda x: self.translate())
+
+        # Run text update loop
+        self.window.after(self.REFRESH_TIME, self.refresh_data)
+
+        # Setup a protocol handler on window close to join with worker_thread
+        self.continue_worker_thread = True # Only written to by main thread
+        self.window.protocol('WM_DELETE_WINDOW', self.main_window_close_event)
+
+        # Run worker thread
+        self.worker_thread = threading.Thread(
+                target=self.worker_thread_function)
+        self.worker_thread.start()
+
         self.window.mainloop()
+
+    def refresh_data(self):
+        with self.lock:
+            if self.right_text != None:
+                self.right_scrolledtext.delete('1.0', END)
+                self.right_scrolledtext.insert('1.0', self.right_text)
+                self.right_text = None
+        self.window.after(self.REFRESH_TIME, self.refresh_data)
+
+    def worker_thread_function(self):
+        while self.continue_worker_thread:
+            self.work_semaphore.acquire()
+            with self.lock:
+                work_to_do = self.work_to_do
+                self.work_to_do = None
+            work_to_do()
+
+    def main_window_close_event(self):
+        with self.lock:
+            if self.work_to_do == None:
+                self.work_semaphore.release()
+            self.work_to_do = lambda: None
+            self.continue_worker_thread = False
+        self.worker_thread.join()
+        self.window.destroy()
 
     def load_languages(self):
         self.languages = translate.load_installed_languages()
@@ -99,26 +168,25 @@ class GUIWindow:
         self.right_combo['values'] = language_names
         if len(language_names) > 0: self.right_combo.current(1) 
 
-    def translate(self, translate_backwards=False, showError=True):
+    def translation_work(self, translation, show_loading_message):
+        if show_loading_message:
+            with self.lock:
+                self.right_text = 'Translating...'
+        result = translation()
+        with self.lock:
+            self.right_text = result
+
+    def translate(self, showError=True):
         """Try to translate based on languages selected.
 
         Args:
-            translate_backwards (bool): If True translate from the right 
-                ScrolledText to the left one.
             showError (bool): If True show an error messagebox if the
                 currently selected translation isn't installed
         """
         if len(self.languages) < 1: return
-        if not translate_backwards:
-            from_scrolledtext = self.left_scrolledtext
-            to_scrolledtext = self.right_scrolledtext
-            from_combo = self.left_combo
-            to_combo = self.right_combo
-        else:
-            from_scrolledtext = self.right_scrolledtext
-            to_scrolledtext = self.left_scrolledtext
-            from_combo = self.right_combo
-            to_combo = self.left_combo
+        from_scrolledtext = self.left_scrolledtext
+        from_combo = self.left_combo
+        to_combo = self.right_combo
         input_text = from_scrolledtext.get("1.0", END)
         input_combo_value = from_combo.current()
         input_language = self.languages[input_combo_value]
@@ -126,15 +194,19 @@ class GUIWindow:
         output_language = self.languages[output_combo_value]
         translation = input_language.get_translation(output_language)
         if translation:
-            result = translation.translate(input_text)
-            to_scrolledtext.delete("1.0", END)
-            to_scrolledtext.insert("1.0", result)
+            bound_translation_function = functools.partial(translation.translate,
+                    input_text)
+            show_loading_message = len(input_text) > self.SHOW_LOADING_THRESHOLD
+            translation_work = functools.partial(self.translation_work,
+                    bound_translation_function, show_loading_message)
+            with self.lock:
+                if self.work_to_do == None:
+                    self.work_semaphore.release()
+                self.work_to_do = translation_work
+
         else:
             if showError:
                 messagebox.showerror('Error', 'No translation between these languages installed')
-
-    def translate_backward(self):
-        self.translate(True)
 
     TABLE_CELL_PADDING = 10
 
