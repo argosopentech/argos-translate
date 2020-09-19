@@ -70,7 +70,7 @@ class GUIWindow:
         self.input_scrolledtext = None
         
         self.window = Tk()
-        self.window.title("Argos Translate")
+        self.window.title('Argos Translate')
 
         # Add icon
         image_path = Path(os.path.dirname(__file__)) / 'img' / 'icon.png'
@@ -282,7 +282,7 @@ class GUIWindow:
 
     def open_package_manager(self):
         self.package_manager_window = Tk()
-        self.package_manager_window.title("Package Manager")
+        self.package_manager_window.title('Package Manager')
         self.populate_package_manager_window()
 
     def open_model_filedialog(self):
@@ -303,4 +303,4 @@ def main():
     try:
         gui = GUIWindow()
     except Exception as e:
-        messagebox.showerror("Error", str(e))
+        messagebox.showerror('Error', str(e))
