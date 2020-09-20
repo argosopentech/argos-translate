@@ -80,8 +80,8 @@ class GUIWindow:
         # Menu Bar
         self.menubar = Menu(self.window)
         self.window.config(menu=self.menubar)
-        self.menubar.add_command(label='About', command=self.open_about)
         self.menubar.add_command(label='Manage Packages', command=self.open_package_manager)
+        self.menubar.add_command(label='About', command=self.open_about)
 
         # Row frames
         self.language_bar_frame = Frame(self.window)
