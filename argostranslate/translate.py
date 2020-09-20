@@ -90,6 +90,9 @@ class IdentityTranslation(Translation):
         """
         super().__init__(lang, lang, None)
 
+    def translate(self, input_text):
+        return input_text
+
 class CompositeTranslation(Translation):
     """A Translation that is performed by chaining two Translations
     
@@ -100,12 +103,12 @@ class CompositeTranslation(Translation):
     """
 
     def __init__(self, t1, t2):
-        super().__init__(self, t1.from_lang, t2.to_lang, None)
+        super().__init__(t1.from_lang, t2.to_lang, None)
         self.t1 = t1
         self.t2 = t2
 
     def translate(self, input_text):
-        return t2.translate(t1.translate(input_text))
+        return self.t2.translate(self.t1.translate(input_text))
 
 def apply_packaged_translation(pkg, input_text): 
     """Applies the translation in pkg to translate input_text.
