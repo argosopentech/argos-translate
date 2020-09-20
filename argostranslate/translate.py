@@ -143,6 +143,7 @@ def apply_packaged_translation(pkg, input_text):
             detokenized = ''.join(translated)
             detokenized = detokenized.replace('▁', ' ')
             translated_paragraph += detokenized
+        translated_paragraph = translated_paragraph.strip()
         translated_paragraphs.append(translated_paragraph)
     return '\n'.join(translated_paragraphs)
 
