@@ -65,14 +65,6 @@ class ITranslation:
         """
         raise NotImplementedError()
 
-    def register_with_languages(self):
-        """Adds this ITranslation to its self.from_lang and self.to_lang's
-        list of available translations
-
-        """
-        self.from_lang.translations_from.append(self)
-        self.to_lang.translations_to.append(self)
-
     def split_into_paragraphs(self, input_text):
         """Splits input_text into paragraphs and returns a list of paragraphs.
 
@@ -114,7 +106,6 @@ class PackageTranslation(ITranslation):
         self.from_lang = from_lang
         self.to_lang = to_lang
         self.pkg = pkg
-        self.register_with_languages()
 
     def translate(self, input_text):
         paragraphs = self.split_into_paragraphs(input_text)
@@ -137,7 +128,6 @@ class IdentityTranslation(ITranslation):
         """
         self.from_lang = lang
         self.to_lang = lang
-        self.register_with_languages()
 
     def translate(self, input_text):
         return input_text
@@ -156,10 +146,48 @@ class CompositeTranslation(ITranslation):
         self.t2 = t2
         self.from_lang = t1.from_lang
         self.to_lang = t2.to_lang
-        self.register_with_languages()
 
     def translate(self, input_text):
         return self.t2.translate(self.t1.translate(input_text))
+
+class CachedTranslation(ITranslation):
+    """Caches a translation to improve performance.
+
+    This is done by splitting up the text passed for translation
+    into paragraphs and translating each paragraph individually.
+    A hash of the paragraphs and their corresponding translations
+    are saved from the previous translation and used to improve
+    performance on the next one. This is especially useful if you
+    are repeatedly translating nearly identical text with a small
+    change at the end of it. 
+
+    """
+
+    def __init__(self, underlying):
+        """Creates a TranslationCache.
+
+        Args:
+            translation (ITranslation): The underlying translation to cache.
+
+        """
+        self.underlying = underlying
+        self.from_lang = underlying.from_lang
+        self.to_lang = underlying.to_lang
+        self.cache = dict()
+
+    def translate(self, input_text):
+        new_cache = dict()
+        paragraphs = self.split_into_paragraphs(input_text)
+        translated_paragraphs = []
+        for paragraph in paragraphs:
+            translated_paragraph = self.cache.get(paragraph)
+            if translated_paragraph == None:
+                translated_paragraph = self.underlying.translate(paragraph)
+            new_cache[paragraph] = translated_paragraph
+            translated_paragraphs.append(translated_paragraph)
+        self.cache = new_cache
+        return self.combine_paragraphs(translated_paragraphs)
+
 
 def apply_packaged_translation(pkg, input_text): 
     """Applies the translation in pkg to translate input_text.
@@ -201,6 +229,9 @@ def load_installed_languages():
     """Returns a list of Languages installed from packages"""
     
     packages = package.get_installed_packages()
+    translations = []
+
+    # Load languages and translations from packages
     language_of_code = dict()
     for pkg in packages:
         if pkg.from_code not in language_of_code:
@@ -209,18 +240,16 @@ def load_installed_languages():
         if pkg.to_code not in language_of_code:
             language_of_code[pkg.to_code] = Language(
                     pkg.to_code, pkg.to_name)
-
-        PackageTranslation(language_of_code[pkg.from_code],
-                language_of_code[pkg.to_code], pkg)
-
+        translations.append(PackageTranslation(language_of_code[pkg.from_code],
+                language_of_code[pkg.to_code], pkg))
     languages = list(language_of_code.values())
-    # Everything can translate to itself
-    for language in languages:
-        IdentityTranslation(language)
 
-    # Pivot through other languages to add translations
-    def composite_fun(first, second):
-        return lambda x: second(first(x))
+    # Add translations so everything can translate to itself
+    for language in languages:
+        translations.append(IdentityTranslation(language))
+
+    # Pivot through intermediate languages to add translations
+    # that don't already exist
     for language in languages:
         keep_adding_translations = True
         while keep_adding_translations:
@@ -231,7 +260,17 @@ def load_installed_languages():
                         # The language currently doesn't have a way to translate
                         # to this language
                         keep_adding_translations = True
-                        CompositeTranslation(translation, translation_2)
-    languages.sort(key=lambda x: x.code)
+                        translations.append(
+                                CompositeTranslation(translation, translation_2))
+    languages.sort(key=lambda x: x.name)
+
+    # Add caching layer for all translations
+    translations = [CachedTranslation(translation) for translation in translations]
+
+    # Add Translations to Languages list of available translation
+    for translation in translations:
+        translation.from_lang.translations_from.append(translation)
+        translation.to_lang.translations_to.append(translation)
+
     return languages
 
