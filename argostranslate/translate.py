@@ -12,9 +12,9 @@ class Language:
     Attributes:
         code (str): The code representing the language.
         name (str): The human readable name of the language.
-        translations_from ([Translation]): A list of the translations
+        translations_from ([ITranslation]): A list of the translations
             that translate from this language.
-        translations_to ([Translation]): A list of the translations
+        translations_to ([ITranslation]): A list of the translations
             that translate to this language
 
     """
@@ -35,7 +35,7 @@ class Language:
             to (Language): The Language to look for a Translation to.
 
         Returns:
-            Translation: A valid Translation if there is one in translations_from
+            ITranslation: A valid Translation if there is one in translations_from
                 else None.
 
         """
@@ -45,8 +45,39 @@ class Language:
             return valid_translations[0]
         return None
 
-class Translation:
+class ITranslation:
     """Respresents a translation between two Languages
+
+    Attributes:
+        from_lang (Language): The Language this Translation translates from.
+        to_lang (Language): The Language this Translation translates to.
+
+    """
+    def translate(self, input_text):
+        """Translates a string from self.from_lang to self.to_lang
+
+        Args:
+            input_text (str): The text to be translated.
+
+        Returns:
+            str: input_text translated.
+
+        """
+        raise NotImplementedError()
+
+    def register_with_languages(self):
+        """Adds this ITranslation to its self.from_lang and self.to_lang's
+        list of available translations
+
+        """
+        self.from_lang.translations_from.append(self)
+        self.to_lang.translations_to.append(self)
+
+    def __str__(self):
+        return str(self.from_lang) + ' -> ' + str(self.to_lang)
+
+class PackageTranslation(ITranslation):
+    """Translation from a package
 
     Attributes:
         from_lang (Language): The Language this Translation translates from.
@@ -59,25 +90,12 @@ class Translation:
         self.from_lang = from_lang
         self.to_lang = to_lang
         self.pkg = pkg
-        from_lang.translations_from.append(self)
-        to_lang.translations_to.append(self)
+        self.register_with_languages()
 
     def translate(self, input_text):
-        """Translates a string using self.pkg.
-
-        Args:
-            input_text (str): The text to be translated.
-
-        Returns:
-            str: input_text translated.
-
-        """
         return apply_packaged_translation(self.pkg, input_text)
 
-    def __str__(self):
-        return str(self.from_lang) + ' -> ' + str(self.to_lang)
-
-class IdentityTranslation(Translation):
+class IdentityTranslation(ITranslation):
     """A Translation that doesn't modify input_text."""
 
     def __init__(self, lang):
@@ -88,24 +106,28 @@ class IdentityTranslation(Translation):
                 from and to.
 
         """
-        super().__init__(lang, lang, None)
+        self.from_lang = lang
+        self.to_lang = lang
+        self.register_with_languages()
 
     def translate(self, input_text):
         return input_text
 
-class CompositeTranslation(Translation):
-    """A Translation that is performed by chaining two Translations
+class CompositeTranslation(ITranslation):
+    """A ITranslation that is performed by chaining two Translations
     
     Attributes:
-        t1 (Translation): The first Translation to apply.
-        t2 (Translation): The second Translation to apply.
+        t1 (ITranslation): The first Translation to apply.
+        t2 (ITranslation): The second Translation to apply.
 
     """
 
     def __init__(self, t1, t2):
-        super().__init__(t1.from_lang, t2.to_lang, None)
         self.t1 = t1
         self.t2 = t2
+        self.from_lang = t1.from_lang
+        self.to_lang = t2.to_lang
+        self.register_with_languages()
 
     def translate(self, input_text):
         return self.t2.translate(self.t1.translate(input_text))
@@ -160,7 +182,7 @@ def load_installed_languages():
             language_of_code[pkg.to_code] = Language(
                     pkg.to_code, pkg.to_name)
 
-        Translation(language_of_code[pkg.from_code],
+        PackageTranslation(language_of_code[pkg.from_code],
                 language_of_code[pkg.to_code], pkg)
 
     languages = list(language_of_code.values())
