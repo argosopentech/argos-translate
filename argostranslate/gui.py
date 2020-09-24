@@ -319,7 +319,5 @@ class GUIWindow:
         text.pack(padx=15, pady=15)
 
 def main():
-    try:
-        gui = GUIWindow()
-    except Exception as e:
-        messagebox.showerror('Error', str(e))
+    gui = GUIWindow()
+
