@@ -73,6 +73,30 @@ class ITranslation:
         self.from_lang.translations_from.append(self)
         self.to_lang.translations_to.append(self)
 
+    def split_into_paragraphs(self, input_text):
+        """Splits input_text into paragraphs and returns a list of paragraphs.
+
+        Args:
+            input_text (str): The text to be split.
+
+        Returns:
+            [str]: A list of paragraphs.
+
+        """
+        return input_text.split('\n')
+
+    def combine_paragraphs(self, paragraphs):
+        """Combines a list of paragraphs together.
+
+        Args:
+            paragraphs ([str]): A list of paragraphs.
+
+        Returns:
+            str: paragraphs combined into one string.
+
+        """
+        return '\n'.join(paragraphs)
+
     def __str__(self):
         return str(self.from_lang) + ' -> ' + str(self.to_lang)
 
@@ -93,7 +117,12 @@ class PackageTranslation(ITranslation):
         self.register_with_languages()
 
     def translate(self, input_text):
-        return apply_packaged_translation(self.pkg, input_text)
+        paragraphs = self.split_into_paragraphs(input_text)
+        translated_paragraphs = []
+        for paragraph in paragraphs:
+            translated_paragraphs.append(
+                    apply_packaged_translation(self.pkg, paragraph))
+        return self.combine_paragraphs(translated_paragraphs)
 
 class IdentityTranslation(ITranslation):
     """A Translation that doesn't modify input_text."""
@@ -152,22 +181,21 @@ def apply_packaged_translation(pkg, input_text):
             dir=str(pkg.package_path / 'stanza'),
             processors='tokenize', use_gpu=False,
             logging_level='WARNING')
-    split_by_newlines = input_text.split('\n')
-    translated_paragraphs = []
-    for paragraph in split_by_newlines:
-        stanza_sbd = stanza_pipeline(paragraph)
-        sentences = [sentence.text for sentence in stanza_sbd.sentences]
-        translated_paragraph = ''
-        for sentence in sentences:
-            tokenized = sp_processor.encode(sentence, out_type=str)
-            translated = translator.translate_batch([tokenized])
-            translated = translated[0][0]['tokens']
-            detokenized = ''.join(translated)
-            detokenized = detokenized.replace('▁', ' ')
-            translated_paragraph += detokenized
-        translated_paragraph = translated_paragraph.strip()
-        translated_paragraphs.append(translated_paragraph)
-    return '\n'.join(translated_paragraphs)
+    stanza_sbd = stanza_pipeline(input_text)
+    sentences = [sentence.text for sentence in stanza_sbd.sentences]
+    to_return = ''
+    for sentence in sentences:
+        tokenized = sp_processor.encode(sentence, out_type=str)
+        translated = translator.translate_batch([tokenized])
+        translated = translated[0][0]['tokens']
+        detokenized = ''.join(translated)
+        detokenized = detokenized.replace('▁', ' ')
+        to_return += detokenized
+    if len(to_return) > 0 and to_return[0] == ' ':
+        # Remove space at the beginning of the translation added
+        # by the tokenizer.
+        to_return = to_return[1:]
+    return to_return
 
 def load_installed_languages():
     """Returns a list of Languages installed from packages"""
