@@ -72,6 +72,11 @@ class GUIWindow(QMainWindow):
         self.textEdit_layout.addWidget(self.left_textEdit)
         self.textEdit_layout.addWidget(self.right_textEdit)
 
+        # Menu
+        self.menu = self.menuBar()
+        self.about_action = self.menu.addAction('About')
+        self.about_action.triggered.connect(self.about_action_triggered)
+
         # Load languages
         self.load_languages()
 
@@ -85,12 +90,20 @@ class GUIWindow(QMainWindow):
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.window_layout)
         self.setCentralWidget(self.central_widget)
+        self.setWindowTitle('Argos Translate')
 
     def swap_languages_button_clicked(self):
         left_index = self.left_language_combo.currentIndex()
         self.left_language_combo.setCurrentIndex(
                 self.right_language_combo.currentIndex())
         self.right_language_combo.setCurrentIndex(left_index)
+
+    def about_action_triggered(self):
+        about_message_box = QMessageBox()
+        about_message_box.setWindowTitle('About')
+        about_message_box.setText(settings.about_text)
+        about_message_box.setIcon(QMessageBox.Information)
+        about_message_box.exec_()
 
     def load_languages(self):
         self.languages = translate.load_installed_languages()
