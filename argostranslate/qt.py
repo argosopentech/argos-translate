@@ -26,6 +26,73 @@ class WorkerThread(QThread):
         translated_text = self.translation_function()
         self.send_text_update.emit(translated_text)
 
+class ManagePackagesWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        # Add packages row
+        self.add_packages_button = QPushButton('+ Add packages')
+        self.add_packages_row_layout = QHBoxLayout()
+        self.add_packages_row_layout.addWidget(
+                self.add_packages_button)
+        self.add_packages_row_layout.addStretch()
+
+        # Packages table
+        self.packages_table = QTableWidget()
+        self.populate_packages_table()
+        self.packages_layout = QVBoxLayout()
+        self.packages_layout.addWidget(self.packages_table)
+
+        self.layout = QVBoxLayout()
+        self.layout.addLayout(self.add_packages_row_layout)
+        self.layout.addLayout(self.packages_layout)
+        self.setLayout(self.layout)
+    
+    def uninstall_package(self, pkg):
+        package.uninstall(pkg)
+        self.populate_packages_table()
+
+    def populate_packages_table(self):
+        packages = package.get_installed_packages()
+        self.packages_table.setRowCount(len(packages))
+        self.packages_table.setColumnCount(7)
+        self.packages_table.setHorizontalHeaderLabels([
+                'From name',
+                'To name',
+                'Package version',
+                'Argos version',
+                'From code',
+                'To code',
+                'Uninstall'
+            ])
+        self.packages_table.verticalHeader().setVisible(False)
+        for i, pkg in enumerate(packages):
+            from_name = pkg.from_name
+            to_name = pkg.to_name
+            package_version = pkg.package_version
+            argos_version = pkg.argos_version
+            from_code = pkg.from_code
+            to_code = pkg.to_code
+            pkg = packages[i]
+            self.packages_table.setItem(i, 0, QTableWidgetItem(from_name))
+            self.packages_table.setItem(i, 1, QTableWidgetItem(to_name))
+            self.packages_table.setItem(i, 2, QTableWidgetItem(package_version))
+            self.packages_table.setItem(i, 3, QTableWidgetItem(argos_version))
+            self.packages_table.setItem(i, 4, QTableWidgetItem(from_code))
+            self.packages_table.setItem(i, 5, QTableWidgetItem(to_code))
+            delete_button = QPushButton('x')
+            self.packages_table.setCellWidget(i, 6, delete_button)
+            bound_delete_function = functools.partial(self.uninstall_package, pkg)
+            delete_button.clicked.connect(bound_delete_function)
+        self.packages_table.resizeColumnsToContents()
+        self.packages_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.packages_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.packages_table.setFixedSize(
+                    self.packages_table.horizontalHeader().length() +
+                    self.packages_table.verticalHeader().width(),
+                    self.packages_table.verticalHeader().length() +
+                    self.packages_table.horizontalHeader().height()
+                )
+
 class GUIWindow(QMainWindow):
     # Above this number of characters in the input text will show a 
     # message in the output text while the translation
@@ -74,8 +141,16 @@ class GUIWindow(QMainWindow):
 
         # Menu
         self.menu = self.menuBar()
+        self.manage_packages_action = self.menu.addAction('Manage Packages')
+        self.manage_packages_action.triggered.connect(
+                self.manage_packages_action_triggered)
         self.about_action = self.menu.addAction('About')
         self.about_action.triggered.connect(self.about_action_triggered)
+
+        # Icon
+        icon_path = Path(os.path.dirname(__file__)) / 'img' / 'icon.png'
+        icon_path = str(icon_path)
+        self.setWindowIcon(QIcon(icon_path))
 
         # Load languages
         self.load_languages()
@@ -104,6 +179,10 @@ class GUIWindow(QMainWindow):
         about_message_box.setText(settings.about_text)
         about_message_box.setIcon(QMessageBox.Information)
         about_message_box.exec_()
+
+    def manage_packages_action_triggered(self):
+        self.packages_window = ManagePackagesWindow()
+        self.packages_window.show()
 
     def load_languages(self):
         self.languages = translate.load_installed_languages()
