@@ -1,201 +1,228 @@
-#!/usr/bin/env python3
-
 from pathlib import Path
 import os
 import threading
 import functools
-from tkinter import *
-from tkinter import scrolledtext, filedialog, messagebox
-from tkinter.ttk import *
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
 from argostranslate import translate, package, settings
 
-# Based on Stack Overflow answer
-# https://stackoverflow.com/questions/40617515/python-tkinter-text-modified-callback
-class EventText(Text):
-    """Tkinter Text widget that has a <<TextModified>> event"""
-    def __init__(self, *args, **kwargs):
-        Text.__init__(self, *args, **kwargs)
-        self.original = self._w + '_original'
-        self.tk.call('rename', self._w, self.original)
-        self.tk.createcommand(self._w, self.proxy)
+class WorkerThread(QThread):
+    send_text_update = pyqtSignal(str)
 
-    def proxy(self, command, *args):
-        cmd = (self.original, command) + args
-        result = self.tk.call(cmd)
+    def __init__(self, translation_function, show_loading_message):
+        super().__init__()
+        self.translation_function = translation_function
+        self.show_loading_message = show_loading_message
 
-        if command in ['insert', 'delete', 'replace']:
-            self.event_generate('<<TextModified>>')
+    def __del__(self):
+        self.wait()
 
-        return result
+    def run(self):
+        if self.show_loading_message:
+            self.send_text_update.emit('Loading...')
+        translated_text = self.translation_function()
+        self.send_text_update.emit(translated_text)
 
-class GUIWindow:
+class ManagePackagesWindow(QWidget):
+    packages_changed = pyqtSignal()
 
-    # Time delay between refreshes of self.right_text
-    REFRESH_TIME = 100
+    def __init__(self):
+        super().__init__()
+        # Add packages row
+        self.add_packages_button = QPushButton('+ Add packages')
+        self.add_packages_button.clicked.connect(self.add_packages)
+        self.add_packages_row_layout = QHBoxLayout()
+        self.add_packages_row_layout.addWidget(
+                self.add_packages_button)
+        self.add_packages_row_layout.addStretch()
 
+        # Packages table
+        self.packages_table = QTableWidget()
+        self.populate_packages_table()
+        self.packages_layout = QVBoxLayout()
+        self.packages_layout.addWidget(self.packages_table)
+
+        self.layout = QVBoxLayout()
+        self.layout.addLayout(self.add_packages_row_layout)
+        self.layout.addLayout(self.packages_layout)
+        self.setLayout(self.layout)
+    
+    def uninstall_package(self, pkg):
+        package.uninstall(pkg)
+        self.populate_packages_table()
+        self.packages_changed.emit()
+
+    def add_packages(self):
+        file_dialog = QFileDialog()
+        filepaths = file_dialog.getOpenFileNames(
+                self,
+                'Select .argosmodel package files',
+                str(Path.home()),
+                'Argos Models (*.argosmodel)')[0]
+        if len(filepaths) > 0:
+            for file_path in filepaths:
+                package.install_from_path(file_path)
+            self.populate_packages_table()
+            self.packages_changed.emit()
+
+    def populate_packages_table(self):
+        packages = package.get_installed_packages()
+        self.packages_table.setRowCount(len(packages))
+        self.packages_table.setColumnCount(7)
+        self.packages_table.setHorizontalHeaderLabels([
+                'From name',
+                'To name',
+                'Package version',
+                'Argos version',
+                'From code',
+                'To code',
+                'Uninstall'
+            ])
+        self.packages_table.verticalHeader().setVisible(False)
+        for i, pkg in enumerate(packages):
+            from_name = pkg.from_name
+            to_name = pkg.to_name
+            package_version = pkg.package_version
+            argos_version = pkg.argos_version
+            from_code = pkg.from_code
+            to_code = pkg.to_code
+            pkg = packages[i]
+            self.packages_table.setItem(i, 0, QTableWidgetItem(from_name))
+            self.packages_table.setItem(i, 1, QTableWidgetItem(to_name))
+            self.packages_table.setItem(i, 2, QTableWidgetItem(package_version))
+            self.packages_table.setItem(i, 3, QTableWidgetItem(argos_version))
+            self.packages_table.setItem(i, 4, QTableWidgetItem(from_code))
+            self.packages_table.setItem(i, 5, QTableWidgetItem(to_code))
+            delete_button = QPushButton('x')
+            self.packages_table.setCellWidget(i, 6, delete_button)
+            bound_delete_function = functools.partial(self.uninstall_package, pkg)
+            delete_button.clicked.connect(bound_delete_function)
+        self.packages_table.resizeColumnsToContents()
+        self.packages_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.packages_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.packages_table.setFixedSize(
+                    self.packages_table.horizontalHeader().length() +
+                    self.packages_table.verticalHeader().width(),
+                    self.packages_table.verticalHeader().length() +
+                    self.packages_table.horizontalHeader().height()
+                )
+
+class GUIWindow(QMainWindow):
     # Above this number of characters in the input text will show a 
     # message in the output text while the translation
     # is happening
     SHOW_LOADING_THRESHOLD = 300
 
     def __init__(self):
-        # Threading variables
-        # self.right_text is the text that
-        # the right text field should be set to by
-        # the main thread. None if it should be left as is.
-        # self.work_to_do is a bound function for the worker
-        # thread to run.
-        # *** These variables are shared between threads ***
-        # and self.lock needs to be used to access them.
-        self.lock = threading.Lock()
-        with self.lock:
-            self.right_text = 'Text to translate to'
-            self.work_to_do = None
+        super().__init__()
 
-        # self.work_semaphore represents if there is work to be done.
-        # The worker thread blocks on self.work_semaphore when
-        # there is no work and to add work the main thread sets
-        # self.work_to_do to a bound function for the worker thread
-        # to execute and increments self.work_semaphore. 
-        # The worker thread should set self.work_to_do
-        # to None after copying it so that the main thread can 
-        # overwrite self.work_to_do without incrementing work_semaphore
-        # if there is existing work. Since you always want the most
-        # recent translation the main thread will want to overwrite
-        # work that hasn't been done yet.
-        self.work_semaphore = threading.Semaphore(value=0)
+        # Threading
+        self.worker_thread = None
 
-        self.output_scrolledtext = None
-        self.input_scrolledtext = None
-        
-        self.window = Tk()
-        self.window.title('Argos Translate')
+        # This is an instance of WorkerThread to run after
+        # the currently running WorkerThread finishes.
+        # None if there is no waiting WorkerThread.
+        self.queued_translation = None
 
-        # Add icon
-        image_path = Path(os.path.dirname(__file__)) / 'img' / 'icon.png'
-        icon_photo = PhotoImage(file=image_path)
-        self.window.iconphoto(False, icon_photo)
+        # Language selection
+        self.left_language_combo = QComboBox()
+        self.language_swap_button = QPushButton('↔')
+        self.right_language_combo = QComboBox()
+        self.left_language_combo.currentIndexChanged.connect(
+                self.translate)
+        self.right_language_combo.currentIndexChanged.connect(
+                self.translate)
+        self.language_swap_button.clicked.connect(
+                self.swap_languages_button_clicked)
+        self.language_selection_layout = QHBoxLayout()
+        self.language_selection_layout.addStretch()
+        self.language_selection_layout.addWidget(self.left_language_combo)
+        self.language_selection_layout.addStretch()
+        self.language_selection_layout.addWidget(self.language_swap_button)
+        self.language_selection_layout.addStretch()
+        self.language_selection_layout.addWidget(self.right_language_combo)
+        self.language_selection_layout.addStretch()
 
-        # Menu Bar
-        self.menubar = Menu(self.window)
-        self.window.config(menu=self.menubar)
-        self.menubar.add_command(label='Manage Packages', command=self.open_package_manager)
-        self.menubar.add_command(label='About', command=self.open_about)
+        # TextEdits
+        self.left_textEdit = QTextEdit()
+        self.left_textEdit.setPlainText('Text to translate from')
+        self.left_textEdit.textChanged.connect(self.translate)
+        self.right_textEdit = QTextEdit()
+        self.right_textEdit.setPlainText('Text to translate to')
+        self.textEdit_layout = QHBoxLayout()
+        self.textEdit_layout.addWidget(self.left_textEdit)
+        self.textEdit_layout.addWidget(self.right_textEdit)
 
-        # Row frames
-        self.language_bar_frame = Frame(self.window)
-        self.language_bar_frame.pack(fill=X)
-        self.text_frame = Frame(self.window)
-        self.text_frame.pack(fill=BOTH, expand=1)
-        self.text_frame.columnconfigure(0, weight=1)
-        self.text_frame.columnconfigure(1, weight=1)
-        self.text_frame.rowconfigure(0, weight=1)
+        # Menu
+        self.menu = self.menuBar()
+        self.manage_packages_action = self.menu.addAction('Manage Packages')
+        self.manage_packages_action.triggered.connect(
+                self.manage_packages_action_triggered)
+        self.about_action = self.menu.addAction('About')
+        self.about_action.triggered.connect(self.about_action_triggered)
 
-        # Left combo
-        self.left_language_bar_frame = Frame(self.language_bar_frame)
-        self.left_language_bar_frame.pack(fill=X, side=LEFT, expand=1)
-        self.left_combo = Combobox(self.left_language_bar_frame)
-        self.left_combo.pack()
+        # Icon
+        icon_path = Path(os.path.dirname(__file__)) / 'img' / 'icon.png'
+        icon_path = str(icon_path)
+        self.setWindowIcon(QIcon(icon_path))
 
-        # Languages swap button
-        self.center_language_bar_frame = Frame(self.language_bar_frame)
-        self.center_language_bar_frame.pack(fill=X, side=LEFT)
-        self.language_swap_button = Button(self.center_language_bar_frame,
-                text='↔', width=2, command=self.swap_languages)
-        self.language_swap_button.pack()
-
-        # Right combo
-        self.right_language_bar_frame = Frame(self.language_bar_frame)
-        self.right_language_bar_frame.pack(fill=X, side=LEFT, expand=1)
-        self.right_combo = Combobox(self.right_language_bar_frame)
-        self.right_combo.pack()
-
-        # Left Scrolled Text
-        self.left_scrolledtext = EventText(self.text_frame, width=80,height=50)
-        self.left_scrolledtext.grid(row=0, column=0, sticky='NSEW')
-        self.left_scrolledtext.insert(INSERT, 'Text to translate from')
-
-        # Right Scrolled Text
-        self.right_scrolledtext = Text(self.text_frame, width=80,height=50)
-        self.right_scrolledtext.grid(row=0, column=1, sticky='NSEW')
-
-        # Enable Ctrl-a and Ctrl-v (Tkinter is goofy)
-        def handle_select_all_event(event):
-            event.widget.tag_add(SEL, '1.0', END) 
-            event.widget.mark_set(INSERT, '1.0')
-            return 'break'
-        self.left_scrolledtext.bind('<Control-Key-a>', handle_select_all_event)
-        self.right_scrolledtext.bind('<Control-Key-a>', handle_select_all_event)
-
-        # Final setup for window
+        # Load languages
         self.load_languages()
-        self.translate(showError=False)
 
-        # Translate automatically on left text edited
-        self.left_scrolledtext.bind('<<TextModified>>', lambda x: self.translate())
+        # Translate demo text
+        self.translate()
 
-        # Run text update loop
-        self.window.after(self.REFRESH_TIME, self.refresh_data)
+        # Final setup
+        self.window_layout = QVBoxLayout()
+        self.window_layout.addLayout(self.language_selection_layout)
+        self.window_layout.addLayout(self.textEdit_layout)
+        self.central_widget = QWidget()
+        self.central_widget.setLayout(self.window_layout)
+        self.setCentralWidget(self.central_widget)
+        self.setWindowTitle('Argos Translate')
 
-        # Setup a protocol handler on window close to join with worker_thread
-        self.continue_worker_thread = True # Only written to by main thread
-        self.window.protocol('WM_DELETE_WINDOW', self.main_window_close_event)
+    def swap_languages_button_clicked(self):
+        left_index = self.left_language_combo.currentIndex()
+        self.left_language_combo.setCurrentIndex(
+                self.right_language_combo.currentIndex())
+        self.right_language_combo.setCurrentIndex(left_index)
 
-        # Run worker thread
-        self.worker_thread = threading.Thread(
-                target=self.worker_thread_function)
-        self.worker_thread.start()
+    def about_action_triggered(self):
+        about_message_box = QMessageBox()
+        about_message_box.setWindowTitle('About')
+        about_message_box.setText(settings.about_text)
+        about_message_box.setIcon(QMessageBox.Information)
+        about_message_box.exec_()
 
-        self.window.mainloop()
-
-    def refresh_data(self):
-        with self.lock:
-            if self.right_text != None:
-                self.right_scrolledtext.delete('1.0', END)
-                self.right_scrolledtext.insert('1.0', self.right_text)
-                self.right_text = None
-        self.window.after(self.REFRESH_TIME, self.refresh_data)
-
-    def worker_thread_function(self):
-        while self.continue_worker_thread:
-            self.work_semaphore.acquire()
-            with self.lock:
-                work_to_do = self.work_to_do
-                self.work_to_do = None
-            work_to_do()
-
-    def main_window_close_event(self):
-        with self.lock:
-            if self.work_to_do == None:
-                self.work_semaphore.release()
-            self.work_to_do = lambda: None
-            self.continue_worker_thread = False
-        self.worker_thread.join()
-        self.window.destroy()
-
-    def swap_languages(self):
-        old_left_value = self.left_combo.current()
-        self.left_combo.current(self.right_combo.current())
-        self.right_combo.current(old_left_value)
+    def manage_packages_action_triggered(self):
+        self.packages_window = ManagePackagesWindow()
+        self.packages_window.packages_changed.connect(self.load_languages)
+        self.packages_window.show()
 
     def load_languages(self):
         self.languages = translate.load_installed_languages()
         language_names = tuple([language.name for language in self.languages])
-        self.left_combo['values'] = language_names
-        if len(language_names) > 0: self.left_combo.current(0) 
-        self.right_combo['values'] = language_names
-        if len(language_names) > 1: self.right_combo.current(1) 
+        self.left_language_combo.clear()
+        self.left_language_combo.addItems(language_names)
+        if len(language_names) > 0: self.left_language_combo.setCurrentIndex(0)
+        self.right_language_combo.clear()
+        self.right_language_combo.addItems(language_names)
+        if len(language_names) > 1: self.right_language_combo.setCurrentIndex(1)
 
-    def translation_work(self, translation, show_loading_message):
-        if show_loading_message:
-            with self.lock:
-                self.right_text = 'Translating...'
-        result = translation()
-        with self.lock:
-            self.right_text = result
+    def update_right_textEdit(self, text):
+        self.right_textEdit.setPlainText(text)
 
-    def translate(self, showError=True):
+    def handle_worker_thread_finished(self):
+        self.worker_thread = None
+        if self.queued_translation != None:
+            self.worker_thread = self.queued_translation
+            self.worker_thread.start()
+            self.queued_translation = None
+
+    def translate(self):
         """Try to translate based on languages selected.
 
         Args:
@@ -203,121 +230,38 @@ class GUIWindow:
                 currently selected translation isn't installed
         """
         if len(self.languages) < 1: return
-        from_scrolledtext = self.left_scrolledtext
-        from_combo = self.left_combo
-        to_combo = self.right_combo
-        input_text = from_scrolledtext.get("1.0", END)
-        input_combo_value = from_combo.current()
+        input_text = self.left_textEdit.toPlainText()
+        input_combo_value = self.left_language_combo.currentIndex()
         input_language = self.languages[input_combo_value]
-        output_combo_value = to_combo.current()
+        output_combo_value = self.right_language_combo.currentIndex()
         output_language = self.languages[output_combo_value]
         translation = input_language.get_translation(output_language)
         if translation:
             bound_translation_function = functools.partial(translation.translate,
                     input_text)
             show_loading_message = len(input_text) > self.SHOW_LOADING_THRESHOLD
-            translation_work = functools.partial(self.translation_work,
-                    bound_translation_function, show_loading_message)
-            with self.lock:
-                if self.work_to_do == None:
-                    self.work_semaphore.release()
-                self.work_to_do = translation_work
+            new_worker_thread = WorkerThread(bound_translation_function,
+                    show_loading_message)
+            new_worker_thread.send_text_update.connect(
+                    self.update_right_textEdit)
+            new_worker_thread.finished.connect(
+                    self.handle_worker_thread_finished)
+            if self.worker_thread == None:
+                self.worker_thread = new_worker_thread
+                self.worker_thread.start()
+            else:
+                self.queued_translation = new_worker_thread
 
         else:
-            if showError:
-                messagebox.showerror('Error', 'No translation between these languages installed')
+            print('No translation available for this language pair')
 
-    TABLE_CELL_PADDING = 10
-
-    def make_table_cell(parent, row, column, text, isUnderlined=False):
-        if isUnderlined:
-            table_cell = Label(parent, text=text, font=('Arial', 12, 'bold', 'underline'))
-        else:
-            table_cell = Label(parent, text=text)
-        table_cell.grid(row=row, column=column,
-                padx=GUIWindow.TABLE_CELL_PADDING,
-                pady=GUIWindow.TABLE_CELL_PADDING)
-
-    def reload_package_manager_window(self):
-        self.clear_package_manager_window()
-        self.populate_package_manager_window()
-        self.package_manager_window.lift()
-
-    def uninstall_package(self, pkg):
-        package.uninstall(pkg)
-        self.reload_package_manager_window()
-
-    def install_packages(self):
-        self.open_model_filedialog()
-        self.reload_package_manager_window()
-
-    def clear_package_manager_window(self):
-        window = self.package_manager_window
-        for widget in window.winfo_children():
-            widget.destroy()
-
-    def open_package_readme(self, pkg):
-        readme_window = Tk()
-        readme_window.title(str(pkg))
-        text = Label(readme_window, text=pkg.get_readme(),
-                wraplength=750)
-        text.pack(padx=15, pady=15)
-
-    def populate_package_manager_window(self):
-        window = self.package_manager_window
-        packages = package.get_installed_packages()
-        row = 0
-        install_pkg_button = Button(window, text='Install Package', 
-                command=self.install_packages)
-        install_pkg_button.grid(row=row, column=0, padx=5, pady=5)
-        row += 1
-        GUIWindow.make_table_cell(window, row, 1, 'package_version', True)
-        GUIWindow.make_table_cell(window, row, 2, 'argos_version', True)
-        GUIWindow.make_table_cell(window, row, 3, 'from_code', True)
-        GUIWindow.make_table_cell(window, row, 4, 'from_name', True)
-        GUIWindow.make_table_cell(window, row, 5, 'to_code', True)
-        GUIWindow.make_table_cell(window, row, 6, 'to_name', True)
-        GUIWindow.make_table_cell(window, row, 7, 'Delete', True)
-        row += 1
-        row_offset = row
-        for pkg in packages:
-            view_readme_button = Button(window, text='README', command=(
-                lambda pkg=pkg: self.open_package_readme(pkg)))
-            view_readme_button.grid(row=row, column=0,
-                    padx=GUIWindow.TABLE_CELL_PADDING,
-                    pady=GUIWindow.TABLE_CELL_PADDING)
-            GUIWindow.make_table_cell(window, row, 1, pkg.package_version)
-            GUIWindow.make_table_cell(window, row, 2, pkg.argos_version)
-            GUIWindow.make_table_cell(window, row, 3, pkg.from_code)
-            GUIWindow.make_table_cell(window, row, 4, pkg.from_name)
-            GUIWindow.make_table_cell(window, row, 5, pkg.to_code)
-            GUIWindow.make_table_cell(window, row, 6, pkg.to_name)
-            delete_button = Button(window, text='x', command=(
-                lambda pkg=pkg: self.uninstall_package(pkg)))
-            delete_button.grid(row=row, column=7,
-                    padx=GUIWindow.TABLE_CELL_PADDING,
-                    pady=GUIWindow.TABLE_CELL_PADDING)
-            row += 1
-
-    def open_package_manager(self):
-        self.package_manager_window = Tk()
-        self.package_manager_window.title('Package Manager')
-        self.populate_package_manager_window()
-
-    def open_model_filedialog(self):
-        filepaths = filedialog.askopenfilenames(
-                filetypes=[('Argos Models', '.argosmodel')])
-        for file_path in filepaths:
-            package.install_from_path(file_path)
-        self.load_languages()
-
-    def open_about(self):
-        readme_window = Tk()
-        readme_window.title('About')
-        text = Label(readme_window, text=settings.about_text,
-                wraplength=750)
-        text.pack(padx=15, pady=15)
+class GUIApplication:
+    def __init__(self):
+        self.app = QApplication([])
+        self.main_window = GUIWindow()
+        self.main_window.show()
+        self.app.exec_()
 
 def main():
-    gui = GUIWindow()
+    app = GUIApplication()
 

@@ -25,34 +25,12 @@ apps:
       - unity7
       - wayland
       - x11
-    command-chain:
-    - bin/debian-multiarch-triplet-provider-launch
-    - bin/tcltk-launch
 
 parts:
-  # https://forum.snapcraft.io/t/the-debian-multiarch-triplet-provider-launch-stage-snap/11738
-  debian-multiarch-triplet-provider-launch:
-    plugin: nil
-    stage-snaps:
-    - debian-multiarch-triplet-provider-launch
-
-  # https://forum.snapcraft.io/t/the-tcltk-launch-stage-snap/11740
-  tcltk-launch:
-    plugin: nil
-    stage-snaps:
-    - tcltk-launch
-
   argos-translate:
     plugin: python
     python-version: python3
     source: .
-    stage-packages:
-      - python3-tk
-      - python3-pil.imagetk
-      - fontconfig-config
-      - fonts-dejavu-core
-      - fonts-dejavu-extra
-      - locales-all
 
   model-files:
     source: packages

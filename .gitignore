@@ -1,3 +1,6 @@
+# packages dir
+packages/
+
 # Swap file
 *.swp
 

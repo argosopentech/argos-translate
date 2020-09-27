@@ -1,7 +1,7 @@
 # Argos Translate
 [Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com)
 
-Open source offline translation app written in Python. Uses OpenNMT for translations, SentencePiece for tokenization, Stanza for sentence boundary detection, and Tkinter for GUI.
+Open source offline translation app written in Python. Uses OpenNMT for translations, SentencePiece for tokenization, Stanza for sentence boundary detection, and PyQt for GUI.
 
 Argos Translate supports installing model files which are a zip archive with an ".argosmodel" extension that contain an OpenNMT CTranslate model, a SentencePiece model, a Stanza tokenizer model, and metadata about the model. Pretrained models can be downloaded [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i). To install a model click "Install model" from the toolbar in the GUI and select your model file. By default models are stored in ~/.argos-translate, this can be changed in settings.py.
 
@@ -39,10 +39,10 @@ Argos Translate is being developed/tested to run on Linux. However since it is w
 
 ### Python installation
 #### Dependencies
-Requires Python3 and Tkinter, to install on Ubuntu run:
+Requires Python3 to install on Ubuntu run:
 ```
 sudo apt-get update
-sudo apt-get install -y python3 python3-tk
+sudo apt-get install -y python3
 ```
 #### Install
 1. Clone this repo:
