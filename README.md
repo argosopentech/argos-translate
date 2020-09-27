@@ -74,9 +74,10 @@ cd argos-translate
 ```
 4. From the root directory of this project build the snap package:
 ```
-snapcraft
+snapcraft clean && SNAPCRAFT_BUILD_ENVIRONMENT_MEMORY=4G snapcraft
 ```
 Any unzipped package files in package/ will be automatically included in the snap archive.
+Note, the build won't run with Snapcraft's default build memory of 2GB so you need to set the SNAPCRAFT_BUILD_ENVIRONMENT environment variable. [More on Snapcraft forum](https://forum.snapcraft.io/t/snapcraft-configuration-of-multipass-vm-arguments/9761)
 5. Install the snap package:
 ```
 sudo snap install --devmode argos-translate_<version information>.snap
