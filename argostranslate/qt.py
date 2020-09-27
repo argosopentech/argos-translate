@@ -27,10 +27,13 @@ class WorkerThread(QThread):
         self.send_text_update.emit(translated_text)
 
 class ManagePackagesWindow(QWidget):
+    packages_changed = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         # Add packages row
         self.add_packages_button = QPushButton('+ Add packages')
+        self.add_packages_button.clicked.connect(self.add_packages)
         self.add_packages_row_layout = QHBoxLayout()
         self.add_packages_row_layout.addWidget(
                 self.add_packages_button)
@@ -50,6 +53,20 @@ class ManagePackagesWindow(QWidget):
     def uninstall_package(self, pkg):
         package.uninstall(pkg)
         self.populate_packages_table()
+        self.packages_changed.emit()
+
+    def add_packages(self):
+        file_dialog = QFileDialog()
+        filepaths = file_dialog.getOpenFileNames(
+                self,
+                'Select .argosmodel package files',
+                str(Path.home()),
+                'Argos Models (*.argosmodel)')[0]
+        if len(filepaths) > 0:
+            for file_path in filepaths:
+                package.install_from_path(file_path)
+            self.populate_packages_table()
+            self.packages_changed.emit()
 
     def populate_packages_table(self):
         packages = package.get_installed_packages()
@@ -182,13 +199,16 @@ class GUIWindow(QMainWindow):
 
     def manage_packages_action_triggered(self):
         self.packages_window = ManagePackagesWindow()
+        self.packages_window.packages_changed.connect(self.load_languages)
         self.packages_window.show()
 
     def load_languages(self):
         self.languages = translate.load_installed_languages()
         language_names = tuple([language.name for language in self.languages])
+        self.left_language_combo.clear()
         self.left_language_combo.addItems(language_names)
         if len(language_names) > 0: self.left_language_combo.setCurrentIndex(0)
+        self.right_language_combo.clear()
         self.right_language_combo.addItems(language_names)
         if len(language_names) > 1: self.right_language_combo.setCurrentIndex(1)
 
@@ -202,7 +222,7 @@ class GUIWindow(QMainWindow):
             self.worker_thread.start()
             self.queued_translation = None
 
-    def translate(self, showError=True):
+    def translate(self):
         """Try to translate based on languages selected.
 
         Args:
@@ -233,12 +253,7 @@ class GUIWindow(QMainWindow):
                 self.queued_translation = new_worker_thread
 
         else:
-            if showError:
-                error_dialog = QMessageBox()
-                error_dialog.setIcon(QMessageBox.Warning)
-                error_dialog.setText('No translation installed between these languages')
-                error_dialog.setWindowTitle('Error')
-                error_dialog.exec_()
+            print('No translation available for this language pair')
 
 app = QApplication([])
 main_window = GUIWindow()
