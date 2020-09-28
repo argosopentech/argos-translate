@@ -15,6 +15,7 @@ Models available for downlad [here](https://drive.google.com/drive/folders/11wxM
 Currently there are models available to translate between:
 - English
 - Spanish
+- French
 
 ## Examples
 ### GUI
