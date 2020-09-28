@@ -49,11 +49,25 @@ class ManagePackagesWindow(QWidget):
         self.layout.addLayout(self.add_packages_row_layout)
         self.layout.addLayout(self.packages_layout)
         self.setLayout(self.layout)
-    
+
     def uninstall_package(self, pkg):
-        package.uninstall(pkg)
+        try:
+            package.uninstall(pkg)
+        except OSError as e:
+            # packages included in a snap archive are on a
+            # read-only filesystem and can't be deleted
+            if 'SNAP' in os.environ:
+                about_message_box = QMessageBox()
+                about_message_box.setWindowTitle('Error')
+                about_message_box.setText('Error deleting package: \n' + 
+                    'Packages pre-installed in a snap archive can\'t be deleted')
+                about_message_box.setIcon(QMessageBox.Warning)
+                about_message_box.exec_()
+            else:
+                raise e
         self.populate_packages_table()
         self.packages_changed.emit()
+
 
     def add_packages(self):
         file_dialog = QFileDialog()
