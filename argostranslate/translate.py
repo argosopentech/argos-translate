@@ -229,7 +229,6 @@ def load_installed_languages():
     """Returns a list of Languages installed from packages"""
     
     packages = package.get_installed_packages()
-    translations = []
 
     # Load languages and translations from packages
     language_of_code = dict()
@@ -240,13 +239,20 @@ def load_installed_languages():
         if pkg.to_code not in language_of_code:
             language_of_code[pkg.to_code] = Language(
                     pkg.to_code, pkg.to_name)
-        translations.append(PackageTranslation(language_of_code[pkg.from_code],
-                language_of_code[pkg.to_code], pkg))
+        from_lang = language_of_code[pkg.from_code]
+        to_lang = language_of_code[pkg.to_code]
+        translation_to_add = CachedTranslation(PackageTranslation(
+                from_lang, to_lang, pkg))
+        from_lang.translations_from.append(translation_to_add)
+        to_lang.translations_to.append(translation_to_add)
+
     languages = list(language_of_code.values())
 
     # Add translations so everything can translate to itself
     for language in languages:
-        translations.append(IdentityTranslation(language))
+        identity_translation = IdentityTranslation(language)
+        language.translations_from.append(identity_translation)
+        language.translations_to.append(identity_translation)
 
     # Pivot through intermediate languages to add translations
     # that don't already exist
@@ -260,17 +266,11 @@ def load_installed_languages():
                         # The language currently doesn't have a way to translate
                         # to this language
                         keep_adding_translations = True
-                        translations.append(
-                                CompositeTranslation(translation, translation_2))
+                        composite_translation = CompositeTranslation(translation, translation_2)
+                        language.translations_from.append(composite_translation)
+                        translation_2.to_lang.translations_to.append(composite_translation)
+
     languages.sort(key=lambda x: x.name)
-
-    # Add caching layer for all translations
-    translations = [CachedTranslation(translation) for translation in translations]
-
-    # Add Translations to Languages list of available translation
-    for translation in translations:
-        translation.from_lang.translations_from.append(translation)
-        translation.to_lang.translations_to.append(translation)
 
     return languages
 
