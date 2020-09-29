@@ -68,6 +68,12 @@ class ManagePackagesWindow(QWidget):
         self.populate_packages_table()
         self.packages_changed.emit()
 
+    def view_package_readme(self, pkg):
+        about_message_box = QMessageBox()
+        about_message_box.setWindowTitle(str(pkg))
+        about_message_box.setText(pkg.get_readme())
+        about_message_box.setIcon(QMessageBox.Information)
+        about_message_box.exec_()
 
     def add_packages(self):
         file_dialog = QFileDialog()
@@ -85,8 +91,9 @@ class ManagePackagesWindow(QWidget):
     def populate_packages_table(self):
         packages = package.get_installed_packages()
         self.packages_table.setRowCount(len(packages))
-        self.packages_table.setColumnCount(7)
+        self.packages_table.setColumnCount(8)
         self.packages_table.setHorizontalHeaderLabels([
+                'README',
                 'From name',
                 'To name',
                 'Package version',
@@ -104,16 +111,21 @@ class ManagePackagesWindow(QWidget):
             from_code = pkg.from_code
             to_code = pkg.to_code
             pkg = packages[i]
-            self.packages_table.setItem(i, 0, QTableWidgetItem(from_name))
-            self.packages_table.setItem(i, 1, QTableWidgetItem(to_name))
-            self.packages_table.setItem(i, 2, QTableWidgetItem(package_version))
-            self.packages_table.setItem(i, 3, QTableWidgetItem(argos_version))
-            self.packages_table.setItem(i, 4, QTableWidgetItem(from_code))
-            self.packages_table.setItem(i, 5, QTableWidgetItem(to_code))
+            readme_button = QPushButton('view')
+            bound_view_package_readme_function = functools.partial(
+                self.view_package_readme, pkg)
+            readme_button.clicked.connect(bound_view_package_readme_function)
+            self.packages_table.setCellWidget(i, 0, readme_button)
+            self.packages_table.setItem(i, 1, QTableWidgetItem(from_name))
+            self.packages_table.setItem(i, 2, QTableWidgetItem(to_name))
+            self.packages_table.setItem(i, 3, QTableWidgetItem(package_version))
+            self.packages_table.setItem(i, 4, QTableWidgetItem(argos_version))
+            self.packages_table.setItem(i, 5, QTableWidgetItem(from_code))
+            self.packages_table.setItem(i, 6, QTableWidgetItem(to_code))
             delete_button = QPushButton('x')
-            self.packages_table.setCellWidget(i, 6, delete_button)
             bound_delete_function = functools.partial(self.uninstall_package, pkg)
             delete_button.clicked.connect(bound_delete_function)
+            self.packages_table.setCellWidget(i, 7, delete_button)
         self.packages_table.resizeColumnsToContents()
         self.packages_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.packages_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -121,7 +133,8 @@ class ManagePackagesWindow(QWidget):
                     self.packages_table.horizontalHeader().length() +
                     self.packages_table.verticalHeader().width(),
                     self.packages_table.verticalHeader().length() +
-                    self.packages_table.horizontalHeader().height()
+                    self.packages_table.horizontalHeader().height() +
+                    4
                 )
 
 class GUIWindow(QMainWindow):
