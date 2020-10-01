@@ -93,7 +93,7 @@ class ManagePackagesWindow(QWidget):
         self.packages_table.setRowCount(len(packages))
         self.packages_table.setColumnCount(8)
         self.packages_table.setHorizontalHeaderLabels([
-                'README',
+                'Readme',
                 'From name',
                 'To name',
                 'Package version',
