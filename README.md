@@ -91,7 +91,7 @@ argos-translate
 When installing with snap a .desktop file should also be installed which will make Argos Translate available from the desktop menu.
 
 ## Contributing
-Contributions are welcome! In particular packaging for other platforms, at some point I'd like to add .deb and .rpm Linux packaging and an installer for Windows and MacOS.
+Contributions are welcome! 
 
 ## License
 Dual licensed under the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) and [CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
