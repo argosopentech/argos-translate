@@ -3,10 +3,15 @@ from setuptools import setup, find_packages
 with open('requirements.txt') as f:
     required_packages = f.read().splitlines()
 
+with open('README.md') as f:
+    long_description = f.read()
+
 setup(
-    name='Argos Translate',
+    name='argostranslate',
     version='1.0',
-    description='Offline translation app',
+    description='Offline neural machine translation library and GUI.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Argos Open Technologies, LLC',
     author_email='admin@argosopentech.com',
     url='https://www.argosopentech.com',

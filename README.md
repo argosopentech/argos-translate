@@ -11,8 +11,8 @@ Argos Translate also manages automatically pivoting through intermediate languag
 Models available for downlad [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i), and are being trained using [this](https://github.com/argosopentech/onmt-models) training script. 
 
 Currently there are models available to translate between:
-- Arabic (Work in progress)
-- Chinese (Work in progress)
+- Arabic
+- Chinese
 - English
 - French
 - Russian
@@ -35,7 +35,13 @@ Currently there are models available to translate between:
 ```
 
 ## Installation
-### Python installation
+### Install from PyPI
+Argos Translate is available from [PyPi](https://pypi.org/project/argostranslate/) and can be installed with pip.
+```
+python3 -m pip install --upgrade pip
+python3 -m pip install argostranslate
+```
+### Python source installation
 #### Dependencies
 Requires Python3, pip (which should come with Python3), and optionally virtualenv to keep Argos Translate's dependencies separate from other Python programs you have installed.
 
@@ -64,10 +70,11 @@ python3 -m pip install --upgrade pip
 python3 -m pip install .
 ```
 
-### Snap installation
+### Build and install snap package
 1. Install [snapd](https://snapcraft.io/docs/installing-snapd) if it isn't already installed.
-2. Using snapd install snapcraft:
+2. Using snapd install snapcraft and its dependency multipass:
 ```
+sudo snap install multipass
 sudo snap install snapcraft
 ```
 3. Clone this repo:
