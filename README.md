@@ -21,6 +21,8 @@ Currently there are models available to translate between:
 ## Examples
 ### GUI
 ![Screenshot](/img/Screenshot.png)
+![Screenshot2](/img/Screenshot2.png)
+
 
 ### Python
 ```
