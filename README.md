@@ -44,12 +44,14 @@ python3 -m pip install --upgrade pip
 python3 -m pip install argostranslate
 ```
 ### Install from Snap Store
-Argos Translate is available prepackaged with a Engilish ↔ French translation from the [Snap Store](https://snapcraft.io/argos-translate).
+Argos Translate is available prepackaged with a Engilish ↔ French translation from the Snap Store.
 
 With [snapd installed](https://snapcraft.io/docs/installing-snapd):
 ```
 sudo snap install argos-translate
 ``` 
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/argos-translate)
+
 ### Python source installation
 #### Dependencies
 Requires Python3, pip (which should come with Python3), and optionally virtualenv to keep Argos Translate's dependencies separate from other Python programs you have installed.
