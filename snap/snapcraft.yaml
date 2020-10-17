@@ -7,7 +7,7 @@ summary: Offline neural machine translation app
 description: |
   [Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com)
   
-  Supports translation between Arabic, English, Spanish, French, Russian, and Chinese.
+  Engilish↔French translation packaged with application with more translations available for download.
   
   Open source offline translation app written in Python. Uses OpenNMT for translations, SentencePiece for tokenization, Stanza for sentence boundary detection, and PyQt for GUI. Designed to be used either as a GUI application, or as a Python library.
   
