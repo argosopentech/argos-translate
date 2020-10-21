@@ -24,6 +24,8 @@ apps:
   argos-translate: 
     adapter: full
     command: desktop-launch $SNAP/bin/argos-translate
+    environment:
+      DISABLE_WAYLAND: 1
     plugs:
       - desktop
       - desktop-legacy
