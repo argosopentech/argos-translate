@@ -211,14 +211,15 @@ def apply_packaged_translation(pkg, input_text):
             logging_level='WARNING')
     stanza_sbd = stanza_pipeline(input_text)
     sentences = [sentence.text for sentence in stanza_sbd.sentences]
-    to_return = ''
-    for sentence in sentences:
-        tokenized = sp_processor.encode(sentence, out_type=str)
-        translated = translator.translate_batch([tokenized])
-        translated = translated[0][0]['tokens']
-        detokenized = ''.join(translated)
-        detokenized = detokenized.replace('▁', ' ')
-        to_return += detokenized
+    translated_batches = translator.translate_batch(
+            [sp_processor.encode(sentence, out_type=str) for sentence in sentences],
+            max_batch_size=32)
+    translated_tokens = []
+    for translated_batch in translated_batches:
+        translated_tokens += translated_batch[0]['tokens']
+    detokenized = ''.join(translated_tokens)
+    detokenized = detokenized.replace('▁', ' ')
+    to_return = detokenized
     if len(to_return) > 0 and to_return[0] == ' ':
         # Remove space at the beginning of the translation added
         # by the tokenizer.
