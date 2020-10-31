@@ -106,13 +106,17 @@ class PackageTranslation(ITranslation):
         self.from_lang = from_lang
         self.to_lang = to_lang
         self.pkg = pkg
+        self.translator = None
 
     def translate(self, input_text):
+        if self.translator == None:
+            model_path = str(self.pkg.package_path / 'model')
+            self.translator = ctranslate2.Translator(model_path)
         paragraphs = self.split_into_paragraphs(input_text)
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraphs.append(
-                    apply_packaged_translation(self.pkg, paragraph))
+                    apply_packaged_translation(self.pkg, paragraph, self.translator))
         return self.combine_paragraphs(translated_paragraphs)
 
 class IdentityTranslation(ITranslation):
@@ -189,7 +193,7 @@ class CachedTranslation(ITranslation):
         return self.combine_paragraphs(translated_paragraphs)
 
 
-def apply_packaged_translation(pkg, input_text): 
+def apply_packaged_translation(pkg, input_text, translator): 
     """Applies the translation in pkg to translate input_text.
 
     Args:
@@ -201,8 +205,6 @@ def apply_packaged_translation(pkg, input_text):
 
     """
 
-    model_path = str(pkg.package_path / 'model')
-    translator = ctranslate2.Translator(model_path)
     sp_model_path = str(pkg.package_path / 'sentencepiece.model')
     sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
     stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
