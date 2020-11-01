@@ -199,9 +199,6 @@ class GUIWindow(QMainWindow):
         # Load languages
         self.load_languages()
 
-        # Translate demo text
-        self.translate()
-
         # Final setup
         self.window_layout = QVBoxLayout()
         self.window_layout.addLayout(self.language_selection_layout)
@@ -238,6 +235,7 @@ class GUIWindow(QMainWindow):
         self.right_language_combo.clear()
         self.right_language_combo.addItems(language_names)
         if len(language_names) > 1: self.right_language_combo.setCurrentIndex(1)
+        self.translate()
 
     def update_right_textEdit(self, text):
         self.right_textEdit.setPlainText(text)

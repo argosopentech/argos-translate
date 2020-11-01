@@ -279,6 +279,7 @@ def load_installed_languages():
         if language.code == 'en':
             en_index = i
             break
+    english = None
     if en_index != None:
         english = languages.pop(en_index)
     languages.sort(key=lambda x: x.name)
