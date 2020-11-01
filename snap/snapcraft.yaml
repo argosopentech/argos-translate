@@ -12,7 +12,7 @@ description: |
   Automatically installs and connects to `argos-translate-base-langs` snap to support translations between Arabic, Chinese, English, French, Russian, and Spanish.
   
 icon: snap/gui/icon.png
-
+compression: lzo
 grade: stable
 confinement: strict
 
