@@ -1,5 +1,6 @@
 # packages dir
 packages/
+data_snap/packages
 
 # Swap file
 *.swp

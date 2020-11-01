@@ -5,16 +5,12 @@ version: '1.0.2'
 license: MIT
 summary: Offline neural machine translation app
 description: |
-  [Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com)
+  [Code](https://github.com/argosopentech/argos-translate) | [Website](https://www.argosopentech.com)
 
   Open-source offline neural machine translation app that allows installing packages to support new languages.
   
-  Engilish↔French translation packaged with application with more translations available for download.
+  Automatically installs and connects to `argos-translate-base-langs` snap to support translations between Arabic, Chinese, English, French, Russian, and Spanish.
   
-  Argos Translate supports installing model files which are a zip archive with an ".argosmodel" extension that contain an OpenNMT CTranslate model, a SentencePiece tokenization model, a Stanza tokenizer model for sentence boundary detection, and metadata about the model. Pretrained models can be downloaded [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i). To install a model click "Manage packages" from the toolbar in the GUI and select your model file. When running from a snap package models can be pre-packaged with the snap package or installed after installation to `$SNAP_USER_DATA`.
-  
-  Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct translation between them installed. For example, if you have a es -> en and en -> fr translation installed you are able to translate from es -> fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
-
 icon: snap/gui/icon.png
 
 grade: stable
@@ -83,4 +79,11 @@ parts:
     plugin: dump
     organize:
       '*' : packages/
+
+plugs:
+  argos-packages:
+    interface: content
+    content: argos-packages
+    target: $SNAP
+    default-provider: argos-translate-base-langs
 
