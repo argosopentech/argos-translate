@@ -1,7 +1,7 @@
 name: argos-translate
 title: Argos Translate
 base: core18 
-version: '1.0' 
+version: '1.0.2' 
 license: MIT
 summary: Offline neural machine translation app
 description: |
