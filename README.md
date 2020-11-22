@@ -44,7 +44,7 @@ python3 -m pip install --upgrade pip
 python3 -m pip install argostranslate
 ```
 ### Install from Snap Store
-Argos Translate is available prepackaged with a English ↔ French translation from the Snap Store.
+Argos Translate is available from the Snap Store and auto installs a content snap to support translation between Arabic, Chinese, English, French, Russian, and Spanish.
 
 With [snapd installed](https://snapcraft.io/docs/installing-snapd):
 ```
