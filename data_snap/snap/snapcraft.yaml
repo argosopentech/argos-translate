@@ -6,6 +6,7 @@ description: |
   Supports translation between Arabic, Chinese, English, French, Russian, and Spanish
 grade: stable
 confinement: strict
+compression: lzo
 
 parts:
   packages:
