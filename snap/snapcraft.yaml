@@ -75,15 +75,15 @@ parts:
       - locales
 
   model-files:
-    source: packages
+    source: snap_custom
     plugin: dump
     organize:
-      '*' : packages/
+      '*' : snap_custom/
 
 plugs:
   argos-packages:
     interface: content
     content: argos-packages
-    target: $SNAP
+    target: $SNAP/snap_custom/content_snap_packages
     default-provider: argos-translate-base-langs
 
