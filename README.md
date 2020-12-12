@@ -17,6 +17,8 @@ Currently, there are models available to translate between:
 - Chinese
 - English
 - French
+- German
+- Portuguese
 - Russian
 - Spanish
 
