@@ -1,4 +1,4 @@
-# Argos Translate
+# ![Argos Translate Icon](/img/icon_small.png) Argos Translate
 [Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com)
 
 Open source offline translation app written in Python. Uses OpenNMT for translations, SentencePiece for tokenization, Stanza for sentence boundary detection, and PyQt for GUI. Designed to be used either as a GUI application or as a Python library.
@@ -95,7 +95,7 @@ cd argos-translate
 ```
 4. From the root directory of this project build the snap package:
 ```
-snapcraft clean && SNAPCRAFT_BUILD_ENVIRONMENT_MEMORY=4G snapcraft
+SNAPCRAFT_BUILD_ENVIRONMENT_MEMORY=4G snapcraft
 ```
 Any *unzipped* package files in package/ will be automatically included in the snap archive (and won't be able to be deleted by users of the snap).
 
