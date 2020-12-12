@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+
+from argostranslate import cli
+
+cli.main()
+
+
