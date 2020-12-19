@@ -40,6 +40,12 @@ Currently, there are models available to translate between:
 '¡Hola Mundo!'
 ```
 
+### Command Line ([Beta, only available when installing from source](https://github.com/argosopentech/argos-translate/issues/3))
+```
+$ argos-translate-cli --from-lang en --to-lang es "Hello World"
+Hola Mundo
+```
+
 ## Installation
 ### Install from PyPI
 Argos Translate is available from [PyPi](https://pypi.org/project/argostranslate/) and can be installed with pip.
