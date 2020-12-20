@@ -18,6 +18,7 @@ Currently, there are models available to translate between:
 - English
 - French
 - German
+- Italian
 - Portuguese
 - Russian
 - Spanish
@@ -54,13 +55,18 @@ python3 -m pip install --upgrade pip
 python3 -m pip install argostranslate
 ```
 ### Install from Snap Store
-Argos Translate is available from the Snap Store and auto installs a content snap to support translation between Arabic, Chinese, English, French, Russian, and Spanish.
+Argos Translate is available from the Snap Store and auto installs a content snap to support translation between Arabic, Chinese, English, French, Russian, and Spanish. Additional languages can be installed from supplementary content snaps.
 
 With [snapd installed](https://snapcraft.io/docs/installing-snapd):
 ```
 sudo snap install argos-translate
 ``` 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/argos-translate)
+
+Currently content snaps other than argos-translate-base-langs need to be manually connected but this [hopefully won't be necessary in the future](https://forum.snapcraft.io/t/store-request-for-argos-translate-snaps-argos-packages-plug-to-greedily-connect-to-available-slots/21503):
+```
+sudo snap connect argos-translate:argos-packages argos-translate-en-it:argos-packages
+```
 
 ### Python source installation
 #### Dependencies
