@@ -5,12 +5,20 @@ version: '1.0.3'
 license: MIT
 summary: Offline neural machine translation app
 description: |
-  [Code](https://github.com/argosopentech/argos-translate) | [Website](https://www.argosopentech.com)
-
   Open-source offline neural machine translation app that allows installing packages to support new languages.
-  
+
   Automatically installs and connects to `argos-translate-base-langs` snap to support translations between Arabic, Chinese, English, French, Russian, and Spanish.
-  
+
+  Additional languages can be installed from *.argosmodel files or from supplementary content snaps:
+  argos-translate-de-en - German - English
+  argos-translate-en-it - English - Italian
+  argos-translate-en-pt - English - Portuguese
+
+  Currently content snaps other than argos-translate-base-langs need to be manually connected but this hopefully won't be necessary in the future (https://forum.snapcraft.io/t/store-request-for-argos-translate-snaps-argos-packages-plug-to-greedily-connect-to-available-slots/21503):
+
+  `sudo snap connect argos-translate:argos-packages argos-translate-en-it:argos-packages`
+
+  Code/Documentation: https://github.com/argosopentech/argos-translate
 icon: snap/gui/icon.png
 compression: lzo
 grade: stable
