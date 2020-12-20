@@ -10,9 +10,9 @@ description: |
   Automatically installs and connects to `argos-translate-base-langs` snap to support translations between Arabic, Chinese, English, French, Russian, and Spanish.
 
   Additional languages can be installed from *.argosmodel files or from supplementary content snaps:
-  argos-translate-de-en - German - English
-  argos-translate-en-it - English - Italian
-  argos-translate-en-pt - English - Portuguese
+  * argos-translate-de-en - German - English
+  * argos-translate-en-it - English - Italian
+  * argos-translate-en-pt - English - Portuguese
 
   Currently content snaps other than argos-translate-base-langs need to be manually connected but this hopefully won't be necessary in the future (https://forum.snapcraft.io/t/store-request-for-argos-translate-snaps-argos-packages-plug-to-greedily-connect-to-available-slots/21503):
 
