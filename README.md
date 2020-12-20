@@ -10,7 +10,7 @@ Argos Translate also manages automatically pivoting through intermediate languag
 ![Argos Translate Banner](/img/Banner.png)
 
 ## Models
-Models available for download [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i), and are being trained using [this](https://github.com/argosopentech/onmt-models) training script. Models are also available for torrent download [here](https://drive.google.com/drive/folders/1MdnparwCXu8VXB23eUh9v-sr6QAgl7sj?usp=sharing).
+Models available for download [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i), and are being trained using [this](https://github.com/argosopentech/onmt-models) training script. Models are also available for torrent download [in the /p2p directory](/p2p/all-argos-translate-models-2020-12-20.zip.torrent).
 
 Currently, there are models available to translate between:
 - Arabic
