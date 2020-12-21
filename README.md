@@ -47,6 +47,30 @@ $ argos-translate-cli --from-lang en --to-lang es "Hello World"
 Hola Mundo
 ```
 
+### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
+![Web App Screenshot](img/WebAppScreenshot.png)
+
+### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) API
+```
+const res = await fetch("https://libretranslate.com/translate", {
+	method: "POST",
+	body: JSON.stringify({
+		q: "Hello!",
+		source: "en",
+		target: "es"
+	}),
+	headers: {
+		"Content-Type": "application/json"
+	});
+
+console.log(await res.json());
+
+{
+    "translatedText": "¡Hola!"
+}
+```
+
+
 ## Installation
 ### Install from PyPI
 Argos Translate is available from [PyPi](https://pypi.org/project/argostranslate/) and can be installed with pip.
