@@ -60,6 +60,9 @@ class ManagePackagesWindow(QWidget):
         self.packages_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.packages_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.packages_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        # Padding in header sections used as workaround for inaccurate results of resizeColumnsToContents()
+        self.packages_table.STRETCH_COLUMN_MIN_PADDING = 50
+        self.packages_table.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
         self.populate_packages_table()
         self.packages_layout = QVBoxLayout()
         self.packages_layout.addWidget(self.packages_table)
@@ -68,6 +71,7 @@ class ManagePackagesWindow(QWidget):
         self.layout = QVBoxLayout()
         self.layout.addLayout(self.add_packages_row_layout)
         self.layout.addLayout(self.packages_layout)
+        self.layout.addStretch()
         self.setLayout(self.layout)
 
     def uninstall_package(self, pkg):
@@ -135,8 +139,14 @@ class ManagePackagesWindow(QWidget):
             delete_button.clicked.connect(bound_delete_function)
             self.packages_table.setCellWidget(i, 7, delete_button)
         # Resize table widget
+        self.packages_table.setMinimumSize(QSize(0, 0))
         self.packages_table.resizeColumnsToContents()
         self.packages_table.adjustSize()
+        # Set minimum width of packages_table that also limits size of packages window
+        header_width = self.packages_table.horizontalHeader().length()
+        self.packages_table.setMinimumSize(
+            QSize(header_width + self.packages_table.STRETCH_COLUMN_MIN_PADDING * 2, 0)
+        )
 
 class GUIWindow(QMainWindow):
     # Above this number of characters in the input text will show a 
