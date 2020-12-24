@@ -41,13 +41,37 @@ class ManagePackagesWindow(QWidget):
 
         # Packages table
         self.packages_table = QTableWidget()
+        self.packages_table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.packages_table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.packages_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.packages_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.packages_table.setColumnCount(8)
+        self.packages_table.setHorizontalHeaderLabels([
+                'Readme',
+                'From name',
+                'To name',
+                'Package version',
+                'Argos version',
+                'From code',
+                'To code',
+                'Uninstall'
+            ])
+        self.packages_table.verticalHeader().setVisible(False)
+        self.packages_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.packages_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        self.packages_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        # Padding in header sections used as workaround for inaccurate results of resizeColumnsToContents()
+        self.packages_table.STRETCH_COLUMN_MIN_PADDING = 50
+        self.packages_table.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
         self.populate_packages_table()
         self.packages_layout = QVBoxLayout()
         self.packages_layout.addWidget(self.packages_table)
 
+        # Layout
         self.layout = QVBoxLayout()
         self.layout.addLayout(self.add_packages_row_layout)
         self.layout.addLayout(self.packages_layout)
+        self.layout.addStretch()
         self.setLayout(self.layout)
 
     def uninstall_package(self, pkg):
@@ -91,18 +115,6 @@ class ManagePackagesWindow(QWidget):
     def populate_packages_table(self):
         packages = package.get_installed_packages()
         self.packages_table.setRowCount(len(packages))
-        self.packages_table.setColumnCount(8)
-        self.packages_table.setHorizontalHeaderLabels([
-                'Readme',
-                'From name',
-                'To name',
-                'Package version',
-                'Argos version',
-                'From code',
-                'To code',
-                'Uninstall'
-            ])
-        self.packages_table.verticalHeader().setVisible(False)
         for i, pkg in enumerate(packages):
             from_name = pkg.from_name
             to_name = pkg.to_name
@@ -126,16 +138,15 @@ class ManagePackagesWindow(QWidget):
             bound_delete_function = functools.partial(self.uninstall_package, pkg)
             delete_button.clicked.connect(bound_delete_function)
             self.packages_table.setCellWidget(i, 7, delete_button)
+        # Resize table widget
+        self.packages_table.setMinimumSize(QSize(0, 0))
         self.packages_table.resizeColumnsToContents()
-        self.packages_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.packages_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.packages_table.setFixedSize(
-                    self.packages_table.horizontalHeader().length() +
-                    self.packages_table.verticalHeader().width(),
-                    self.packages_table.verticalHeader().length() +
-                    self.packages_table.horizontalHeader().height() +
-                    4
-                )
+        self.packages_table.adjustSize()
+        # Set minimum width of packages_table that also limits size of packages window
+        header_width = self.packages_table.horizontalHeader().length()
+        self.packages_table.setMinimumSize(
+            QSize(header_width + self.packages_table.STRETCH_COLUMN_MIN_PADDING * 2, 0)
+        )
 
 class GUIWindow(QMainWindow):
     # Above this number of characters in the input text will show a 
