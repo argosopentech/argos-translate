@@ -137,3 +137,6 @@ dmypy.json
 
 # Snapcraft
 *.snap
+
+# IDE files
+.idea/
