@@ -215,7 +215,8 @@ def apply_packaged_translation(pkg, input_text, translator):
     sentences = [sentence.text for sentence in stanza_sbd.sentences]
     translated_batches = translator.translate_batch(
             [sp_processor.encode(sentence, out_type=str) for sentence in sentences],
-            max_batch_size=32)
+            max_batch_size=32,
+            length_penalty=0.2)
     translated_tokens = []
     for translated_batch in translated_batches:
         translated_tokens += translated_batch[0]['tokens']
