@@ -168,7 +168,7 @@ class CachedTranslation(ITranslation):
     """
 
     def __init__(self, underlying):
-        """Creates a TranslationCache.
+        """Creates a CachedTranslation.
 
         Args:
             translation (ITranslation): The underlying translation to cache.
