@@ -160,7 +160,7 @@ Contributions are welcome!
 ## Donations
 If you find this software useful donations are appreciated.
 - [GitHub Sponsor](https://github.com/sponsors/argosopentech)
-- [PayPal](https:://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
+- [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
 - Ethereum: 0x4E9017d8e275cA54C91E056381DAb9fe6ECC1AF6
 
 ## License
