@@ -157,6 +157,11 @@ When installing with snap a .desktop file should also be installed which will ma
 ## Contributing
 Contributions are welcome! 
 
+## Donations
+If you find this software useful donations are appreciated.
+- [GitHub Sponsor](https://github.com/sponsors/argosopentech)
+- Ethereum: 0x4E9017d8e275cA54C91E056381DAb9fe6ECC1AF6
+
 ## License
 Dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
 
