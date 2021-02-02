@@ -216,6 +216,7 @@ def apply_packaged_translation(pkg, input_text, translator):
     tokenized = [sp_processor.encode(sentence, out_type=str) for sentence in sentences]
     translated_batches = translator.translate_batch(
             tokenized,
+            replace_unknowns=True,
             max_batch_size=32,
             length_penalty=0.2)
     translated_tokens = []
