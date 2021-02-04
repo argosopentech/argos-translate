@@ -163,6 +163,8 @@ If you find this software useful donations are appreciated.
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
 - Ethereum: 0x4E9017d8e275cA54C91E056381DAb9fe6ECC1AF6
 
+Paid supporters receive priority support.
+
 ## License
 Dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
 
