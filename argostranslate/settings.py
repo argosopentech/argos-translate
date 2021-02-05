@@ -12,6 +12,8 @@ os.makedirs(data_dir, exist_ok=True)
 
 package_data_dir = data_dir / 'packages'
 os.makedirs(package_data_dir, exist_ok=True)
+if 'ARGOS_TRANSLATE_PACKAGES_DIR' in os.environ:
+    package_data_dir = Path(os.environ['ARGOS_TRANSLATE_PACKAGES_DIR'])
 
 cache_dir = Path(os.getenv('XDG_CACHE_HOME',
         default=home_dir / '.local' / 'cache' / 'argos-translate'))
