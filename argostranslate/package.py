@@ -78,19 +78,6 @@ class Package:
     def __str__(self):
         return "{} -> {}".format(self.from_name, self.to_name)
 
-
-def check_data_dirs():
-    """Checks that data and package dir is set up correctly.
-
-    Checks that the data directory in settings.py exist
-    and creates it if it doesn't.
-    
-    """
-    if not os.path.exists(settings.data_dir):
-        os.makedirs(settings.data_dir)
-    if not os.path.exists(settings.package_data_dir):
-        os.makedirs(settings.package_data_dir)
-
 def install_from_path(path):
     """Install a package (zip archive ending in .argosmodel).
 
@@ -100,7 +87,6 @@ def install_from_path(path):
     """
     if not zipfile.is_zipfile(path):
         raise Error('Not a valid Argos Model (must be a zip archive)')
-    check_data_dirs()
     with zipfile.ZipFile(path, 'r') as zip:
         zip.extractall(path=settings.package_data_dir)
 
@@ -126,7 +112,6 @@ def get_installed_packages(path=None):
             Defaults to the path in settings module.
 
     """
-    check_data_dirs()
     to_return = []
     packages_path = settings.package_dirs if path == None else path
     for directory in packages_path:

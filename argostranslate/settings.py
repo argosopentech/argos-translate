@@ -1,10 +1,32 @@
 from pathlib import Path
 import os
+import shutil
 
-data_dir = Path.home() / '.argos-translate'
+home_dir = Path.home()
 if 'SNAP' in os.environ:
-    data_dir = Path(os.environ['SNAP_USER_DATA']) / '.argos-translate'
+    home_dir = Path(os.environ['SNAP_USER_DATA'])
+
+data_dir = Path(os.getenv('XDG_DATA_HOME',
+        default=home_dir / '.local' / 'share' / 'argos-translate'))
+os.makedirs(data_dir, exist_ok=True)
+
 package_data_dir = data_dir / 'packages'
+os.makedirs(package_data_dir, exist_ok=True)
+
+cache_dir = Path(os.getenv('XDG_CACHE_HOME',
+        default=home_dir / '.local' / 'cache' / 'argos-translate'))
+os.makedirs(cache_dir, exist_ok=True)
+
+# Legacy support to upgrade from argostranslate<1.1.0
+legacy_package_data_dirs = [Path.home() / '.argos-translate' / 'packages']
+if 'SNAP' in os.environ:
+    legacy_package_data_dirs.append(
+            Path(os.environ['SNAP_USER_DATA']) / '.argos-translate')
+for legacy_package_data_dir in legacy_package_data_dirs: 
+    if legacy_package_data_dir.is_dir():
+        print(legacy_package_data_dir)
+        shutil.copytree(legacy_package_data_dir, package_data_dir, dirs_exist_ok=True)
+        shutil.rmtree(legacy_package_data_dir)
 
 # Will search all of these directories for packages
 package_dirs = [package_data_dir]
