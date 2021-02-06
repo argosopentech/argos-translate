@@ -22,6 +22,7 @@ available_packages = package.load_available_packages()
 for available_package in available_packages:
     download_path = available_package.download()
     package.install_from_path(download_path)
+```
 """
 
 class IPackage:
