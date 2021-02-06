@@ -7,7 +7,7 @@ if 'SNAP' in os.environ:
     home_dir = Path(os.environ['SNAP_USER_DATA'])
 
 data_dir = Path(os.getenv('XDG_DATA_HOME',
-        default=home_dir / '.local' / 'share' / 'argos-translate'))
+        default=home_dir / '.local' / 'share')) / 'argos-translate'
 os.makedirs(data_dir, exist_ok=True)
 
 package_data_dir = data_dir / 'packages'
@@ -16,7 +16,7 @@ if 'ARGOS_TRANSLATE_PACKAGES_DIR' in os.environ:
     package_data_dir = Path(os.environ['ARGOS_TRANSLATE_PACKAGES_DIR'])
 
 cache_dir = Path(os.getenv('XDG_CACHE_HOME',
-        default=home_dir / '.local' / 'cache' / 'argos-translate'))
+        default=home_dir / '.local' / 'cache')) / 'argos-translate'
 os.makedirs(cache_dir, exist_ok=True)
 
 # Legacy support to upgrade from argostranslate<1.1.0
