@@ -19,6 +19,9 @@ cache_dir = Path(os.getenv('XDG_CACHE_HOME',
         default=home_dir / '.local' / 'cache')) / 'argos-translate'
 os.makedirs(cache_dir, exist_ok=True)
 
+downloads_dir = cache_dir / 'downloads'
+os.makedirs(downloads_dir, exist_ok=True)
+
 # Legacy support to upgrade from argostranslate<1.1.0
 legacy_package_data_dirs = [Path.home() / '.argos-translate' / 'packages']
 if 'SNAP' in os.environ:
@@ -48,6 +51,10 @@ if 'SNAP' in os.environ:
 if 'ARGOS_TRANSLATE_PACKAGE_DIR' in os.environ:
     package_dirs.append(Path(os.environ[
             'ARGOS_TRANSLATE_PACKAGE_DIR']))
+
+remote_package_index = 'https://raw.githubusercontent.com/argosopentech/argospm-index/main/index.json'
+
+local_package_index = cache_dir / 'index.json'
 
 about_text = """
 Argos Translate is an open source neural machine
