@@ -5,12 +5,22 @@ from argostranslate import package, translate
 def main():
     # Parse args
     parser = argparse.ArgumentParser()
-    parser.add_argument('text', help='The text to translate')
+    parser.add_argument('text', nargs='?', help='The text to translate')
     parser.add_argument('--from-lang',
             help='The code for the language to translate from (ISO 639-1)')
     parser.add_argument('--to-lang',
             help='The code for the language to translate to (ISO 639-1)')
     args = parser.parse_args()
+
+    # Get text to translate
+    if args.text:
+        # argos-translate-cli --from-lang en --to-lang es "Text to translate"
+        text_to_translate = args.text
+    else :
+        # echo "Text to translate" | argos-translate-cli --from-lang en --to-lang es
+        text_to_translate = ''
+        for line in sys.stdin:
+            text_to_translate += line
 
     # Perform translation
     if args.from_lang != None and args.to_lang != None:
@@ -35,5 +45,5 @@ def main():
         translation = translate.IdentityTranslation('')
 
     # Print translation
-    print(translation.translate(args.text))
+    print(translation.translate(text_to_translate))
 

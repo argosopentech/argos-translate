@@ -41,10 +41,13 @@ Currently, there are models available to translate between:
 '¡Hola Mundo!'
 ```
 
-### Command Line ([Beta](https://github.com/argosopentech/argos-translate/issues/3))
+### Command Line
 ```
 $ argos-translate-cli --from-lang en --to-lang es "Hello World"
 Hola Mundo
+
+$ echo "Text to translate" | argos-translate-cli --from-lang en --to-lang es
+Texto para traducir
 ```
 
 ### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
