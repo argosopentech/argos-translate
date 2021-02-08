@@ -29,7 +29,6 @@ if 'SNAP' in os.environ:
             Path(os.environ['SNAP_USER_DATA']) / '.argos-translate')
 for legacy_package_data_dir in legacy_package_data_dirs: 
     if legacy_package_data_dir.is_dir():
-        print(legacy_package_data_dir)
         shutil.copytree(legacy_package_data_dir, package_data_dir, dirs_exist_ok=True)
         shutil.rmtree(legacy_package_data_dir)
 
