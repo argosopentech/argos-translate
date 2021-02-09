@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import sys
 import shutil
 
 home_dir = Path.home()
@@ -29,7 +30,11 @@ if 'SNAP' in os.environ:
             Path(os.environ['SNAP_USER_DATA']) / '.argos-translate')
 for legacy_package_data_dir in legacy_package_data_dirs: 
     if legacy_package_data_dir.is_dir():
-        shutil.copytree(legacy_package_data_dir, package_data_dir, dirs_exist_ok=True)
+        # dirs_exist_ok not available <= 3.8
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 8:
+            shutil.copytree(legacy_package_data_dir, package_data_dir, dirs_exist_ok=True)
+        else:
+            shutil.copytree(legacy_package_data_dir, package_data_dir)
         shutil.rmtree(legacy_package_data_dir)
 
 # Will search all of these directories for packages
