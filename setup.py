@@ -8,7 +8,7 @@ with open('README.md') as f:
 
 setup(
     name='argostranslate',
-    version='1.1.1',
+    version='1.1.2',
     description='Offline neural machine translation library and GUI.',
     long_description=long_description,
     long_description_content_type='text/markdown',
