@@ -30,6 +30,8 @@ if 'SNAP' in os.environ:
             Path(os.environ['SNAP_USER_DATA']) / '.argos-translate')
 for legacy_package_data_dir in legacy_package_data_dirs: 
     if legacy_package_data_dir.is_dir():
+        print('Moving Argos Translate data dir from {} to {}'.format(
+            legacy_package_data_dir, package_data_dir))
         # dirs_exist_ok not available <= 3.8
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 8:
             shutil.copytree(legacy_package_data_dir, package_data_dir, dirs_exist_ok=True)
