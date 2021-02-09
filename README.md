@@ -156,7 +156,7 @@ argos-translate
 When installing with snap a .desktop file should also be installed which will make Argos Translate available from the desktop menu.
 
 ## Contributing
-Contributions are welcome! 
+Contributions are welcome! Available issues are on the [GitHub issues page](https://github.com/argosopentech/argos-translate/issues).
 
 ## Donations
 If you find this software useful donations are appreciated.
