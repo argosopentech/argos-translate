@@ -36,7 +36,9 @@ apps:
       - opengl
       - wayland
       - x11
-       
+  argos-translate-cli: 
+    command: bin/argos-translate-cli
+ 
 # From snapcraft-desktop-helpers
 # https://github.com/ubuntu/snapcraft-desktop-helpers
 parts:
