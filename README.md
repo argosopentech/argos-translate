@@ -94,6 +94,10 @@ Currently content snaps other than argos-translate-base-langs need to be manuall
 ```
 sudo snap connect argos-translate:argos-packages argos-translate-en-it:argos-packages
 ```
+To run command line interface on Snapcraft:
+```
+argos-translate.argos-translate-cli --help
+```
 
 ### Python source installation
 #### Dependencies
