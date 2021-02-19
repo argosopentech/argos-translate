@@ -4,7 +4,7 @@ import ctranslate2
 import sentencepiece as spm
 import stanza
 
-from argostranslate import package
+from argostranslate import package, settings
 
 class Language:
     """Represents a language that can be translated from/to.
@@ -213,12 +213,15 @@ def apply_packaged_translation(pkg, input_text, translator):
             logging_level='WARNING')
     stanza_sbd = stanza_pipeline(input_text)
     sentences = [sentence.text for sentence in stanza_sbd.sentences]
+    if settings.debug: print('sentences', sentences)
     tokenized = [sp_processor.encode(sentence, out_type=str) for sentence in sentences]
+    if settings.debug: print('tokenized', tokenized)
     translated_batches = translator.translate_batch(
             tokenized,
             replace_unknowns=True,
             max_batch_size=32,
             length_penalty=0.2)
+    if settings.debug: print('translated_batches', translated_batches)
     translated_tokens = []
     for translated_batch in translated_batches:
         translated_tokens += translated_batch[0]['tokens']

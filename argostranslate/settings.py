@@ -3,6 +3,10 @@ import os
 import sys
 import shutil
 
+debug = False
+if 'DEBUG' in os.environ:
+    debug = os.environ['DEBUG'] in ['1', 'TRUE', 'True', 'true']
+
 home_dir = Path.home()
 if 'SNAP' in os.environ:
     home_dir = Path(os.environ['SNAP_USER_DATA'])
