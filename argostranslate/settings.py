@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import sys
 import shutil
+import platform
 
 debug = False
 if 'DEBUG' in os.environ:
@@ -71,3 +72,9 @@ Argos Translate is an open source neural machine
 translation application created by Argos Open
 Technologies, LLC (www.argosopentech.com). 
 """
+
+# Fix Intel bug
+# https://github.com/argosopentech/argos-translate/issues/40
+if 'intel' in platform.processor().lower():
+    os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
