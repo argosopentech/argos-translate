@@ -205,6 +205,7 @@ def apply_packaged_translation(pkg, input_text, translator):
 
     """
 
+    if settings.debug: print('apply_packaged_translation')
     sp_model_path = str(pkg.package_path / 'sentencepiece.model')
     sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
     stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
@@ -237,6 +238,8 @@ def apply_packaged_translation(pkg, input_text, translator):
 def load_installed_languages():
     """Returns a list of Languages installed from packages"""
     
+    if settings.debug: print('load_installed_languages')
+
     packages = package.get_installed_packages()
 
     # Load languages and translations from packages
