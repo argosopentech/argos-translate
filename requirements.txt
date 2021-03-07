@@ -1,5 +1,5 @@
 ctranslate2==1.17.1
-sentencepiece==0.1.91
+sentencepiece==0.1.94
 stanza==1.1.1
 PyQt5==5.15.1
 requests==2.25.1
