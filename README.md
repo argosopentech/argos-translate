@@ -16,6 +16,7 @@ Currently, there are models available to translate between:
 - English
 - French
 - German
+- Hindi
 - Italian
 - Japanese
 - Portuguese
