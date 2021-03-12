@@ -8,7 +8,9 @@ Argos Translate supports installing model files which are a zip archive with an 
 Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct translation between them installed. For example, if you have a es -> en and en -> fr translation installed you are able to translate from es -> fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
 
 ## Models
-Models available for download [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i), and are being trained using [this](https://github.com/argosopentech/onmt-models) training script. Models are also available for torrent download [in the /p2p directory](/p2p/all-argos-translate-models-2020-12-20.zip.torrent).
+- [Browse models](https://www.argosopentech.com/argospm/index/)
+- [Training script](https://github.com/argosopentech/onmt-models)
+- [Torrent download](https://github.com/argosopentech/argos-translate/raw/master/p2p/all-argos-translate-models-2020-12-20.zip.torrent) (not updated as frequently)
 
 Currently, there are models available to translate between:
 - Arabic
