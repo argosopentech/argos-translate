@@ -3,7 +3,7 @@
 
 Open-source offline translation library written in Python. Uses OpenNMT for translations, SentencePiece for tokenization, Stanza for sentence boundary detection, and PyQt for GUI. Designed to be used as either a Python library, Command-Line, or GUI application. [LibreTranslate](https://libretranslate.com) has an API and web-app for Argos Translate translations.
 
-Argos Translate supports installing model files which are a zip archive with an ".argosmodel" extension that contains an OpenNMT CTranslate model, a SentencePiece tokenization model, a Stanza tokenizer model for sentence boundary detection, and metadata about the model. Pretrained models can be downloaded [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i). To install a model click "Manage packages" from the toolbar in the GUI and select your model file. Models can be automatically downloaded and installed with Python bindings.
+Argos Translate supports installing model files which are a zip archive with an ".argosmodel" extension that contains an OpenNMT [CTranslate2](https://github.com/OpenNMT/CTranslate2) model, a SentencePiece tokenization model, a Stanza tokenizer model for sentence boundary detection, and metadata about the model. Pretrained models can be downloaded [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i). To install a model click "Manage packages" from the toolbar in the GUI and select your model file. Models can be automatically downloaded and installed with Python bindings.
 
 Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct translation between them installed. For example, if you have a es -> en and en -> fr translation installed you are able to translate from es -> fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
 
@@ -84,7 +84,7 @@ python3 -m pip install --upgrade pip
 python3 -m pip install argostranslate
 ```
 #### Installation for Windows
-CTranslate, the inference engine for Argos Translate, [currently only distributes binaries for Linux and MacOS](https://github.com/OpenNMT/CTranslate2/issues/133) so to install Argos Translate on Windows you will need to build CTranslate from source.
+CTranslate2, the inference engine for Argos Translate, [currently only distributes binaries for Linux and MacOS](https://github.com/OpenNMT/CTranslate2/issues/133) so to install Argos Translate on Windows you will need to build CTranslate2 from source.
 ### Install from Snap Store
 Argos Translate is available from the Snap Store and auto installs a content snap to support translation between Arabic, Chinese, English, French, Russian, and Spanish. Additional languages can be installed from supplementary content snaps.
 
