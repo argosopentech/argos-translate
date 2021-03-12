@@ -40,7 +40,7 @@ class IPackage:
 
     Packages are a zip archive of a directory with metadata.json
     in its root the .argosmodel file extension. By default a 
-    OpenNMT CTranslate directory named model/ created using 
+    OpenNMT CTranslate2 directory named model/ created using 
     ct2-opennmt-tf-converter is expected in the root directory
     along with a sentencepiece model named sentencepiece.model
     for tokenizing and Stanza for sentence boundary detection. 
