@@ -1,15 +1,16 @@
 # Argos Translate
 [Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com)
 
-Open-source offline translation library written in Python. Uses OpenNMT for translations, SentencePiece for tokenization, Stanza for sentence boundary detection, and PyQt for GUI. Designed to be used as either a Python library, Command-Line, or GUI application. [LibreTranslate](https://libretranslate.com) has an API and web-app for Argos Translate translations.
+Open-source offline translation library written in Python. Uses [OpenNMT](https://opennmt.net/) for translations, [SentencePiece](https://github.com/google/sentencepiece) for tokenization, [Stanza](https://github.com/stanfordnlp/stanza) for sentence boundary detection, and [PyQt](https://riverbankcomputing.com/software/pyqt/intro) for GUI. Designed to be used as either a Python library, Command-Line, or GUI application. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
 
-Argos Translate supports installing model files which are a zip archive with an ".argosmodel" extension that contains an OpenNMT [CTranslate2](https://github.com/OpenNMT/CTranslate2) model, a SentencePiece tokenization model, a Stanza tokenizer model for sentence boundary detection, and metadata about the model. Pretrained models can be downloaded [here](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i). To install a model click "Manage packages" from the toolbar in the GUI and select your model file. Models can be automatically downloaded and installed with Python bindings.
+Argos Translate supports installing model files which are a zip archive with an ".argosmodel" extension that contains an OpenNMT [CTranslate2](https://github.com/OpenNMT/CTranslate2) model, a [SentencePiece](https://github.com/google/sentencepiece) tokenization model, a [Stanza](https://github.com/stanfordnlp/stanza) tokenizer model for sentence boundary detection, and metadata about the model. Pretrained models can be downloaded [here](https://www.argosopentech.com/argospm/index/).
 
 Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct translation between them installed. For example, if you have a es -> en and en -> fr translation installed you are able to translate from es -> fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
 
 ## Models
 - [Browse models](https://www.argosopentech.com/argospm/index/)
 - [Training script](https://github.com/argosopentech/onmt-models)
+- [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
 - [Torrent download](https://github.com/argosopentech/argos-translate/raw/master/p2p/all-argos-translate-models-2020-12-20.zip.torrent) (not updated as frequently)
 
 ### Supported languages
