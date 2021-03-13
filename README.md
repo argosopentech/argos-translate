@@ -173,6 +173,9 @@ When installing with snap a .desktop file should also be installed which will ma
 ## Contributing
 Contributions are welcome! Available issues are on the [GitHub issues page](https://github.com/argosopentech/argos-translate/issues).
 
+## Support
+For support use the [GitHub issues page](https://github.com/argosopentech/argos-translate/issues) or [forum](https://github.com/argosopentech/argos-translate/discussions).
+
 ## Donations
 If you find this software useful donations are appreciated.
 - [GitHub Sponsor](https://github.com/sponsors/argosopentech)
