@@ -1,7 +1,7 @@
 # Argos Translate
 [Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com)
 
-Open-source offline translation library written in Python. Uses [OpenNMT](https://opennmt.net/) for translations, [SentencePiece](https://github.com/google/sentencepiece) for tokenization, [Stanza](https://github.com/stanfordnlp/stanza) for sentence boundary detection, and [PyQt](https://riverbankcomputing.com/software/pyqt/intro) for GUI. Designed to be used as either a Python library, Command-Line, or GUI application. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
+Open-source offline translation library written in Python. Uses [OpenNMT](https://opennmt.net/) for translations, [SentencePiece](https://github.com/google/sentencepiece) for tokenization, [Stanza](https://github.com/stanfordnlp/stanza) for sentence boundary detection, and [PyQt](https://riverbankcomputing.com/software/pyqt/intro) for GUI. Designed to be used as either a Python library, command-line, or GUI application. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
 
 Argos Translate supports installing model files which are a zip archive with an ".argosmodel" extension that contains an OpenNMT [CTranslate2](https://github.com/OpenNMT/CTranslate2) model, a [SentencePiece](https://github.com/google/sentencepiece) tokenization model, a [Stanza](https://github.com/stanfordnlp/stanza) tokenizer model for sentence boundary detection, and metadata about the model. Pretrained models can be downloaded [here](https://www.argosopentech.com/argospm/index/).
 
