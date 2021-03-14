@@ -95,7 +95,7 @@ class IPackage:
         raise NotImplementedError()
 
     def __str__(self):
-        return "{} -> {}".format(self.from_name, self.to_name)
+        return "{} → {}".format(self.from_name, self.to_name)
 
 
 class Package(IPackage):
@@ -136,7 +136,6 @@ class AvailablePackage(IPackage):
 
     def get_description(self):
         return str(self)
-
 
 def install_from_path(path):
     """Install a package (zip archive ending in .argosmodel).

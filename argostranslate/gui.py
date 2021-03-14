@@ -156,14 +156,14 @@ class PackagesTable(QTableWidget):
         self.populate()
         success_message_box = QMessageBox()
         success_message_box.setWindowTitle(str(pkg))
-        success_message_box.setText(pkg.get_readme())
+        success_message_box.setText(f'Successfully installed package {pkg.get_description()}')
         success_message_box.setIcon(QMessageBox.Information)
         success_message_box.exec_()
 
     def view_package_readme(self, pkg):
         about_message_box = QMessageBox()
         about_message_box.setWindowTitle(str(pkg))
-        about_message_box.setText(pkg.get_readme())
+        about_message_box.setText(pkg.get_description())
         about_message_box.setIcon(QMessageBox.Information)
         about_message_box.exec_()
 
