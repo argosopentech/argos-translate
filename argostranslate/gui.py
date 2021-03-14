@@ -36,7 +36,7 @@ class PackagesTable(QTableWidget):
 
     class AvailableActions(enum.Enum):
         UNINSTALL = 0
-        DOWNLOAD_AND_INSTALL = 1
+        INSTALL = 1
     
     def __init__(self, table_content, available_actions):
         super().__init__()
@@ -58,6 +58,8 @@ class PackagesTable(QTableWidget):
             ]
         if self.AvailableActions.UNINSTALL in self.available_actions:
             headers.append('Uninstall')
+        if self.AvailableActions.INSTALL in self.available_actions:
+            headers.append('Install')
         self.setColumnCount(len(headers))
         self.setHorizontalHeaderLabels(headers)
         self.verticalHeader().setVisible(False)
@@ -105,6 +107,12 @@ class PackagesTable(QTableWidget):
                 uninstall_button.clicked.connect(bound_uninstall_function)
                 self.setCellWidget(i, row_index, uninstall_button)
                 row_index += 1
+            if self.AvailableActions.INSTALL in self.available_actions:
+                install_button = QPushButton('+')
+                bound_install_function = functools.partial(self.install_package, pkg)
+                install_button.clicked.connect(bound_install_function)
+                self.setCellWidget(i, row_index, install_button)
+                row_index += 1
         # Resize table widget
         self.setMinimumSize(QSize(0, 0))
         self.resizeColumnsToContents()
@@ -130,16 +138,27 @@ class PackagesTable(QTableWidget):
             # packages included in a snap archive are on a
             # read-only filesystem and can't be deleted
             if 'SNAP' in os.environ:
-                about_message_box = QMessageBox()
-                about_message_box.setWindowTitle('Error')
-                about_message_box.setText('Error deleting package: \n' + 
+                error_message_box = QMessageBox()
+                error_message_box.setWindowTitle('Error')
+                error_message_box.setText('Error deleting package: \n' + 
                     'Packages pre-installed in a snap archive can\'t be deleted')
-                about_message_box.setIcon(QMessageBox.Warning)
-                about_message_box.exec_()
+                error_message_box.setIcon(QMessageBox.Warning)
+                error_message_box.exec_()
             else:
                 raise e
         self.packages_changed.emit()
         self.populate()
+
+    def install_package(self, pkg):
+        download_path = pkg.download()
+        package.install_from_path(download_path)
+        self.packages_changed.emit()
+        self.populate()
+        success_message_box = QMessageBox()
+        success_message_box.setWindowTitle(str(pkg))
+        success_message_box.setText(pkg.get_readme())
+        success_message_box.setIcon(QMessageBox.Information)
+        success_message_box.exec_()
 
     def view_package_readme(self, pkg):
         about_message_box = QMessageBox()
@@ -161,7 +180,7 @@ class DownloadPackagesWindow(QWidget):
         available_packages = package.load_available_packages()
 
         # Packages table
-        self.packages_table = PackagesTable(PackagesTable.TableContent.AVAILABLE, [PackagesTable.AvailableActions.DOWNLOAD_AND_INSTALL])
+        self.packages_table = PackagesTable(PackagesTable.TableContent.AVAILABLE, [PackagesTable.AvailableActions.INSTALL])
         self.packages_table.packages_changed.connect(self.packages_changed.emit)
         self.packages_table.populate()
         self.packages_layout = QVBoxLayout()

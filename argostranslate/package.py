@@ -91,8 +91,12 @@ class IPackage:
             return readme_file.read()
         return None
 
+    def get_description(self):
+        raise NotImplementedError()
+
     def __str__(self):
         return "{} -> {}".format(self.from_name, self.to_name)
+
 
 class Package(IPackage):
     """An installed package"""
@@ -112,6 +116,9 @@ class Package(IPackage):
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
 
+    def get_description(self):
+        return self.get_readme()
+
 class AvailablePackage(IPackage):
     """A package available for download"""
     def __init__(self, metadata):
@@ -126,6 +133,9 @@ class AvailablePackage(IPackage):
         r = requests.get(url, allow_redirects=True)
         open(filepath, 'wb').write(r.content)
         return filepath
+
+    def get_description(self):
+        return str(self)
 
 
 def install_from_path(path):
