@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import threading
 import functools
+import enum
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -28,15 +29,25 @@ class WorkerThread(QThread):
 
 class PackagesTable(QTableWidget):
     packages_changed = pyqtSignal()
+
+    class TableContent(enum.Enum):
+        INSTALLED = 0
+        AVAILABLE = 1
+
+    class AvailableActions(enum.Enum):
+        UNINSTALL = 0
+        DOWNLOAD_AND_INSTALL = 1
     
-    def __init__(self):
+    def __init__(self, table_content, available_actions):
         super().__init__()
+        self.table_content = table_content
+        self.available_actions = available_actions
+        
         self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setColumnCount(8)
-        self.setHorizontalHeaderLabels([
+        headers = [
                 'Readme',
                 'From name',
                 'To name',
@@ -44,8 +55,11 @@ class PackagesTable(QTableWidget):
                 'Argos version',
                 'From code',
                 'To code',
-                'Uninstall'
-            ])
+            ]
+        if self.AvailableActions.UNINSTALL in self.available_actions:
+            headers.append('Uninstall')
+        self.setColumnCount(len(headers))
+        self.setHorizontalHeaderLabels(headers)
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
@@ -54,7 +68,9 @@ class PackagesTable(QTableWidget):
         self.STRETCH_COLUMN_MIN_PADDING = 50
         self.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
-    def populate(self, packages):
+    def populate(self):
+        packages = self.get_packages()
+        
         self.setRowCount(len(packages))
         for i, pkg in enumerate(packages):
             from_name = pkg.from_name
@@ -68,17 +84,27 @@ class PackagesTable(QTableWidget):
             bound_view_package_readme_function = functools.partial(
                 self.view_package_readme, pkg)
             readme_button.clicked.connect(bound_view_package_readme_function)
-            self.setCellWidget(i, 0, readme_button)
-            self.setItem(i, 1, QTableWidgetItem(from_name))
-            self.setItem(i, 2, QTableWidgetItem(to_name))
-            self.setItem(i, 3, QTableWidgetItem(package_version))
-            self.setItem(i, 4, QTableWidgetItem(argos_version))
-            self.setItem(i, 5, QTableWidgetItem(from_code))
-            self.setItem(i, 6, QTableWidgetItem(to_code))
-            uninstall_button = QPushButton('x')
-            bound_uninstall_function = functools.partial(self.uninstall_package, pkg)
-            uninstall_button.clicked.connect(bound_uninstall_function)
-            self.setCellWidget(i, 7, uninstall_button)
+            row_index = 0
+            self.setCellWidget(i, row_index, readme_button)
+            row_index += 1
+            self.setItem(i, row_index, QTableWidgetItem(from_name))
+            row_index += 1
+            self.setItem(i, row_index, QTableWidgetItem(to_name))
+            row_index += 1
+            self.setItem(i, row_index, QTableWidgetItem(package_version))
+            row_index += 1
+            self.setItem(i, row_index, QTableWidgetItem(argos_version))
+            row_index += 1
+            self.setItem(i, row_index, QTableWidgetItem(from_code))
+            row_index += 1
+            self.setItem(i, row_index, QTableWidgetItem(to_code))
+            row_index += 1
+            if self.AvailableActions.UNINSTALL in self.available_actions:
+                uninstall_button = QPushButton('x')
+                bound_uninstall_function = functools.partial(self.uninstall_package, pkg)
+                uninstall_button.clicked.connect(bound_uninstall_function)
+                self.setCellWidget(i, row_index, uninstall_button)
+                row_index += 1
         # Resize table widget
         self.setMinimumSize(QSize(0, 0))
         self.resizeColumnsToContents()
@@ -88,6 +114,14 @@ class PackagesTable(QTableWidget):
         self.setMinimumSize(
             QSize(header_width + self.STRETCH_COLUMN_MIN_PADDING * 2, 0)
         )
+
+    def get_packages(self):
+        if self.table_content == self.TableContent.AVAILABLE:
+            return package.load_available_packages()
+        elif self.table_content == self.TableContent.INSTALLED:
+            return package.get_installed_packages()
+        else:
+            raise Exception('Invalid table content')
 
     def uninstall_package(self, pkg):
         try:
@@ -105,7 +139,7 @@ class PackagesTable(QTableWidget):
             else:
                 raise e
         self.packages_changed.emit()
-        self.populate(package.get_installed_packages())
+        self.populate()
 
     def view_package_readme(self, pkg):
         about_message_box = QMessageBox()
@@ -126,30 +160,43 @@ class DownloadPackagesWindow(QWidget):
         # Load available packages from local package index
         available_packages = package.load_available_packages()
 
+        # Packages table
+        self.packages_table = PackagesTable(PackagesTable.TableContent.AVAILABLE, [PackagesTable.AvailableActions.DOWNLOAD_AND_INSTALL])
+        self.packages_table.packages_changed.connect(self.packages_changed.emit)
+        self.packages_table.populate()
+        self.packages_layout = QVBoxLayout()
+        self.packages_layout.addWidget(self.packages_table)
+
+        # Layout
+        self.layout = QVBoxLayout()
+        self.layout.addLayout(self.packages_layout)
+        self.layout.addStretch()
+        self.setLayout(self.layout)
+
 class ManagePackagesWindow(QWidget):
     packages_changed = pyqtSignal()
 
     def __init__(self):
-        super().__init__()
-        # Add packages row
-        self.add_packages_button = QPushButton('Install packages')
-        self.add_packages_button.clicked.connect(self.add_packages)
-
         def open_download_packages_view():
             self.download_packages_window = DownloadPackagesWindow()
             self.download_packages_window.show()
         self.download_packages_button = QPushButton('Download packages')
         self.download_packages_button.clicked.connect(open_download_packages_view)
 
+        super().__init__()
+        # Add packages row
+        self.install_package_file_button = QPushButton('Install package file')
+        self.install_package_file_button.clicked.connect(self.add_packages)
+
         self.add_packages_row_layout = QHBoxLayout()
         self.add_packages_row_layout.addWidget(self.download_packages_button)
-        self.add_packages_row_layout.addWidget(self.add_packages_button)
+        self.add_packages_row_layout.addWidget(self.install_package_file_button)
         self.add_packages_row_layout.addStretch()
 
         # Packages table
-        self.packages_table = PackagesTable()
+        self.packages_table = PackagesTable(PackagesTable.TableContent.INSTALLED, [PackagesTable.AvailableActions.UNINSTALL])
         self.packages_table.packages_changed.connect(self.packages_changed.emit)
-        self.packages_table.populate(package.get_installed_packages())
+        self.packages_table.populate()
         self.packages_layout = QVBoxLayout()
         self.packages_layout.addWidget(self.packages_table)
 
@@ -171,7 +218,7 @@ class ManagePackagesWindow(QWidget):
             for file_path in filepaths:
                 package.install_from_path(file_path)
             self.packages_changed.emit()
-            self.packages_table.populate(package.get_installed_packages())
+            self.packages_table.populate()
 
 class GUIWindow(QMainWindow):
     # Above this number of characters in the input text will show a 
