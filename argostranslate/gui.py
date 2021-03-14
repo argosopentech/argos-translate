@@ -26,27 +26,17 @@ class WorkerThread(QThread):
         translated_text = self.translation_function()
         self.send_text_update.emit(translated_text)
 
-class ManagePackagesWindow(QWidget):
+class PackagesTable(QTableWidget):
     packages_changed = pyqtSignal()
-
+    
     def __init__(self):
         super().__init__()
-        # Add packages row
-        self.add_packages_button = QPushButton('+ Add packages')
-        self.add_packages_button.clicked.connect(self.add_packages)
-        self.add_packages_row_layout = QHBoxLayout()
-        self.add_packages_row_layout.addWidget(
-                self.add_packages_button)
-        self.add_packages_row_layout.addStretch()
-
-        # Packages table
-        self.packages_table = QTableWidget()
-        self.packages_table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-        self.packages_table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-        self.packages_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.packages_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.packages_table.setColumnCount(8)
-        self.packages_table.setHorizontalHeaderLabels([
+        self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setColumnCount(8)
+        self.setHorizontalHeaderLabels([
                 'Readme',
                 'From name',
                 'To name',
@@ -56,23 +46,48 @@ class ManagePackagesWindow(QWidget):
                 'To code',
                 'Uninstall'
             ])
-        self.packages_table.verticalHeader().setVisible(False)
-        self.packages_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.packages_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-        self.packages_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.verticalHeader().setVisible(False)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        self.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
         # Padding in header sections used as workaround for inaccurate results of resizeColumnsToContents()
-        self.packages_table.STRETCH_COLUMN_MIN_PADDING = 50
-        self.packages_table.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
-        self.populate_packages_table()
-        self.packages_layout = QVBoxLayout()
-        self.packages_layout.addWidget(self.packages_table)
+        self.STRETCH_COLUMN_MIN_PADDING = 50
+        self.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
-        # Layout
-        self.layout = QVBoxLayout()
-        self.layout.addLayout(self.add_packages_row_layout)
-        self.layout.addLayout(self.packages_layout)
-        self.layout.addStretch()
-        self.setLayout(self.layout)
+    def populate(self, packages):
+        self.setRowCount(len(packages))
+        for i, pkg in enumerate(packages):
+            from_name = pkg.from_name
+            to_name = pkg.to_name
+            package_version = pkg.package_version
+            argos_version = pkg.argos_version
+            from_code = pkg.from_code
+            to_code = pkg.to_code
+            pkg = packages[i]
+            readme_button = QPushButton('view')
+            bound_view_package_readme_function = functools.partial(
+                self.view_package_readme, pkg)
+            readme_button.clicked.connect(bound_view_package_readme_function)
+            self.setCellWidget(i, 0, readme_button)
+            self.setItem(i, 1, QTableWidgetItem(from_name))
+            self.setItem(i, 2, QTableWidgetItem(to_name))
+            self.setItem(i, 3, QTableWidgetItem(package_version))
+            self.setItem(i, 4, QTableWidgetItem(argos_version))
+            self.setItem(i, 5, QTableWidgetItem(from_code))
+            self.setItem(i, 6, QTableWidgetItem(to_code))
+            uninstall_button = QPushButton('x')
+            bound_uninstall_function = functools.partial(self.uninstall_package, pkg)
+            uninstall_button.clicked.connect(bound_uninstall_function)
+            self.setCellWidget(i, 7, uninstall_button)
+        # Resize table widget
+        self.setMinimumSize(QSize(0, 0))
+        self.resizeColumnsToContents()
+        self.adjustSize()
+        # Set minimum width of packages_table that also limits size of packages window
+        header_width = self.horizontalHeader().length()
+        self.setMinimumSize(
+            QSize(header_width + self.STRETCH_COLUMN_MIN_PADDING * 2, 0)
+        )
 
     def uninstall_package(self, pkg):
         try:
@@ -89,8 +104,8 @@ class ManagePackagesWindow(QWidget):
                 about_message_box.exec_()
             else:
                 raise e
-        self.populate_packages_table()
         self.packages_changed.emit()
+        self.populate(package.get_installed_packages())
 
     def view_package_readme(self, pkg):
         about_message_box = QMessageBox()
@@ -98,6 +113,52 @@ class ManagePackagesWindow(QWidget):
         about_message_box.setText(pkg.get_readme())
         about_message_box.setIcon(QMessageBox.Information)
         about_message_box.exec_()
+
+class DownloadPackagesWindow(QWidget):
+    packages_changed = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+        # Update package definitions from remote
+        package.update_package_index()
+
+        # Load available packages from local package index
+        available_packages = package.load_available_packages()
+
+class ManagePackagesWindow(QWidget):
+    packages_changed = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        # Add packages row
+        self.add_packages_button = QPushButton('Install packages')
+        self.add_packages_button.clicked.connect(self.add_packages)
+
+        def open_download_packages_view():
+            self.download_packages_window = DownloadPackagesWindow()
+            self.download_packages_window.show()
+        self.download_packages_button = QPushButton('Download packages')
+        self.download_packages_button.clicked.connect(open_download_packages_view)
+
+        self.add_packages_row_layout = QHBoxLayout()
+        self.add_packages_row_layout.addWidget(self.download_packages_button)
+        self.add_packages_row_layout.addWidget(self.add_packages_button)
+        self.add_packages_row_layout.addStretch()
+
+        # Packages table
+        self.packages_table = PackagesTable()
+        self.packages_table.packages_changed.connect(self.packages_changed.emit)
+        self.packages_table.populate(package.get_installed_packages())
+        self.packages_layout = QVBoxLayout()
+        self.packages_layout.addWidget(self.packages_table)
+
+        # Layout
+        self.layout = QVBoxLayout()
+        self.layout.addLayout(self.add_packages_row_layout)
+        self.layout.addLayout(self.packages_layout)
+        self.layout.addStretch()
+        self.setLayout(self.layout)
 
     def add_packages(self):
         file_dialog = QFileDialog()
@@ -109,44 +170,8 @@ class ManagePackagesWindow(QWidget):
         if len(filepaths) > 0:
             for file_path in filepaths:
                 package.install_from_path(file_path)
-            self.populate_packages_table()
             self.packages_changed.emit()
-
-    def populate_packages_table(self):
-        packages = package.get_installed_packages()
-        self.packages_table.setRowCount(len(packages))
-        for i, pkg in enumerate(packages):
-            from_name = pkg.from_name
-            to_name = pkg.to_name
-            package_version = pkg.package_version
-            argos_version = pkg.argos_version
-            from_code = pkg.from_code
-            to_code = pkg.to_code
-            pkg = packages[i]
-            readme_button = QPushButton('view')
-            bound_view_package_readme_function = functools.partial(
-                self.view_package_readme, pkg)
-            readme_button.clicked.connect(bound_view_package_readme_function)
-            self.packages_table.setCellWidget(i, 0, readme_button)
-            self.packages_table.setItem(i, 1, QTableWidgetItem(from_name))
-            self.packages_table.setItem(i, 2, QTableWidgetItem(to_name))
-            self.packages_table.setItem(i, 3, QTableWidgetItem(package_version))
-            self.packages_table.setItem(i, 4, QTableWidgetItem(argos_version))
-            self.packages_table.setItem(i, 5, QTableWidgetItem(from_code))
-            self.packages_table.setItem(i, 6, QTableWidgetItem(to_code))
-            delete_button = QPushButton('x')
-            bound_delete_function = functools.partial(self.uninstall_package, pkg)
-            delete_button.clicked.connect(bound_delete_function)
-            self.packages_table.setCellWidget(i, 7, delete_button)
-        # Resize table widget
-        self.packages_table.setMinimumSize(QSize(0, 0))
-        self.packages_table.resizeColumnsToContents()
-        self.packages_table.adjustSize()
-        # Set minimum width of packages_table that also limits size of packages window
-        header_width = self.packages_table.horizontalHeader().length()
-        self.packages_table.setMinimumSize(
-            QSize(header_width + self.packages_table.STRETCH_COLUMN_MIN_PADDING * 2, 0)
-        )
+            self.packages_table.populate(package.get_installed_packages())
 
 class GUIWindow(QMainWindow):
     # Above this number of characters in the input text will show a 
