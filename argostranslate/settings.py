@@ -24,7 +24,7 @@ cache_dir = Path(os.getenv('XDG_CACHE_HOME',
         default=home_dir / '.local' / 'cache')) / 'argos-translate'
 os.makedirs(cache_dir, exist_ok=True)
 
-remote_repo = os.getenv('ARGOS_REMOTE_REPO',
+remote_repo = os.getenv('ARGOS_PACKAGE_INDEX',
         default='https://raw.githubusercontent.com/argosopentech/argospm-index/main')
 remote_package_index = remote_repo + '/index.json'
 
