@@ -8,7 +8,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from argostranslate import translate, package, settings
+from argostranslate import translate, package, settings, utils
+from argostranslate.utils import info, warning, error
 
 class TranslationThread(QThread):
     send_text_update = pyqtSignal(str)
@@ -107,13 +108,13 @@ class PackagesTable(QTableWidget):
                 self.setText('✓')
 
         def clicked_handler(self):
-            print('clicked_handler')
+            info('WorkerStatusButton clicked_handler')
             self.status = self.Status.RUNNING
             self.update_status_indicator()
             self.worker_thread.start()
 
         def finished_handler(self):
-            print('finished_handler')
+            info('finished_handler')
             self.status = self.Status.DONE
             self.update_status_indicator()
 
@@ -198,11 +199,6 @@ class PackagesTable(QTableWidget):
     def install_package(pkg):
         download_path = pkg.download()
         package.install_from_path(download_path)
-        success_message_box = QMessageBox()
-        success_message_box.setWindowTitle(str(pkg))
-        success_message_box.setText(f'Successfully installed package {pkg.get_description()}')
-        success_message_box.setIcon(QMessageBox.Information)
-        success_message_box.exec_()
 
     def view_package_readme(self, pkg):
         about_message_box = QMessageBox()
@@ -424,7 +420,7 @@ class GUIWindow(QMainWindow):
                 self.queued_translation = new_worker_thread
 
         else:
-            print('No translation available for this language pair')
+            error('No translation available for this language pair')
 
 class GUIApplication:
     def __init__(self):

@@ -4,7 +4,8 @@ import ctranslate2
 import sentencepiece as spm
 import stanza
 
-from argostranslate import package, settings
+from argostranslate import translate, package, settings, utils
+from argostranslate.utils import info, warning, error
 
 class Language:
     """Represents a language that can be translated from/to.
@@ -205,7 +206,7 @@ def apply_packaged_translation(pkg, input_text, translator):
 
     """
 
-    if settings.debug: print('apply_packaged_translation')
+    info('apply_packaged_translation')
     sp_model_path = str(pkg.package_path / 'sentencepiece.model')
     sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
     stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
@@ -214,15 +215,15 @@ def apply_packaged_translation(pkg, input_text, translator):
             logging_level='WARNING')
     stanza_sbd = stanza_pipeline(input_text)
     sentences = [sentence.text for sentence in stanza_sbd.sentences]
-    if settings.debug: print('sentences', sentences)
+    info('sentences', sentences)
     tokenized = [sp_processor.encode(sentence, out_type=str) for sentence in sentences]
-    if settings.debug: print('tokenized', tokenized)
+    info('tokenized', tokenized)
     translated_batches = translator.translate_batch(
             tokenized,
             replace_unknowns=True,
             max_batch_size=32,
             length_penalty=0.2)
-    if settings.debug: print('translated_batches', translated_batches)
+    info('translated_batches', translated_batches)
     translated_tokens = []
     for translated_batch in translated_batches:
         translated_tokens += translated_batch[0]['tokens']
@@ -238,7 +239,7 @@ def apply_packaged_translation(pkg, input_text, translator):
 def load_installed_languages():
     """Returns a list of Languages installed from packages"""
     
-    if settings.debug: print('load_installed_languages')
+    info('load_installed_languages')
 
     packages = package.get_installed_packages()
 
