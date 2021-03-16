@@ -16,8 +16,10 @@ data_dir = Path(os.getenv('XDG_DATA_HOME',
         default=home_dir / '.local' / 'share')) / 'argos-translate'
 os.makedirs(data_dir, exist_ok=True)
 
-package_data_dir = Path(os.getenv('ARGOS_TRANSLATE_PACKAGES_DIR',
+# ARGOS_TRANSLATE_PACKAGES_DIR deprecated 1.2.0
+legacy_package_data_dir = Path(os.getenv('ARGOS_TRANSLATE_PACKAGES_DIR',
         default=data_dir / 'packages'))
+package_data_dir = Path(os.getenv('ARGOS_PACKAGES_DIR', legacy_package_data_dir)
 os.makedirs(package_data_dir, exist_ok=True)
 
 cache_dir = Path(os.getenv('XDG_CACHE_HOME',
