@@ -48,10 +48,6 @@ if 'SNAP' in os.environ:
             if package_dir.is_dir():
                 package_dirs.append(package_dir)
 
-if 'ARGOS_TRANSLATE_PACKAGE_DIR' in os.environ:
-    package_dirs.append(Path(os.environ[
-            'ARGOS_TRANSLATE_PACKAGE_DIR']))
-
 local_package_index = cache_dir / 'index.json'
 
 about_text = """
