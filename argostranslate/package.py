@@ -103,7 +103,7 @@ class IPackage:
                 self.to_name == other.to_name
 
     def __str__(self):
-        return "{} → {}".format(self.from_name, self.to_name)
+        return "{} -> {}".format(self.from_name, self.to_name)
 
 
 class Package(IPackage):
