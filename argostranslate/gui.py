@@ -2,11 +2,12 @@ from pathlib import Path
 import os
 import threading
 from functools import partial
-import enum
+from enum import Enum
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from PyQt5.QtQuick import *
 
 from argostranslate import translate, package, settings
 
@@ -31,6 +32,7 @@ class WorkerThread(QThread):
     def __init__(self, bound_worker_function):
         super().__init__()
         self.bound_worker_function = bound_worker_function
+        self.finished.connect(self.deleteLater)
 
     def __del__(self):
         self.wait()
@@ -42,11 +44,11 @@ class WorkerThread(QThread):
 class PackagesTable(QTableWidget):
     packages_changed = pyqtSignal()
 
-    class TableContent(enum.Enum):
+    class TableContent(Enum):
         INSTALLED = 0
         AVAILABLE = 1
 
-    class AvailableActions(enum.Enum):
+    class AvailableActions(Enum):
         UNINSTALL = 0
         INSTALL = 1
     
@@ -83,19 +85,38 @@ class PackagesTable(QTableWidget):
         self.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
     class WorkerStatusButton(QPushButton):
+        class Status(Enum):
+            NOT_STARTED = 0
+            RUNNING = 1
+            DONE = 2
+
         def __init__(self, text, bound_worker_function):
             super().__init__(text)
+            self.text = text
             self.worker_thread = WorkerThread(bound_worker_function)
             self.worker_thread.finished.connect(self.finished_handler)
-            self.worker_thread.finished.connect(self.worker_thread.deleteLater)
             self.clicked.connect(self.clicked_handler)
+            self.status = self.Status.NOT_STARTED
+            self.update_status_indicator()
+
+        def update_status_indicator(self):
+            if self.status == self.Status.NOT_STARTED:
+                self.setText(self.text)
+            elif self.status == self.Status.RUNNING:
+                self.setText('...')
+            elif self.status == self.Status.DONE:
+                self.setText('✓')
 
         def clicked_handler(self):
             print('clicked_handler')
+            self.status = self.Status.RUNNING
+            self.update_status_indicator()
             self.worker_thread.start()
 
         def finished_handler(self):
             print('finished_handler')
+            self.status = self.Status.DONE
+            self.update_status_indicator()
 
     def populate(self):
         packages = self.get_packages()
@@ -135,7 +156,7 @@ class PackagesTable(QTableWidget):
                 self.setCellWidget(i, row_index, uninstall_button)
                 row_index += 1
             if self.AvailableActions.INSTALL in self.available_actions:
-                bound_install_function = partial(PackagesTable.install_package, self, pkg)
+                bound_install_function = partial(PackagesTable.install_package, pkg)
                 install_button = self.WorkerStatusButton('+', bound_install_function)
                 self.setCellWidget(i, row_index, install_button)
                 row_index += 1
@@ -175,12 +196,9 @@ class PackagesTable(QTableWidget):
         self.packages_changed.emit()
         self.populate()
 
-    def install_package(self, pkg):
-        print('install_package')
+    def install_package(pkg):
         download_path = pkg.download()
         package.install_from_path(download_path)
-        # self.packages_changed.emit()
-        # self.populate()
         success_message_box = QMessageBox()
         success_message_box.setWindowTitle(str(pkg))
         success_message_box.setText(f'Successfully installed package {pkg.get_description()}')
