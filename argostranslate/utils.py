@@ -1,9 +1,11 @@
-def info(log):
+from argostranslate import settings
+
+def info(*args):
     if settings.debug:
-        print(log)
+        print(args)
 
-def warning(log):
-    print(log)
+def warning(*args):
+    print(args)
 
-def error(log):
-    print(log)
+def error(*args):
+    print(args)
