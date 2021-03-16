@@ -207,46 +207,24 @@ class PackagesTable(QTableWidget):
         about_message_box.setIcon(QMessageBox.Information)
         about_message_box.exec_()
 
-class DownloadPackagesWindow(QWidget):
+class ManagePackagesWindow(QWidget):
     packages_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
 
-        # Update package definitions from remote
-        package.update_package_index()
-
-        # Load available packages from local package index
-        available_packages = package.load_available_packages()
-
-        # Packages table
-        self.packages_table = PackagesTable(PackagesTable.TableContent.AVAILABLE, [PackagesTable.AvailableActions.INSTALL])
-        self.packages_table.packages_changed.connect(self.packages_changed.emit)
-        self.packages_table.populate()
-        self.packages_layout = QVBoxLayout()
-        self.packages_layout.addWidget(self.packages_table)
-
-        # Layout
-        self.layout = QVBoxLayout()
-        self.layout.addLayout(self.packages_layout)
-        self.layout.addStretch()
-        self.setLayout(self.layout)
-
-class ManagePackagesWindow(QWidget):
-    packages_changed = pyqtSignal()
-
-    def __init__(self):
+        # Download packages
         def open_download_packages_view():
             self.download_packages_window = DownloadPackagesWindow()
             self.download_packages_window.show()
         self.download_packages_button = QPushButton('Download packages')
         self.download_packages_button.clicked.connect(open_download_packages_view)
 
-        super().__init__()
-        # Add packages row
+        # Install from file
         self.install_package_file_button = QPushButton('Install package file')
         self.install_package_file_button.clicked.connect(self.add_packages)
 
+        # Add packages row
         self.add_packages_row_layout = QHBoxLayout()
         self.add_packages_row_layout.addWidget(self.download_packages_button)
         self.add_packages_row_layout.addWidget(self.install_package_file_button)
@@ -278,6 +256,32 @@ class ManagePackagesWindow(QWidget):
                 package.install_from_path(file_path)
             self.packages_changed.emit()
             self.packages_table.populate()
+
+class DownloadPackagesWindow(QWidget):
+    packages_changed = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+        # Update package definitions from remote
+        package.update_package_index()
+
+        # Load available packages from local package index
+        available_packages = package.load_available_packages()
+
+        # Packages table
+        self.packages_table = PackagesTable(PackagesTable.TableContent.AVAILABLE, [PackagesTable.AvailableActions.INSTALL])
+        self.packages_table.packages_changed.connect(self.packages_changed.emit)
+        self.packages_table.populate()
+        self.packages_layout = QVBoxLayout()
+        self.packages_layout.addWidget(self.packages_table)
+
+        # Layout
+        self.layout = QVBoxLayout()
+        self.layout.addLayout(self.packages_layout)
+        self.layout.addStretch()
+        self.setLayout(self.layout)
+
 
 class GUIWindow(QMainWindow):
     # Above this number of characters in the input text will show a 
