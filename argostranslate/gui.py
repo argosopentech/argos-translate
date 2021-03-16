@@ -11,23 +11,6 @@ from PyQt5.QtCore import *
 from argostranslate import translate, package, settings, utils
 from argostranslate.utils import info, warning, error
 
-class TranslationThread(QThread):
-    send_text_update = pyqtSignal(str)
-
-    def __init__(self, translation_function, show_loading_message):
-        super().__init__()
-        self.translation_function = translation_function
-        self.show_loading_message = show_loading_message
-
-    def __del__(self):
-        self.wait()
-
-    def run(self):
-        if self.show_loading_message:
-            self.send_text_update.emit('Loading...')
-        translated_text = self.translation_function()
-        self.send_text_update.emit(translated_text)
-
 class WorkerThread(QThread):
     def __init__(self, bound_worker_function):
         super().__init__()
@@ -37,6 +20,19 @@ class WorkerThread(QThread):
     def run(self):
         self.bound_worker_function()
 
+class TranslationThread(QThread):
+    send_text_update = pyqtSignal(str)
+
+    def __init__(self, translation_function, show_loading_message):
+        super().__init__()
+        self.translation_function = translation_function
+        self.show_loading_message = show_loading_message
+
+    def run(self):
+        if self.show_loading_message:
+            self.send_text_update.emit('Loading...')
+        translated_text = self.translation_function()
+        self.send_text_update.emit(translated_text)
 
 class WorkerStatusButton(QPushButton):
     class Status(Enum):
@@ -115,6 +111,9 @@ class PackagesTable(QTableWidget):
         self.STRETCH_COLUMN_MIN_PADDING = 50
         self.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
+        self.available_packages = package.load_available_packages()
+        self.installed_packages = package.get_installed_packages()
+
     def populate(self):
         packages = self.get_packages()
         
@@ -153,9 +152,12 @@ class PackagesTable(QTableWidget):
                 self.setCellWidget(i, row_index, uninstall_button)
                 row_index += 1
             if self.AvailableActions.INSTALL in self.available_actions:
-                bound_install_function = partial(PackagesTable.install_package, pkg)
-                install_button = WorkerStatusButton('⬇', bound_install_function)
-                self.setCellWidget(i, row_index, install_button)
+                if pkg not in self.installed_packages:
+                    bound_install_function = partial(PackagesTable.install_package, pkg)
+                    install_button = WorkerStatusButton('⬇', bound_install_function)
+                    self.setCellWidget(i, row_index, install_button)
+                else:
+                    self.setItem(i, row_index, QTableWidgetItem('Installed'))
                 row_index += 1
         # Resize table widget
         self.setMinimumSize(QSize(0, 0))

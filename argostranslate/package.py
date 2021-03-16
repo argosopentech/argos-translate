@@ -94,6 +94,14 @@ class IPackage:
     def get_description(self):
         raise NotImplementedError()
 
+    def __eq__(self, other):
+        return self.package_version == other.package_version and \
+                self.argos_version == other.argos_version and \
+                self.from_code == other.from_code and \
+                self.from_name == other.from_name and \
+                self.to_code == other.to_code and \
+                self.to_name == other.to_name
+
     def __str__(self):
         return "{} → {}".format(self.from_name, self.to_name)
 
