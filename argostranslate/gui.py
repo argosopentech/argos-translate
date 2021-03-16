@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 import threading
-import functools
+from functools import partial
 import enum
 
 from PyQt5.QtWidgets import *
@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 
 from argostranslate import translate, package, settings
 
-class WorkerThread(QThread):
+class TranslationThread(QThread):
     send_text_update = pyqtSignal(str)
 
     def __init__(self, translation_function, show_loading_message):
@@ -26,6 +26,18 @@ class WorkerThread(QThread):
             self.send_text_update.emit('Loading...')
         translated_text = self.translation_function()
         self.send_text_update.emit(translated_text)
+
+class WorkerThread(QThread):
+    def __init__(self, bound_worker_function):
+        super().__init__()
+        self.bound_worker_function = bound_worker_function
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        self.bound_worker_function()
+
 
 class PackagesTable(QTableWidget):
     packages_changed = pyqtSignal()
@@ -70,6 +82,21 @@ class PackagesTable(QTableWidget):
         self.STRETCH_COLUMN_MIN_PADDING = 50
         self.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
+    class WorkerStatusButton(QPushButton):
+        def __init__(self, text, bound_worker_function):
+            super().__init__(text)
+            self.worker_thread = WorkerThread(bound_worker_function)
+            self.worker_thread.finished.connect(self.finished_handler)
+            self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+            self.clicked.connect(self.clicked_handler)
+
+        def clicked_handler(self):
+            print('clicked_handler')
+            self.worker_thread.start()
+
+        def finished_handler(self):
+            print('finished_handler')
+
     def populate(self):
         packages = self.get_packages()
         
@@ -83,7 +110,7 @@ class PackagesTable(QTableWidget):
             to_code = pkg.to_code
             pkg = packages[i]
             readme_button = QPushButton('view')
-            bound_view_package_readme_function = functools.partial(
+            bound_view_package_readme_function = partial(
                 self.view_package_readme, pkg)
             readme_button.clicked.connect(bound_view_package_readme_function)
             row_index = 0
@@ -103,14 +130,13 @@ class PackagesTable(QTableWidget):
             row_index += 1
             if self.AvailableActions.UNINSTALL in self.available_actions:
                 uninstall_button = QPushButton('x')
-                bound_uninstall_function = functools.partial(self.uninstall_package, pkg)
+                bound_uninstall_function = partial(self.uninstall_package, pkg)
                 uninstall_button.clicked.connect(bound_uninstall_function)
                 self.setCellWidget(i, row_index, uninstall_button)
                 row_index += 1
             if self.AvailableActions.INSTALL in self.available_actions:
-                install_button = QPushButton('+')
-                bound_install_function = functools.partial(self.install_package, pkg)
-                install_button.clicked.connect(bound_install_function)
+                bound_install_function = partial(PackagesTable.install_package, self, pkg)
+                install_button = self.WorkerStatusButton('+', bound_install_function)
                 self.setCellWidget(i, row_index, install_button)
                 row_index += 1
         # Resize table widget
@@ -150,10 +176,11 @@ class PackagesTable(QTableWidget):
         self.populate()
 
     def install_package(self, pkg):
+        print('install_package')
         download_path = pkg.download()
         package.install_from_path(download_path)
-        self.packages_changed.emit()
-        self.populate()
+        # self.packages_changed.emit()
+        # self.populate()
         success_message_box = QMessageBox()
         success_message_box.setWindowTitle(str(pkg))
         success_message_box.setText(f'Successfully installed package {pkg.get_description()}')
@@ -251,9 +278,9 @@ class GUIWindow(QMainWindow):
         # Threading
         self.worker_thread = None
 
-        # This is an instance of WorkerThread to run after
-        # the currently running WorkerThread finishes.
-        # None if there is no waiting WorkerThread.
+        # This is an instance of TranslationThread to run after
+        # the currently running TranslationThread finishes.
+        # None if there is no waiting TranslationThread.
         self.queued_translation = None
 
         # Language selection
@@ -364,10 +391,10 @@ class GUIWindow(QMainWindow):
         output_language = self.languages[output_combo_value]
         translation = input_language.get_translation(output_language)
         if translation:
-            bound_translation_function = functools.partial(translation.translate,
+            bound_translation_function = partial(translation.translate,
                     input_text)
             show_loading_message = len(input_text) > self.SHOW_LOADING_THRESHOLD
-            new_worker_thread = WorkerThread(bound_translation_function,
+            new_worker_thread = TranslationThread(bound_translation_function,
                     show_loading_message)
             new_worker_thread.send_text_update.connect(
                     self.update_right_textEdit)
