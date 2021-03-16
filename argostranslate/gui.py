@@ -34,12 +34,43 @@ class WorkerThread(QThread):
         self.bound_worker_function = bound_worker_function
         self.finished.connect(self.deleteLater)
 
-    def __del__(self):
-        self.wait()
-
     def run(self):
         self.bound_worker_function()
 
+
+class WorkerStatusButton(QPushButton):
+    class Status(Enum):
+        NOT_STARTED = 0
+        RUNNING = 1
+        DONE = 2
+
+    def __init__(self, text, bound_worker_function):
+        super().__init__(text)
+        self.text = text
+        self.worker_thread = WorkerThread(bound_worker_function)
+        self.worker_thread.finished.connect(self.finished_handler)
+        self.clicked.connect(self.clicked_handler)
+        self.status = self.Status.NOT_STARTED
+        self.update_status_indicator()
+
+    def update_status_indicator(self):
+        if self.status == self.Status.NOT_STARTED:
+            self.setText(self.text)
+        elif self.status == self.Status.RUNNING:
+            self.setText('⌛')
+        elif self.status == self.Status.DONE:
+            self.setText('✓')
+
+    def clicked_handler(self):
+        info('WorkerStatusButton clicked_handler')
+        self.status = self.Status.RUNNING
+        self.update_status_indicator()
+        self.worker_thread.start()
+
+    def finished_handler(self):
+        info('WorkerStatusButton finished_handler')
+        self.status = self.Status.DONE
+        self.update_status_indicator()
 
 class PackagesTable(QTableWidget):
     packages_changed = pyqtSignal()
@@ -84,40 +115,6 @@ class PackagesTable(QTableWidget):
         self.STRETCH_COLUMN_MIN_PADDING = 50
         self.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
-    class WorkerStatusButton(QPushButton):
-        class Status(Enum):
-            NOT_STARTED = 0
-            RUNNING = 1
-            DONE = 2
-
-        def __init__(self, text, bound_worker_function):
-            super().__init__(text)
-            self.text = text
-            self.worker_thread = WorkerThread(bound_worker_function)
-            self.worker_thread.finished.connect(self.finished_handler)
-            self.clicked.connect(self.clicked_handler)
-            self.status = self.Status.NOT_STARTED
-            self.update_status_indicator()
-
-        def update_status_indicator(self):
-            if self.status == self.Status.NOT_STARTED:
-                self.setText(self.text)
-            elif self.status == self.Status.RUNNING:
-                self.setText('⌛')
-            elif self.status == self.Status.DONE:
-                self.setText('✓')
-
-        def clicked_handler(self):
-            info('WorkerStatusButton clicked_handler')
-            self.status = self.Status.RUNNING
-            self.update_status_indicator()
-            self.worker_thread.start()
-
-        def finished_handler(self):
-            info('finished_handler')
-            self.status = self.Status.DONE
-            self.update_status_indicator()
-
     def populate(self):
         packages = self.get_packages()
         
@@ -157,7 +154,7 @@ class PackagesTable(QTableWidget):
                 row_index += 1
             if self.AvailableActions.INSTALL in self.available_actions:
                 bound_install_function = partial(PackagesTable.install_package, pkg)
-                install_button = self.WorkerStatusButton('⬇', bound_install_function)
+                install_button = WorkerStatusButton('⬇', bound_install_function)
                 self.setCellWidget(i, row_index, install_button)
                 row_index += 1
         # Resize table widget
