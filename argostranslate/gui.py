@@ -198,6 +198,7 @@ class PackagesTable(QTableWidget):
     def install_package(pkg):
         download_path = pkg.download()
         package.install_from_path(download_path)
+        os.remove(download_path)
 
     def view_package_readme(self, pkg):
         about_message_box = QMessageBox()
