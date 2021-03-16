@@ -143,7 +143,7 @@ class AvailablePackage(IPackage):
         return filepath
 
     def get_description(self):
-        return str(self)
+        return "{} → {}".format(self.from_name, self.to_name)
 
 def install_from_path(path):
     """Install a package (zip archive ending in .argosmodel).
