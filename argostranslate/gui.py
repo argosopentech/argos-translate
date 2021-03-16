@@ -7,7 +7,6 @@ from enum import Enum
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from PyQt5.QtQuick import *
 
 from argostranslate import translate, package, settings
 
@@ -103,7 +102,7 @@ class PackagesTable(QTableWidget):
             if self.status == self.Status.NOT_STARTED:
                 self.setText(self.text)
             elif self.status == self.Status.RUNNING:
-                self.setText('...')
+                self.setText('⌛')
             elif self.status == self.Status.DONE:
                 self.setText('✓')
 
@@ -150,14 +149,14 @@ class PackagesTable(QTableWidget):
             self.setItem(i, row_index, QTableWidgetItem(to_code))
             row_index += 1
             if self.AvailableActions.UNINSTALL in self.available_actions:
-                uninstall_button = QPushButton('x')
+                uninstall_button = QPushButton('🗑')
                 bound_uninstall_function = partial(self.uninstall_package, pkg)
                 uninstall_button.clicked.connect(bound_uninstall_function)
                 self.setCellWidget(i, row_index, uninstall_button)
                 row_index += 1
             if self.AvailableActions.INSTALL in self.available_actions:
                 bound_install_function = partial(PackagesTable.install_package, pkg)
-                install_button = self.WorkerStatusButton('+', bound_install_function)
+                install_button = self.WorkerStatusButton('⬇', bound_install_function)
                 self.setCellWidget(i, row_index, install_button)
                 row_index += 1
         # Resize table widget
