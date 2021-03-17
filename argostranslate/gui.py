@@ -86,8 +86,6 @@ class PackagesTable(QTableWidget):
         
         self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         headers = [
                 'Readme',
                 'From name',
@@ -231,7 +229,8 @@ class ManagePackagesWindow(QWidget):
         self.add_packages_row_layout.addStretch()
 
         # Packages table
-        self.packages_table = PackagesTable(PackagesTable.TableContent.INSTALLED, [PackagesTable.AvailableActions.UNINSTALL])
+        self.packages_table = PackagesTable(PackagesTable.TableContent.INSTALLED,
+                                            [PackagesTable.AvailableActions.UNINSTALL])
         self.packages_table.packages_changed.connect(self.packages_changed.emit)
         self.packages_table.populate()
         self.packages_layout = QVBoxLayout()
@@ -270,7 +269,8 @@ class DownloadPackagesWindow(QWidget):
         available_packages = package.load_available_packages()
 
         # Packages table
-        self.packages_table = PackagesTable(PackagesTable.TableContent.AVAILABLE, [PackagesTable.AvailableActions.INSTALL])
+        self.packages_table = PackagesTable(PackagesTable.TableContent.AVAILABLE,
+                                            [PackagesTable.AvailableActions.INSTALL])
         self.packages_table.packages_changed.connect(self.packages_changed.emit)
         self.packages_table.populate()
         self.packages_layout = QVBoxLayout()
