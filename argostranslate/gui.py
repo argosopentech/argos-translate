@@ -10,15 +10,7 @@ from PyQt5.QtCore import *
 
 from argostranslate import translate, package, settings, utils
 from argostranslate.utils import info, warning, error
-
-class WorkerThread(QThread):
-    def __init__(self, bound_worker_function):
-        super().__init__()
-        self.bound_worker_function = bound_worker_function
-        self.finished.connect(self.deleteLater)
-
-    def run(self):
-        self.bound_worker_function()
+from argostranslate.utils import WorkerThread
 
 class TranslationThread(QThread):
     send_text_update = pyqtSignal(str)
