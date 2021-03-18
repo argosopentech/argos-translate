@@ -244,10 +244,12 @@ def apply_packaged_translation(pkg, input_text, translator, nresults):
     info('sentences', sentences)
     tokenized = [sp_processor.encode(sentence, out_type=str) for sentence in sentences]
     info('tokenized', tokenized)
+    BATCH_SIZE = 32
+    assert(len(sentences) <= BATCH_SIZE)
     translated_batches = translator.translate_batch(
             tokenized,
             replace_unknowns=True,
-            max_batch_size=32,
+            max_batch_size=BATCH_SIZE,
             beam_size=nresults,
             num_hypotheses=nresults,
             length_penalty=0.2)
