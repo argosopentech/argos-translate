@@ -54,7 +54,19 @@ class ITranslation:
         to_lang (Language): The Language this Translation translates to.
 
     """
-    def translate(self, input_text, nresults=1):
+    def translate(self, input_text):
+        """Translates a string from self.from_lang to self.to_lang
+
+        Args:
+            input_text (str): The text to be translated.
+
+        Returns:
+            str: input_text translated.
+
+        """
+        return self.multi_translate(input_text, nresults=1)[0]
+
+    def multi_translate(self, input_text, nresults=1):
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
@@ -111,7 +123,7 @@ class PackageTranslation(ITranslation):
         self.pkg = pkg
         self.translator = None
 
-    def translate(self, input_text, nresults=4):
+    def multi_translate(self, input_text, nresults=4):
         if self.translator == None:
             model_path = str(self.pkg.package_path / 'model')
             self.translator = ctranslate2.Translator(model_path)
@@ -143,7 +155,7 @@ class IdentityTranslation(ITranslation):
         self.from_lang = lang
         self.to_lang = lang
 
-    def translate(self, input_text, nresults=1):
+    def multi_translate(self, input_text, nresults=1):
         return [input_text]*nresults
 
 class CompositeTranslation(ITranslation):
@@ -161,8 +173,8 @@ class CompositeTranslation(ITranslation):
         self.from_lang = t1.from_lang
         self.to_lang = t2.to_lang
 
-    def translate(self, input_text, nresults=4):
-        return [ self.t2.translate(self.t1.translate(input_text)[i])[0] for i in range(nresults) ]
+    def multi_translate(self, input_text, nresults=4):
+        return [ self.t2.multi_translate(self.t1.multi_translate(input_text)[i])[0] for i in range(nresults) ]
 
 class CachedTranslation(ITranslation):
     """Caches a translation to improve performance.
@@ -189,14 +201,14 @@ class CachedTranslation(ITranslation):
         self.to_lang = underlying.to_lang
         self.cache = dict()
 
-    def translate(self, input_text, nresults=4):
+    def multi_translate(self, input_text, nresults=4):
         new_cache = dict() # 'text': ['t1'...('tN')]
         paragraphs = self.split_into_paragraphs(input_text)
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraph = self.cache.get(paragraph)
             if translated_paragraph == None:
-                translated_paragraph = self.underlying.translate(paragraph, nresults)
+                translated_paragraph = self.underlying.multi_translate(paragraph, nresults)
             new_cache[paragraph] = translated_paragraph
             translated_paragraphs.append(translated_paragraph)
         self.cache = new_cache
