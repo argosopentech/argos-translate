@@ -54,14 +54,15 @@ class ITranslation:
         to_lang (Language): The Language this Translation translates to.
 
     """
-    def translate(self, input_text):
+    def translate(self, input_text, nresults=1):
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
             input_text (str): The text to be translated.
+            nresults (int): Number of hypothetic results expected
 
         Returns:
-            str: input_text translated.
+            [str]: input_text translated.
 
         """
         raise NotImplementedError()
@@ -78,14 +79,15 @@ class ITranslation:
         """
         return input_text.split('\n')
 
-    def combine_paragraphs(self, paragraphs):
+    def combine_paragraphs(self, paragraphs, nresults=1):
         """Combines a list of paragraphs together.
 
         Args:
             paragraphs ([str]): A list of paragraphs.
+            nresults (int): Number of hypothetic results to be combined
 
         Returns:
-            str: paragraphs combined into one string.
+            [str]: list of n paragraphs combined into one string.
 
         """
         return '\n'.join(paragraphs)
@@ -109,16 +111,23 @@ class PackageTranslation(ITranslation):
         self.pkg = pkg
         self.translator = None
 
-    def translate(self, input_text):
+    def translate(self, input_text, nresults=4):
         if self.translator == None:
             model_path = str(self.pkg.package_path / 'model')
             self.translator = ctranslate2.Translator(model_path)
         paragraphs = self.split_into_paragraphs(input_text)
+        info("paragraphs", paragraphs)
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraphs.append(
-                    apply_packaged_translation(self.pkg, paragraph, self.translator))
-        return self.combine_paragraphs(translated_paragraphs)
+                    apply_packaged_translation(self.pkg, paragraph, self.translator, nresults))
+        info("translated_paragraphs", translated_paragraphs)
+        pre_combine_paragraphs = [ [ s[i] for s in translated_paragraphs ] for i in range(nresults) ]
+        info("pre_combine_paragraphs", pre_combine_paragraphs)
+        return self.combine_paragraphs(pre_combine_paragraphs, nresults)
+
+    def combine_paragraphs(self, paragraphs, nresults):
+        return [ super(type(self), self).combine_paragraphs(paragraphs[i]) for i in range(nresults) ]
 
 class IdentityTranslation(ITranslation):
     """A Translation that doesn't modify input_text."""
@@ -134,8 +143,8 @@ class IdentityTranslation(ITranslation):
         self.from_lang = lang
         self.to_lang = lang
 
-    def translate(self, input_text):
-        return input_text
+    def translate(self, input_text, nresults=1):
+        return [input_text]*nresults
 
 class CompositeTranslation(ITranslation):
     """A ITranslation that is performed by chaining two Translations
@@ -152,8 +161,8 @@ class CompositeTranslation(ITranslation):
         self.from_lang = t1.from_lang
         self.to_lang = t2.to_lang
 
-    def translate(self, input_text):
-        return self.t2.translate(self.t1.translate(input_text))
+    def translate(self, input_text, nresults=4):
+        return [ self.t2.translate(self.t1.translate(input_text)[i])[0] for i in range(nresults) ]
 
 class CachedTranslation(ITranslation):
     """Caches a translation to improve performance.
@@ -180,21 +189,26 @@ class CachedTranslation(ITranslation):
         self.to_lang = underlying.to_lang
         self.cache = dict()
 
-    def translate(self, input_text):
-        new_cache = dict()
+    def translate(self, input_text, nresults=4):
+        new_cache = dict() # 'text': ['t1'...('tN')]
         paragraphs = self.split_into_paragraphs(input_text)
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraph = self.cache.get(paragraph)
             if translated_paragraph == None:
-                translated_paragraph = self.underlying.translate(paragraph)
+                translated_paragraph = self.underlying.translate(paragraph, nresults)
             new_cache[paragraph] = translated_paragraph
             translated_paragraphs.append(translated_paragraph)
         self.cache = new_cache
-        return self.combine_paragraphs(translated_paragraphs)
+        info("cached translated_paragraphs", translated_paragraphs)
+        pre_combine_paragraphs = [ [ s[i] for s in translated_paragraphs ] for i in range(nresults) ]
+        info("cached pre_combine_paragraphs", pre_combine_paragraphs)
+        return self.combine_paragraphs(pre_combine_paragraphs, nresults)
 
+    def combine_paragraphs(self, paragraphs, nresults):
+        return [ super(type(self), self).combine_paragraphs(paragraphs[i]) for i in range(nresults) ]
 
-def apply_packaged_translation(pkg, input_text, translator): 
+def apply_packaged_translation(pkg, input_text, translator, nresults):
     """Applies the translation in pkg to translate input_text.
 
     Args:
@@ -222,19 +236,25 @@ def apply_packaged_translation(pkg, input_text, translator):
             tokenized,
             replace_unknowns=True,
             max_batch_size=32,
+            beam_size=nresults,
+            num_hypotheses=nresults,
             length_penalty=0.2)
     info('translated_batches', translated_batches)
-    translated_tokens = []
-    for translated_batch in translated_batches:
-        translated_tokens += translated_batch[0]['tokens']
-    detokenized = ''.join(translated_tokens)
-    detokenized = detokenized.replace('▁', ' ')
-    to_return = detokenized
-    if len(to_return) > 0 and to_return[0] == ' ':
-        # Remove space at the beginning of the translation added
-        # by the tokenizer.
-        to_return = to_return[1:]
-    return to_return
+    result_batches = []
+    for i in range(nresults):
+        translated_tokens = []
+        for translated_batch in translated_batches:
+            translated_tokens += translated_batch[i]['tokens']
+        detokenized = ''.join(translated_tokens)
+        detokenized = detokenized.replace('▁', ' ')
+        to_return = detokenized
+        if len(to_return) > 0 and to_return[0] == ' ':
+            # Remove space at the beginning of the translation added
+            # by the tokenizer.
+            to_return = to_return[1:]
+        result_batches.append(to_return)
+    info('result_batches', result_batches)
+    return result_batches
 
 def load_installed_languages():
     """Returns a list of Languages installed from packages"""
