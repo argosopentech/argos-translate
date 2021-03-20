@@ -23,7 +23,7 @@ class Hypothesis:
         return self.score < other.score
 
     def __str__(self):
-        return "({}, {})".format(self.score, self.output)
+        return "({}, {})".format(self.score, self.value)
 
     def __repr__(self):
         return super().__repr__() + " : " + self.__str__()
