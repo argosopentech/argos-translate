@@ -2,6 +2,7 @@
 - Download packages from GUI
 - Multiple hypotheses in translations
 - Broke backwards compatibility in translate.apply_packaged_translation
+- Broke backwards compatibility in ITranslate.split_into_paragraphs
 
 1.1:
 - Automatic downloading and installation of packages (https://github.com/uav4geo/LibreTranslate/issues/30)

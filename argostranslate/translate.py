@@ -55,7 +55,7 @@ class ITranslation:
         """
         raise NotImplementedError()
 
-    def split_into_paragraphs(self, input_text):
+    def split_into_paragraphs(input_text):
         """Splits input_text into paragraphs and returns a list of paragraphs.
 
         Args:
@@ -136,7 +136,7 @@ class PackageTranslation(ITranslation):
         if self.translator == None:
             model_path = str(self.pkg.package_path / 'model')
             self.translator = ctranslate2.Translator(model_path)
-        paragraphs = self.split_into_paragraphs(input_text)
+        paragraphs = ITranslation.split_into_paragraphs(input_text)
         info("paragraphs", paragraphs)
         translated_paragraphs = []
         for paragraph in paragraphs:
@@ -245,7 +245,7 @@ class CachedTranslation(ITranslation):
 
     def hypotheses(self, input_text, num_hypotheses=4):
         new_cache = dict() # 'text': ['t1'...('tN')]
-        paragraphs = self.split_into_paragraphs(input_text)
+        paragraphs = ITranslation.split_into_paragraphs(input_text)
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraph = self.cache.get(paragraph)
@@ -255,9 +255,18 @@ class CachedTranslation(ITranslation):
             translated_paragraphs.append(translated_paragraph)
         self.cache = new_cache
 
-        # TODO
-        return self.underlying.hypotheses(input_text, num_hypotheses)
-
+        # Construct hypotheses
+        hypotheses_to_return = []
+        for i in range(num_hypotheses):
+            hypotheses_to_return.append(Hypothesis('', 0))
+        for i in range(len(translated_paragraphs)):
+            for j in range(num_hypotheses):
+                output  = hypotheses_to_return[j].output
+                score  = hypotheses_to_return[j].score
+                output += translated_paragraphs[i][j].output
+                score += translated_paragraphs[i][j].score
+                hypotheses_to_return[i] = Hypothesis(output, score)
+        return hypotheses_to_return
 
 def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     """Applies the translation in pkg to translate input_text.
