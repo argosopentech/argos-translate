@@ -19,6 +19,9 @@ class Hypothesis:
         self.output = output
         self.score = score
 
+    def __lt__(self, other):
+        return self.score < other.score
+
 class ITranslation:
     """Respresents a translation between two Languages
 
@@ -197,9 +200,24 @@ class CompositeTranslation(ITranslation):
         self.to_lang = t2.to_lang
 
     def hypotheses(self, input_text, num_hypotheses):
-        # TODO
-        pass
+        t1_hypotheses = self.t1.hypotheses(input_text, num_hypotheses)
 
+        # Combine hypotheses
+        # O(n^2)
+        to_return = []
+        for t1_hypothesis in t1_hypotheses:
+            t2_hypotheses = self.t2.hypotheses(
+                    t1_hypothesis.output,
+                    num_hypotheses)
+            for t2_hypothesis in t2_hypotheses:
+                to_return.append(
+                        Hypothesis(
+                        t2_hypothesis.output,
+                        t1_hypothesis.score + t2_hypothesis.score \
+                        ))
+        to_return.sort()
+        return to_return[0:num_hypotheses]
+        
 class CachedTranslation(ITranslation):
     """Caches a translation to improve performance.
 
@@ -238,7 +256,7 @@ class CachedTranslation(ITranslation):
         self.cache = new_cache
 
         # TODO
-        return self.underlying.hypotheses(input_text)
+        return self.underlying.hypotheses(input_text, num_hypotheses)
 
 
 def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
