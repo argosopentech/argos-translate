@@ -7,6 +7,79 @@ import stanza
 from argostranslate import translate, package, settings, utils
 from argostranslate.utils import info, warning, error
 
+class Hypothesis:
+    """Represents a translation hypothesis
+
+    Attributes:
+        output (str): The hypothetical translation output
+        score (float): The score representing the quality of the translation
+    """
+
+    def __init__(self, output, score):
+        self.output = output
+        self.score = score
+
+class ITranslation:
+    """Respresents a translation between two Languages
+
+    Attributes:
+        from_lang (Language): The Language this Translation translates from.
+        to_lang (Language): The Language this Translation translates to.
+
+    """
+    def translate(self, input_text):
+        """Translates a string from self.from_lang to self.to_lang
+
+        Args:
+            input_text (str): The text to be translated.
+
+        Returns:
+            str: input_text translated.
+
+        """
+        return self.hypotheses(input_text, num_hypotheses=1)[0].output
+
+    def hypotheses(self, input_text, num_hypotheses=4):
+        """Translates a string from self.from_lang to self.to_lang
+
+        Args:
+            input_text (str): The text to be translated.
+            num_hypotheses (int): Number of hypothetic results expected
+
+        Returns:
+            [Hypothesis]: List of translation hypotheses
+
+        """
+        raise NotImplementedError()
+
+    def split_into_paragraphs(self, input_text):
+        """Splits input_text into paragraphs and returns a list of paragraphs.
+
+        Args:
+            input_text (str): The text to be split.
+
+        Returns:
+            [str]: A list of paragraphs.
+
+        """
+        return input_text.split('\n')
+
+    def combine_paragraphs(self, paragraphs):
+        """Combines a list of paragraphs together.
+
+        Args:
+            paragraphs ([str]): A list of paragraphs.
+            num_hypotheses (int): Number of hypothetic results to be combined
+
+        Returns:
+            [str]: list of n paragraphs combined into one string.
+
+        """
+        return '\n'.join(paragraphs)
+
+    def __str__(self):
+        return str(self.from_lang) + ' -> ' + str(self.to_lang)
+
 class Language:
     """Represents a language that can be translated from/to.
 
@@ -46,87 +119,8 @@ class Language:
             return valid_translations[0]
         return None
 
-class Hypothesis:
-    """Represents a translation hypothesis
-
-    Attributes:
-        output (str): The hypothetical translation output
-        score (float): The score representing the quality of the translation
-    """
-
-    def __init__(self, output, score):
-        self.output = output
-        self.score = score
-
-class ITranslation:
-    """Respresents a translation between two Languages
-
-    Attributes:
-        from_lang (Language): The Language this Translation translates from.
-        to_lang (Language): The Language this Translation translates to.
-
-    """
-    def translate(self, input_text):
-        """Translates a string from self.from_lang to self.to_lang
-
-        Args:
-            input_text (str): The text to be translated.
-
-        Returns:
-            str: input_text translated.
-
-        """
-        return self.hypotheses(input_text, num_hypotheses=1)[0].output
-
-    def hypotheses(self, input_text, num_hypotheses=1):
-        """Translates a string from self.from_lang to self.to_lang
-
-        Args:
-            input_text (str): The text to be translated.
-            num_hypotheses (int): Number of hypothetic results expected
-
-        Returns:
-            [str]: input_text translated.
-
-        """
-        raise NotImplementedError()
-
-    def split_into_paragraphs(self, input_text):
-        """Splits input_text into paragraphs and returns a list of paragraphs.
-
-        Args:
-            input_text (str): The text to be split.
-
-        Returns:
-            [str]: A list of paragraphs.
-
-        """
-        return input_text.split('\n')
-
-    def combine_paragraphs(self, paragraphs):
-        """Combines a list of paragraphs together.
-
-        Args:
-            paragraphs ([str]): A list of paragraphs.
-            num_hypotheses (int): Number of hypothetic results to be combined
-
-        Returns:
-            [str]: list of n paragraphs combined into one string.
-
-        """
-        return '\n'.join(paragraphs)
-
-    def __str__(self):
-        return str(self.from_lang) + ' -> ' + str(self.to_lang)
-
 class PackageTranslation(ITranslation):
     """Translation from a package
-
-    Attributes:
-        from_lang (Language): The Language this Translation translates from.
-        to_lang (Language): The Language this Translation translates to.
-        pkg (Package): The installed package that provides this translation.
-
     """
 
     def __init__(self, from_lang, to_lang, pkg):
@@ -135,7 +129,7 @@ class PackageTranslation(ITranslation):
         self.pkg = pkg
         self.translator = None
 
-    def hypotheses(self, input_text, num_hypotheses=4):
+    def hypotheses(self, input_text, num_hypotheses):
         if self.translator == None:
             model_path = str(self.pkg.package_path / 'model')
             self.translator = ctranslate2.Translator(model_path)
@@ -177,8 +171,8 @@ class IdentityTranslation(ITranslation):
         self.from_lang = lang
         self.to_lang = lang
 
-    def hypotheses(self, input_text, num_hypotheses=1):
-        return [input_text] * num_hypotheses
+    def hypotheses(self, input_text, num_hypotheses):
+        return [Hypothesis(input_text, 0) for i in range(num_hypotheses)]
 
 class CompositeTranslation(ITranslation):
     """A ITranslation that is performed by chaining two Translations
@@ -190,13 +184,21 @@ class CompositeTranslation(ITranslation):
     """
 
     def __init__(self, t1, t2):
+        """Creates a CompositeTranslation.
+
+        Args:
+            t1 (ITranslation): The first Translation to apply.
+            t2 (ITranslation): The second Translation to apply.
+
+        """
         self.t1 = t1
         self.t2 = t2
         self.from_lang = t1.from_lang
         self.to_lang = t2.to_lang
 
-    def hypotheses(self, input_text, num_hypotheses=4):
-        return [ self.t2.hypotheses(self.t1.hypotheses(input_text)[i])[0] for i in range(num_hypotheses) ]
+    def hypotheses(self, input_text, num_hypotheses):
+        # TODO
+        pass
 
 class CachedTranslation(ITranslation):
     """Caches a translation to improve performance.
@@ -239,15 +241,17 @@ class CachedTranslation(ITranslation):
         return self.underlying.hypotheses(input_text)
 
 
-def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=1):
+def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     """Applies the translation in pkg to translate input_text.
 
     Args:
         pkg (Package): The package that provides the translation.
         input_text (str): The text to be translated.
+        translator (ctranslate2.Translator): The CTranslate2 Translator
+        num_hypotheses (int): The number of hypotheses to generate
 
     Returns:
-        str: The translated text.
+        [Hypothesis]: A list of Hypothesis's for translating input_text
 
     """
 
@@ -355,4 +359,3 @@ def load_installed_languages():
         languages = [english] + languages
 
     return languages
-
