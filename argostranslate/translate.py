@@ -46,6 +46,18 @@ class Language:
             return valid_translations[0]
         return None
 
+class Hypothesis:
+    """Represents a translation hypothesis
+
+    Attributes:
+        output (str): The hypothetical translation output
+        score (float): The score representing the quality of the translation
+    """
+
+    def __init__(self, output, score):
+        self.output = output
+        self.score = score
+
 class ITranslation:
     """Respresents a translation between two Languages
 
@@ -64,14 +76,14 @@ class ITranslation:
             str: input_text translated.
 
         """
-        return self.translation_hypotheses(input_text, nresults=1)[0]
+        return self.hypotheses(input_text, num_hypotheses=1)[0].output
 
-    def translation_hypotheses(self, input_text, nresults=1):
+    def hypotheses(self, input_text, num_hypotheses=1):
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
             input_text (str): The text to be translated.
-            nresults (int): Number of hypothetic results expected
+            num_hypotheses (int): Number of hypothetic results expected
 
         Returns:
             [str]: input_text translated.
@@ -91,12 +103,12 @@ class ITranslation:
         """
         return input_text.split('\n')
 
-    def combine_paragraphs(self, paragraphs, nresults=1):
+    def combine_paragraphs(self, paragraphs):
         """Combines a list of paragraphs together.
 
         Args:
             paragraphs ([str]): A list of paragraphs.
-            nresults (int): Number of hypothetic results to be combined
+            num_hypotheses (int): Number of hypothetic results to be combined
 
         Returns:
             [str]: list of n paragraphs combined into one string.
@@ -123,7 +135,7 @@ class PackageTranslation(ITranslation):
         self.pkg = pkg
         self.translator = None
 
-    def translation_hypotheses(self, input_text, nresults=4):
+    def hypotheses(self, input_text, num_hypotheses=4):
         if self.translator == None:
             model_path = str(self.pkg.package_path / 'model')
             self.translator = ctranslate2.Translator(model_path)
@@ -132,14 +144,24 @@ class PackageTranslation(ITranslation):
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraphs.append(
-                    apply_packaged_translation(self.pkg, paragraph, self.translator, nresults))
+                    apply_packaged_translation(self.pkg, paragraph, self.translator, num_hypotheses))
         info("translated_paragraphs", translated_paragraphs)
-        pre_combine_paragraphs = [ [ s[i] for s in translated_paragraphs ] for i in range(nresults) ]
-        info("pre_combine_paragraphs", pre_combine_paragraphs)
-        return self.combine_paragraphs(pre_combine_paragraphs, nresults)
 
-    def combine_paragraphs(self, paragraphs, nresults):
-        return [ super(type(self), self).combine_paragraphs(paragraphs[i]) for i in range(nresults) ]
+        # Construct new hypotheses using all paragraphs
+        hypotheses_to_return = []
+        for translated_paragraph in translated_paragraphs:
+            if len(hypotheses_to_return) == 0:
+                hypotheses_to_return = translated_paragraph
+                continue
+            for i in range(len(hypotheses_to_return)):
+                output = ITranslation.combine_paragraphs([
+                        hypotheses_to_return[i].output,
+                        translated_paragraph[i].output
+                        ])
+                score = hypotheses_to_return[i].score + translated_paragraph[i].score
+                hypotheses_to_return[i] = Hypothesis(output, score)
+        info('hypotheses_to_return', hypotheses_to_return)
+        return hypotheses_to_return
 
 class IdentityTranslation(ITranslation):
     """A Translation that doesn't modify input_text."""
@@ -155,8 +177,8 @@ class IdentityTranslation(ITranslation):
         self.from_lang = lang
         self.to_lang = lang
 
-    def translation_hypotheses(self, input_text, nresults=1):
-        return [input_text] * nresults
+    def hypotheses(self, input_text, num_hypotheses=1):
+        return [input_text] * num_hypotheses
 
 class CompositeTranslation(ITranslation):
     """A ITranslation that is performed by chaining two Translations
@@ -173,8 +195,8 @@ class CompositeTranslation(ITranslation):
         self.from_lang = t1.from_lang
         self.to_lang = t2.to_lang
 
-    def translation_hypotheses(self, input_text, nresults=4):
-        return [ self.t2.translation_hypotheses(self.t1.translation_hypotheses(input_text)[i])[0] for i in range(nresults) ]
+    def hypotheses(self, input_text, num_hypotheses=4):
+        return [ self.t2.hypotheses(self.t1.hypotheses(input_text)[i])[0] for i in range(num_hypotheses) ]
 
 class CachedTranslation(ITranslation):
     """Caches a translation to improve performance.
@@ -201,26 +223,23 @@ class CachedTranslation(ITranslation):
         self.to_lang = underlying.to_lang
         self.cache = dict()
 
-    def translation_hypotheses(self, input_text, nresults=4):
+    def hypotheses(self, input_text, num_hypotheses=4):
         new_cache = dict() # 'text': ['t1'...('tN')]
         paragraphs = self.split_into_paragraphs(input_text)
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraph = self.cache.get(paragraph)
             if translated_paragraph == None:
-                translated_paragraph = self.underlying.translation_hypotheses(paragraph, nresults)
+                translated_paragraph = self.underlying.hypotheses(paragraph, num_hypotheses)
             new_cache[paragraph] = translated_paragraph
             translated_paragraphs.append(translated_paragraph)
         self.cache = new_cache
-        info("cached translated_paragraphs", translated_paragraphs)
-        pre_combine_paragraphs = [ [ s[i] for s in translated_paragraphs ] for i in range(nresults) ]
-        info("cached pre_combine_paragraphs", pre_combine_paragraphs)
-        return self.combine_paragraphs(pre_combine_paragraphs, nresults)
 
-    def combine_paragraphs(self, paragraphs, nresults):
-        return [ super(type(self), self).combine_paragraphs(paragraphs[i]) for i in range(nresults) ]
+        # TODO
+        return self.underlying.hypotheses(input_text)
 
-def apply_packaged_translation(pkg, input_text, translator, nresults):
+
+def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=1):
     """Applies the translation in pkg to translate input_text.
 
     Args:
@@ -250,25 +269,30 @@ def apply_packaged_translation(pkg, input_text, translator, nresults):
             tokenized,
             replace_unknowns=True,
             max_batch_size=BATCH_SIZE,
-            beam_size=nresults,
-            num_hypotheses=nresults,
+            beam_size=num_hypotheses,
+            num_hypotheses=num_hypotheses,
             length_penalty=0.2)
     info('translated_batches', translated_batches)
-    result_batches = []
-    for i in range(nresults):
+
+    # Build hypotheses
+    output_hypotheses = []
+    for i in range(num_hypotheses):
         translated_tokens = []
+        cumulative_score = 0
         for translated_batch in translated_batches:
             translated_tokens += translated_batch[i]['tokens']
+            cumulative_score += translated_batch[i]['score']
         detokenized = ''.join(translated_tokens)
         detokenized = detokenized.replace('▁', ' ')
-        to_return = detokenized
-        if len(to_return) > 0 and to_return[0] == ' ':
+        output = detokenized
+        if len(output) > 0 and output[0] == ' ':
             # Remove space at the beginning of the translation added
             # by the tokenizer.
-            to_return = to_return[1:]
-        result_batches.append(to_return)
-    info('result_batches', result_batches)
-    return result_batches
+            output = output[1:]
+        hypothesis = Hypothesis(output, cumulative_score)
+        output_hypotheses.append(hypothesis)
+    info('output_hypotheses', output_hypotheses)
+    return output_hypotheses
 
 def load_installed_languages():
     """Returns a list of Languages installed from packages"""
