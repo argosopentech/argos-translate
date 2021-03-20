@@ -11,12 +11,12 @@ class Hypothesis:
     """Represents a translation hypothesis
 
     Attributes:
-        output (str): The hypothetical translation output
+        value (str): The hypothetical translation value
         score (float): The score representing the quality of the translation
     """
 
-    def __init__(self, output, score):
-        self.output = output
+    def __init__(self, value, score):
+        self.value = value
         self.score = score
 
     def __lt__(self, other):
@@ -40,7 +40,7 @@ class ITranslation:
             str: input_text translated.
 
         """
-        return self.hypotheses(input_text, num_hypotheses=1)[0].output
+        return self.hypotheses(input_text, num_hypotheses=1)[0].value
 
     def hypotheses(self, input_text, num_hypotheses=4):
         """Translates a string from self.from_lang to self.to_lang
@@ -151,12 +151,12 @@ class PackageTranslation(ITranslation):
                 hypotheses_to_return = translated_paragraph
                 continue
             for i in range(len(hypotheses_to_return)):
-                output = ITranslation.combine_paragraphs([
-                        hypotheses_to_return[i].output,
-                        translated_paragraph[i].output
+                value = ITranslation.combine_paragraphs([
+                        hypotheses_to_return[i].value,
+                        translated_paragraph[i].value
                         ])
                 score = hypotheses_to_return[i].score + translated_paragraph[i].score
-                hypotheses_to_return[i] = Hypothesis(output, score)
+                hypotheses_to_return[i] = Hypothesis(value, score)
         info('hypotheses_to_return', hypotheses_to_return)
         return hypotheses_to_return
 
@@ -207,12 +207,12 @@ class CompositeTranslation(ITranslation):
         to_return = []
         for t1_hypothesis in t1_hypotheses:
             t2_hypotheses = self.t2.hypotheses(
-                    t1_hypothesis.output,
+                    t1_hypothesis.value,
                     num_hypotheses)
             for t2_hypothesis in t2_hypotheses:
                 to_return.append(
                         Hypothesis(
-                        t2_hypothesis.output,
+                        t2_hypothesis.value,
                         t1_hypothesis.score + t2_hypothesis.score \
                         ))
         to_return.sort()
@@ -261,11 +261,11 @@ class CachedTranslation(ITranslation):
             hypotheses_to_return.append(Hypothesis('', 0))
         for i in range(len(translated_paragraphs)):
             for j in range(num_hypotheses):
-                output  = hypotheses_to_return[j].output
+                value  = hypotheses_to_return[j].value
                 score  = hypotheses_to_return[j].score
-                output += translated_paragraphs[i][j].output
+                value += translated_paragraphs[i][j].value
                 score += translated_paragraphs[i][j].score
-                hypotheses_to_return[i] = Hypothesis(output, score)
+                hypotheses_to_return[i] = Hypothesis(value, score)
         return hypotheses_to_return
 
 def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
@@ -306,7 +306,7 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     info('translated_batches', translated_batches)
 
     # Build hypotheses
-    output_hypotheses = []
+    value_hypotheses = []
     for i in range(num_hypotheses):
         translated_tokens = []
         cumulative_score = 0
@@ -315,15 +315,15 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
             cumulative_score += translated_batch[i]['score']
         detokenized = ''.join(translated_tokens)
         detokenized = detokenized.replace('▁', ' ')
-        output = detokenized
-        if len(output) > 0 and output[0] == ' ':
+        value = detokenized
+        if len(value) > 0 and value[0] == ' ':
             # Remove space at the beginning of the translation added
             # by the tokenizer.
-            output = output[1:]
-        hypothesis = Hypothesis(output, cumulative_score)
-        output_hypotheses.append(hypothesis)
-    info('output_hypotheses', output_hypotheses)
-    return output_hypotheses
+            value = value[1:]
+        hypothesis = Hypothesis(value, cumulative_score)
+        value_hypotheses.append(hypothesis)
+    info('value_hypotheses', value_hypotheses)
+    return value_hypotheses
 
 def load_installed_languages():
     """Returns a list of Languages installed from packages"""
