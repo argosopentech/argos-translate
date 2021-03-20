@@ -207,7 +207,9 @@ class CachedTranslation(ITranslation):
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraph = self.cache.get(paragraph)
-            if translated_paragraph == None:
+            # If len() < nresult, it means the `nresults` parameter has changed.
+            # We want to re-do the search and re-cache it in this case
+            if translated_paragraph == None or len(translated_paragraph) < nresults:
                 translated_paragraph = self.underlying.multi_translate(paragraph, nresults)
             new_cache[paragraph] = translated_paragraph
             translated_paragraphs.append(translated_paragraph)
