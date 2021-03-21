@@ -23,10 +23,10 @@ class Hypothesis:
         return self.score < other.score
 
     def __str__(self):
-        return "({}, {})".format(self.score, self.value)
+        return "({}, {})".format(repr(self.value), self.score)
 
     def __repr__(self):
-        return super().__repr__() + " : " + self.__str__()
+        return type(self).__name__ + self.__str__()
 
 class ITranslation:
     """Respresents a translation between two Languages
