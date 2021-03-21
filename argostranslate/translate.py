@@ -73,7 +73,7 @@ class ITranslation:
         """
         return input_text.split('\n')
 
-    def combine_paragraphs(self, paragraphs):
+    def combine_paragraphs(paragraphs):
         """Combines a list of paragraphs together.
 
         Args:
