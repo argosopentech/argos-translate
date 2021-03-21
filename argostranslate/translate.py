@@ -264,16 +264,16 @@ class CachedTranslation(ITranslation):
         self.cache = new_cache
 
         # Construct hypotheses
-        hypotheses_to_return = []
+        hypotheses_to_return = [Hypothesis('', 0)] * num_hypotheses
         for i in range(num_hypotheses):
-            hypotheses_to_return.append(Hypothesis('', 0))
-        for i in range(len(translated_paragraphs)):
-            for j in range(num_hypotheses):
-                value  = hypotheses_to_return[j].value
-                score  = hypotheses_to_return[j].score
-                value += translated_paragraphs[i][j].value
-                score += translated_paragraphs[i][j].score
+            for j in range(len(translated_paragraphs)):
+                value = ITranslation.combine_paragraphs([
+                        hypotheses_to_return[i].value,
+                        translated_paragraphs[j][i].value
+                        ])
+                score = hypotheses_to_return[i].score + translated_paragraphs[j][i].score
                 hypotheses_to_return[i] = Hypothesis(value, score)
+            hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip('\n')
         return hypotheses_to_return
 
 def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
