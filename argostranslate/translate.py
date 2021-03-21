@@ -61,6 +61,7 @@ class ITranslation:
         """
         raise NotImplementedError()
 
+    @staticmethod
     def split_into_paragraphs(input_text):
         """Splits input_text into paragraphs and returns a list of paragraphs.
 
@@ -73,6 +74,7 @@ class ITranslation:
         """
         return input_text.split('\n')
 
+    @staticmethod
     def combine_paragraphs(paragraphs):
         """Combines a list of paragraphs together.
 
