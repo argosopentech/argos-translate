@@ -153,7 +153,7 @@ class PackageTranslation(ITranslation):
         info("translated_paragraphs", translated_paragraphs)
 
         # Construct new hypotheses using all paragraphs
-        hypotheses_to_return = [Hypothesis('', 0)] * num_hypotheses
+        hypotheses_to_return = [Hypothesis('', 0) for i in range(num_hypotheses)]
         for i in range(num_hypotheses):
             for translated_paragraph in translated_paragraphs:
                 value = ITranslation.combine_paragraphs([
@@ -264,7 +264,7 @@ class CachedTranslation(ITranslation):
         self.cache = new_cache
 
         # Construct hypotheses
-        hypotheses_to_return = [Hypothesis('', 0)] * num_hypotheses
+        hypotheses_to_return = [Hypothesis('', 0) for i in range(num_hypotheses)]
         for i in range(num_hypotheses):
             for j in range(len(translated_paragraphs)):
                 value = ITranslation.combine_paragraphs([
