@@ -151,18 +151,16 @@ class PackageTranslation(ITranslation):
         info("translated_paragraphs", translated_paragraphs)
 
         # Construct new hypotheses using all paragraphs
-        hypotheses_to_return = []
-        for translated_paragraph in translated_paragraphs:
-            if len(hypotheses_to_return) == 0:
-                hypotheses_to_return = translated_paragraph
-                continue
-            for i in range(len(hypotheses_to_return)):
+        hypotheses_to_return = [Hypothesis('', 0)] * num_hypotheses
+        for i in range(num_hypotheses):
+            for translated_paragraph in translated_paragraphs:
                 value = ITranslation.combine_paragraphs([
                         hypotheses_to_return[i].value,
                         translated_paragraph[i].value
                         ])
                 score = hypotheses_to_return[i].score + translated_paragraph[i].score
                 hypotheses_to_return[i] = Hypothesis(value, score)
+            hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip('\n')
         info('hypotheses_to_return', hypotheses_to_return)
         return hypotheses_to_return
 
