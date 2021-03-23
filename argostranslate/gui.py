@@ -137,13 +137,13 @@ class PackagesTable(QTableWidget):
             row_index += 1
             if self.AvailableActions.UNINSTALL in self.available_actions:
                 uninstall_button = QPushButton('🗑')
-                bound_uninstall_function = partial(self.uninstall_package, pkg)
+                bound_uninstall_function = partial(PackagesTable.uninstall_package, self, pkg)
                 uninstall_button.clicked.connect(bound_uninstall_function)
                 self.setCellWidget(i, row_index, uninstall_button)
                 row_index += 1
             if self.AvailableActions.INSTALL in self.available_actions:
                 if pkg not in self.installed_packages:
-                    bound_install_function = partial(PackagesTable.install_package, pkg)
+                    bound_install_function = partial(PackagesTable.install_package, self, pkg)
                     install_button = WorkerStatusButton('⬇', bound_install_function)
                     self.setCellWidget(i, row_index, install_button)
                 else:
@@ -184,11 +184,13 @@ class PackagesTable(QTableWidget):
                 raise e
         self.packages_changed.emit()
         self.populate()
+        self.packages_changed.emit()
 
-    def install_package(pkg):
+    def install_package(self, pkg):
         download_path = pkg.download()
         package.install_from_path(download_path)
         os.remove(download_path)
+        self.packages_changed.emit()
 
     def view_package_readme(self, pkg):
         about_message_box = QMessageBox()
@@ -203,12 +205,20 @@ class ManagePackagesWindow(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.packages_table = PackagesTable(PackagesTable.TableContent.INSTALLED,
+                                            [PackagesTable.AvailableActions.UNINSTALL])
+
         # Download packages
-        def open_download_packages_view():
+        def open_download_packages_view(self):
             self.download_packages_window = DownloadPackagesWindow()
+            self.download_packages_window.packages_changed.connect(
+                    partial(PackagesTable.populate, self.packages_table))
             self.download_packages_window.show()
+            self.download_packages_window.packages_changed.connect(
+                    self.packages_changed.emit)
         self.download_packages_button = QPushButton('Download packages')
-        self.download_packages_button.clicked.connect(open_download_packages_view)
+        self.download_packages_button.clicked.connect(
+                partial(open_download_packages_view, self))
 
         # Install from file
         self.install_package_file_button = QPushButton('Install package file')
@@ -221,8 +231,6 @@ class ManagePackagesWindow(QWidget):
         self.add_packages_row_layout.addStretch()
 
         # Packages table
-        self.packages_table = PackagesTable(PackagesTable.TableContent.INSTALLED,
-                                            [PackagesTable.AvailableActions.UNINSTALL])
         self.packages_table.packages_changed.connect(self.packages_changed.emit)
         self.packages_table.populate()
         self.packages_layout = QVBoxLayout()
@@ -273,7 +281,6 @@ class DownloadPackagesWindow(QWidget):
         self.layout.addLayout(self.packages_layout)
         self.layout.addStretch()
         self.setLayout(self.layout)
-
 
 class GUIWindow(QMainWindow):
     # Above this number of characters in the input text will show a 
