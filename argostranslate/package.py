@@ -46,7 +46,7 @@ class IPackage:
     for tokenizing and Stanza for sentence boundary detection. 
     Packages may also optionally have a README.md in the root.
 
-    from_code and to_code should be ISO 639-1 codes if applicable.
+    from_code and to_code should be ISO 639 codes if applicable.
 
     Example metadata.json
     {
@@ -84,12 +84,7 @@ class IPackage:
                 if README.md can't be read
 
         """
-        readme_path = self.package_path / 'README.md'
-        if not readme_path.is_file():
-            return None
-        with open(readme_path, 'r') as readme_file:
-            return readme_file.read()
-        return None
+        raise NotImplementedError()
 
     def get_description(self):
         raise NotImplementedError()
@@ -124,6 +119,21 @@ class Package(IPackage):
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
 
+    def get_readme(self):
+        """Returns the text of the README.md in this package.
+
+        Returns:
+            (str): The text of the package README.md, None
+                if README.md can't be read
+
+        """
+        readme_path = self.package_path / 'README.md'
+        if not readme_path.is_file():
+            return None
+        with open(readme_path, 'r') as readme_file:
+            return readme_file.read()
+        return None
+
     def get_description(self):
         return self.get_readme()
 
@@ -146,7 +156,7 @@ class AvailablePackage(IPackage):
         return "{} → {}".format(self.from_name, self.to_name)
 
 def install_from_path(path):
-    """Install a package (zip archive ending in .argosmodel).
+    """Install a package file (zip archive ending in .argosmodel).
 
     Args:
         path (str): The path to the .argosmodel file to install.
