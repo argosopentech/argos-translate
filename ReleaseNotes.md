@@ -1,6 +1,7 @@
 1.2:
 - Download packages from GUI
 - Multiple hypotheses in translations
+- Deprecated load_available_packages for get_available_packages
 - Broke backwards compatibility in translate.apply_packaged_translation
 - Broke backwards compatibility in ITranslate.split_into_paragraphs
 

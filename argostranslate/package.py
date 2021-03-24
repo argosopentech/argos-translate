@@ -16,7 +16,7 @@ from argostranslate import package
 package.update_package_index()
 
 # Load available packages from local package index
-available_packages = package.load_available_packages()
+available_packages = package.get_available_packages()
 
 # Download and install all available packages
 for available_package in available_packages:
@@ -192,7 +192,7 @@ def update_package_index():
     r = requests.get(settings.remote_package_index, allow_redirects=True)
     open(settings.local_package_index, 'wb').write(r.content)
 
-def load_available_packages():
+def get_available_packages():
     """Returns a list of AvailablePackages from the package index."""
     try:
         with open(settings.local_package_index) as index_file:
@@ -206,3 +206,7 @@ def load_available_packages():
         raise Exception('Local package index not found,' +
                 ' use package.update_package_index() to load it')
 
+
+def load_available_packages():
+    """Deprecated 1.2, use get_available_packages"""
+    return get_available_packages
