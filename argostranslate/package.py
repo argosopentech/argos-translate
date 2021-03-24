@@ -206,7 +206,6 @@ def get_available_packages():
         raise Exception('Local package index not found,' +
                 ' use package.update_package_index() to load it')
 
-
 def load_available_packages():
     """Deprecated 1.2, use get_available_packages"""
-    return get_available_packages
+    return get_available_packages()

@@ -101,8 +101,15 @@ class PackagesTable(QTableWidget):
         self.STRETCH_COLUMN_MIN_PADDING = 50
         self.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
-        self.available_packages = package.get_available_packages()
         self.installed_packages = package.get_installed_packages()
+
+    def get_packages(self):
+        if self.table_content == self.TableContent.AVAILABLE:
+            return package.get_available_packages()
+        elif self.table_content == self.TableContent.INSTALLED:
+            return package.get_installed_packages()
+        else:
+            raise Exception('Invalid table content')
 
     def populate(self):
         packages = self.get_packages()
@@ -158,14 +165,6 @@ class PackagesTable(QTableWidget):
         self.setMinimumSize(
             QSize(header_width + self.STRETCH_COLUMN_MIN_PADDING * 2, 0)
         )
-
-    def get_packages(self):
-        if self.table_content == self.TableContent.AVAILABLE:
-            return package.get_available_packages()
-        elif self.table_content == self.TableContent.INSTALLED:
-            return package.get_installed_packages()
-        else:
-            raise Exception('Invalid table content')
 
     def uninstall_package(self, pkg):
         try:
