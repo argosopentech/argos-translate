@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from argostranslate import gui
+from argostranslate import cli
 
-gui.main()
+cli.main()
+
 

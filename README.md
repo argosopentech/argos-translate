@@ -46,10 +46,10 @@ Argos Translate also manages automatically pivoting through intermediate languag
 
 ### Command Line
 ```
-$ argos-translate-cli --from-lang en --to-lang es "Hello World"
+$ argos-translate --from-lang en --to-lang es "Hello World"
 Hola Mundo
 
-$ echo "Text to translate" | argos-translate-cli --from-lang en --to-lang es
+$ echo "Text to translate" | argos-translate --from-lang en --to-lang es
 Texto para traducir
 ```
 
@@ -166,6 +166,7 @@ sudo snap install --devmode argos-translate_<version information>.snap
 ### Run Argos Translate!
 ```
 argos-translate
+argos-translate-gui
 ```
 
 When installing with snap a .desktop file should also be installed which will make Argos Translate available from the desktop menu.
