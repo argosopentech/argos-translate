@@ -22,6 +22,7 @@ Argos Translate also manages automatically pivoting through intermediate languag
 - Hindi
 - Italian
 - Japanese
+- Polish
 - Portuguese
 - Turkish
 - Russian
