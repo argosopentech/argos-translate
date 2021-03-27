@@ -9,7 +9,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from argostranslate import translate, package, settings, utils
-from argostranslate.utils import info, warning, error
+from argostranslate.utils import info, warn, error
 from argostranslate.utils import WorkerThread
 
 class TranslationThread(QThread):

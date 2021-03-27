@@ -5,7 +5,7 @@ import sentencepiece as spm
 import stanza
 
 from argostranslate import translate, package, settings, utils
-from argostranslate.utils import info, warning, error
+from argostranslate.utils import info, warn, error
 
 class Hypothesis:
     """Represents a translation hypothesis
@@ -333,10 +333,10 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     info('value_hypotheses', value_hypotheses)
     return value_hypotheses
 
-def load_installed_languages():
+def get_installed_languages():
     """Returns a list of Languages installed from packages"""
     
-    info('load_installed_languages')
+    info('get_installed_languages')
 
     packages = package.get_installed_packages()
 
@@ -394,3 +394,7 @@ def load_installed_languages():
         languages = [english] + languages
 
     return languages
+
+def load_installed_languages():
+    """Deprecated 1.2, use get_installed_languages"""
+    return get_installed_languages()
