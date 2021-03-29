@@ -11,7 +11,7 @@ Argos Translate also manages automatically pivoting through intermediate languag
 - [Browse models](https://www.argosopentech.com/argospm/index/)
 - [Training script](https://github.com/argosopentech/onmt-models)
 - [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
-- [Torrent download](https://github.com/argosopentech/argos-translate/raw/master/p2p/all-argos-translate-models-2020-12-20.zip.torrent) (not updated as frequently)
+- [Torrent download](https://github.com/argosopentech/argos-translate/raw/master/p2p/argos-translate-models-2021-03-29.zip.torrent) (not updated as frequently)
 
 ### Supported languages
 - Arabic
