@@ -1,7 +1,7 @@
 name: argos-translate
 title: Argos Translate
 base: core18 
-version: '1.1.0' 
+version: '1.2.1' 
 license: MIT
 summary: Offline neural machine translation app
 description: |
@@ -19,24 +19,24 @@ description: |
 
   Code/Documentation: https://github.com/argosopentech/argos-translate
 icon: snap/gui/icon.png
-compression: lzo
 grade: stable
 confinement: strict
 
 apps:
   argos-translate: 
     adapter: full
-    command: desktop-launch $SNAP/bin/argos-translate
+    command: desktop-launch $SNAP/bin/argos-translate-gui
     environment:
       DISABLE_WAYLAND: 1
     plugs:
       - desktop
       - desktop-legacy
+      - network
       - opengl
       - wayland
       - x11
-  argos-translate-cli: 
-    command: bin/argos-translate-cli
+  cli: 
+    command: bin/argos-translate
  
 # From snapcraft-desktop-helpers
 # https://github.com/ubuntu/snapcraft-desktop-helpers
