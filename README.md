@@ -107,9 +107,9 @@ Additional languages can be installed from *.argosmodel files or from supplement
 To connect automatically:
 `sudo snap connect argos-translate:argos-packages argos-translate-en-it:argos-packages`
 
-To run command line interface on Snapcraft (currently only available in source installation):
+To run command line interface on Snapcraft:
 ```
-argos-translate.argos-translate-cli --help
+argos-translate.cli --help
 ```
 
 ### Python source installation
