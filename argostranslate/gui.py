@@ -334,6 +334,7 @@ class GUIWindow(QMainWindow):
                 self.manage_packages_action_triggered)
         self.about_action = self.menu.addAction('About')
         self.about_action.triggered.connect(self.about_action_triggered)
+        self.menu.setNativeMenuBar(False)
 
         # Icon
         icon_path = Path(os.path.dirname(__file__)) / 'img' / 'icon.png'
