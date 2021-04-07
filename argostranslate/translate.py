@@ -291,17 +291,26 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     """
 
     info('apply_packaged_translation')
+
+    # Sentence boundary detection
+    if settings.experimental_enabled:
+        sentences = [input_text]
+    else:
+        stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
+                dir=str(pkg.package_path / 'stanza'),
+                processors='tokenize', use_gpu=False,
+                logging_level='WARNING')
+        stanza_sbd = stanza_pipeline(input_text)
+        sentences = [sentence.text for sentence in stanza_sbd.sentences]
+    info('sentences', sentences)
+
+    # Tokenization
     sp_model_path = str(pkg.package_path / 'sentencepiece.model')
     sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
-    stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
-            dir=str(pkg.package_path / 'stanza'),
-            processors='tokenize', use_gpu=False,
-            logging_level='WARNING')
-    stanza_sbd = stanza_pipeline(input_text)
-    sentences = [sentence.text for sentence in stanza_sbd.sentences]
-    info('sentences', sentences)
     tokenized = [sp_processor.encode(sentence, out_type=str) for sentence in sentences]
     info('tokenized', tokenized)
+
+    # Translation
     BATCH_SIZE = 32
     assert(len(sentences) <= BATCH_SIZE)
     translated_batches = translator.translate_batch(
