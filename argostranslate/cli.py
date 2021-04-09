@@ -12,18 +12,24 @@ def main():
             help='The code for the language to translate to (ISO 639-1)')
     args = parser.parse_args()
 
+    from_and_to_lang_provided = args.from_lang != None and args.to_lang != None
+
     # Get text to translate
     if args.text:
         # argos-translate-cli --from-lang en --to-lang es "Text to translate"
         text_to_translate = args.text
-    else :
+    elif from_and_to_lang_provided:
         # echo "Text to translate" | argos-translate-cli --from-lang en --to-lang es
         text_to_translate = ''
         for line in sys.stdin:
             text_to_translate += line
+    else:
+        # argos-translate
+        parser.print_help()
+        return
 
     # Perform translation
-    if args.from_lang != None and args.to_lang != None:
+    if from_and_to_lang_provided:
         installed_languages = translate.load_installed_languages()
         from_lang_index = None
         for i, lang in enumerate(installed_languages):
