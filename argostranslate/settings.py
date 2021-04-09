@@ -30,7 +30,7 @@ remote_repo = os.getenv('ARGOS_PACKAGE_INDEX',
         default='https://raw.githubusercontent.com/argosopentech/argospm-index/main')
 remote_package_index = remote_repo + '/index.json'
 
-experimental_enabled = os.environ['ARGOS_EXPERIMENTAL_ENABLED'] in ['1', 'TRUE', 'True', 'true']
+experimental_enabled = os.getenv('ARGOS_EXPERIMENTAL_ENABLED') in ['1', 'TRUE', 'True', 'true']
 
 downloads_dir = cache_dir / 'downloads'
 os.makedirs(downloads_dir, exist_ok=True)
