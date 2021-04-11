@@ -2,5 +2,3 @@ ctranslate2==1.17.1
 sentencepiece==0.1.94
 stanza==1.1.1
 PyQt5==5.15.1
-sphinx==3.2.1
-sphinx-rtd-theme==0.5.0
