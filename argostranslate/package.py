@@ -2,8 +2,7 @@ import zipfile
 import os
 import json
 import shutil
-
-import requests
+import urllib.request
 
 from argostranslate import settings
 
@@ -148,8 +147,10 @@ class AvailablePackage(IPackage):
         url = self.links[0]
         filename = self.from_code + '_' + self.to_code + '.argosmodel'
         filepath = settings.downloads_dir / filename
-        r = requests.get(url, allow_redirects=True)
-        open(filepath, 'wb').write(r.content)
+        response = urllib.request.urlopen(url)
+        data = response.read()
+        with open(filepath, 'wb') as f:
+            f.write(data)
         return filepath
 
     def get_description(self):
@@ -199,8 +200,10 @@ def get_installed_packages(path=None):
 
 def update_package_index():
     """Downloads remote package index"""
-    r = requests.get(settings.remote_package_index, allow_redirects=True)
-    open(settings.local_package_index, 'wb').write(r.content)
+    response = urllib.request.urlopen(settings.remote_package_index)
+    data = response.read()
+    with open(settings.local_package_index, 'wb') as f:
+        f.write(data)
 
 def get_available_packages():
     """Returns a list of AvailablePackages from the package index."""
