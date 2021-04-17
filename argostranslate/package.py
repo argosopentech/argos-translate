@@ -1,10 +1,10 @@
+from argostranslate import settings
+
 import zipfile
 import os
 import json
 import shutil
 import urllib.request
-
-from argostranslate import settings
 
 """
 ## `package` module example usage
@@ -117,6 +117,11 @@ class Package(IPackage):
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
+
+    def remove(self):
+        """Removes an installed package."""
+
+        shutil.rmtree(self.package_path)
 
     def get_readme(self):
         """Returns the text of the README.md in this package.
