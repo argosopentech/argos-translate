@@ -10,9 +10,9 @@ def main():
         description='Open-source offline translation.\n')
     parser.add_argument('text', nargs='?', metavar='TEXT',
             help='The text to translate. Read from standard input if missing.')
-    parser.add_argument('--from-lang',
+    parser.add_argument('--from-lang', '-f',
             help='The code for the language to translate from (ISO 639-1)')
-    parser.add_argument('--to-lang',
+    parser.add_argument('--to-lang', '-t',
             help='The code for the language to translate to (ISO 639-1)')
     args = parser.parse_args()
 
