@@ -30,19 +30,11 @@ def main():
 
     # Perform translation
     if from_and_to_lang_provided:
-        installed_languages = translate.load_installed_languages()
-        from_lang_index = None
-        for i, lang in enumerate(installed_languages):
-            if lang.code == args.from_lang:
-                from_lang_index = i
-                break
-        to_lang_index = None
-        for i, lang in enumerate(installed_languages):
-            if lang.code == args.to_lang:
-                to_lang_index = i
-                break
-        from_lang = installed_languages[from_lang_index]
-        to_lang = installed_languages[to_lang_index]
+        installed_languages = {
+            lang.code: lang
+            for lang in translate.load_installed_languages()}
+        from_lang = installed_languages[args.from_lang]
+        to_lang = installed_languages[args.to_lang]
         translation = from_lang.get_translation(to_lang)
         if translation == None:
             sys.exit('No translation installed from {} to {}'.format(
