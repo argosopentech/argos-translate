@@ -22,9 +22,7 @@ def main():
         text_to_translate = args.text
     elif from_and_to_lang_provided:
         # echo "Text to translate" | argos-translate-cli --from-lang en --to-lang es
-        text_to_translate = ''
-        for line in sys.stdin:
-            text_to_translate += line
+        text_to_translate = ''.join(sys.stdin)
     else:
         # argos-translate
         parser.print_help()
