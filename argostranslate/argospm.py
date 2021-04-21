@@ -41,6 +41,18 @@ def install_package(args):
         print('Package not found')
 
 
+def search_packages(args):
+    """Display packages from remote index."""
+    available_packages = package.get_available_packages()
+    for pkg in available_packages:
+        if args.from_lang and args.from_lang != pkg.from_code:
+            continue
+        if args.to_lang and args.to_lang != pkg.to_code:
+            continue
+        print('{0}: {1.from_code} -> {1.to_code}'.format(
+            name_of_package(pkg), pkg))
+
+
 def list_packages(args):
     """List packages."""
     installed_packages = package.get_installed_packages()
@@ -71,6 +83,16 @@ def main():
     update_parser = subparser.add_parser(
         'update', help='Downloads remote package index.')
     update_parser.set_defaults(callback=update_index)
+
+    search_parser = subparser.add_parser(
+        'search', help='Search package from remote index.')
+    search_parser.add_argument(
+        '--from-lang', '-f',
+        help='The code for the language to translate from (ISO 639-1)')
+    search_parser.add_argument(
+        '--to-lang', '-t',
+        help='The code for the language to translate to (ISO 639-1)')
+    search_parser.set_defaults(callback=search_packages)
 
     install_parser = subparser.add_parser(
         'install', help='Install package.')
