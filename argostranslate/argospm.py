@@ -28,16 +28,14 @@ def install_package(args):
     """Install package."""
     available_packages = package.get_available_packages()
     package_name = args.name
-    package_found = False
     for available_package in available_packages:
         name = name_of_package(available_package)
         if name == package_name:
             download_path = available_package.download()
             package.install_from_path(download_path)
             print(f'Installed package to path {download_path}')
-            package_found = True
             break
-    if not package_found:
+    else:
         print('Package not found')
 
 
@@ -64,15 +62,13 @@ def remove_package(args):
     """Remove installed package."""
     installed_packages = package.get_installed_packages()
     package_name = args.name
-    package_found = False
     for installed_package in installed_packages:
         name = name_of_package(installed_package)
         if name == package_name:
             installed_package.remove()
             print(f'Removed package {name}')
-            package_found = True
             break
-    if not package_found:
+    else:
         print('Package not found')
 
 
