@@ -33,6 +33,12 @@ def main():
         installed_languages = {
             lang.code: lang
             for lang in translate.load_installed_languages()}
+        if args.from_lang not in installed_languages:
+            parser.error('{!r} is not an installed language.'.format(
+                args.from_lang))
+        if args.to_lang not in installed_languages:
+            parser.error('{!r} is not an installed language.'.format(
+                args.to_lang))
         from_lang = installed_languages[args.from_lang]
         to_lang = installed_languages[args.to_lang]
         translation = from_lang.get_translation(to_lang)
