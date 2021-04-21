@@ -1,6 +1,8 @@
 import argparse
 import sys
+
 from argostranslate import package, translate
+
 
 def main():
     # Parse args
@@ -12,7 +14,7 @@ def main():
             help='The code for the language to translate to (ISO 639-1)')
     args = parser.parse_args()
 
-    from_and_to_lang_provided = args.from_lang != None and args.to_lang != None
+    from_and_to_lang_provided = args.from_lang is not None and args.to_lang is not None
 
     # Get text to translate
     if args.text:
@@ -42,12 +44,11 @@ def main():
         from_lang = installed_languages[args.from_lang]
         to_lang = installed_languages[args.to_lang]
         translation = from_lang.get_translation(to_lang)
-        if translation == None:
-            sys.exit('No translation installed from {} to {}'.format(
-                    args.from_name, args.to_name))
+        if translation is None:
+            parser.error('No translation installed from {!r} to {!r}'.format(
+                args.from_name, args.to_name))
     else:
         translation = translate.IdentityTranslation('')
 
     # Print translation
     print(translation.translate(text_to_translate))
-
