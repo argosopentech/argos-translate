@@ -6,8 +6,10 @@ from argostranslate import package, translate
 
 def main():
     # Parse args
-    parser = argparse.ArgumentParser()
-    parser.add_argument('text', nargs='?', help='The text to translate')
+    parser = argparse.ArgumentParser(
+        description='Open-source offline translation.\n')
+    parser.add_argument('text', nargs='?', metavar='TEXT',
+            help='The text to translate. Read from standard input if missing.')
     parser.add_argument('--from-lang',
             help='The code for the language to translate from (ISO 639-1)')
     parser.add_argument('--to-lang',
