@@ -45,8 +45,7 @@ def main():
         to_lang = installed_languages[args.to_lang]
         translation = from_lang.get_translation(to_lang)
         if translation is None:
-            parser.error('No translation installed from {!r} to {!r}'.format(
-                args.from_name, args.to_name))
+            parser.error(f'No translation installed from {args.from_name} to {args.to_name}')
     else:
         translation = translate.IdentityTranslation('')
 
