@@ -1,4 +1,5 @@
 from pathlib import Path
+from difflib import SequenceMatcher
 
 import ctranslate2
 import sentencepiece as spm
@@ -276,6 +277,48 @@ class CachedTranslation(ITranslation):
             hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip('\n')
         return hypotheses_to_return
 
+SBD_FROM_CODE = 'sbd_from'
+SBD_TO_CODE = 'sbd_to'
+DETECT_SENTENCE_BOUNDARIES_TOKEN = '<detect-sentence-boundaries>'
+SENTENCE_BOUNDARY_TOKEN = '<sentence-boundary>'
+
+def detect_sentence(input_text, sentence_guess_length=150):
+    """Given input text, return the index after the end of the first sentence.
+
+    Args:
+        input_text (str): The text to detect the first sentence of.
+        sentence_guess_length (int): Estimated number of chars > than most sentences.
+
+    Returns:
+        int: The index of the character after the end of the sentence.
+                -1 if not found.
+    """
+    # TODO: Cache
+    sbd_translation = get_sbd_translation()
+    sentence_guess = input_text[:sentence_guess_length]
+    info('sentence_guess', sentence_guess)
+    sbd_translated_guess = sbd_translation.translate(
+            DETECT_SENTENCE_BOUNDARIES_TOKEN + sentence_guess)
+    sbd_translated_guess_index = sbd_translated_guess.find(
+            SENTENCE_BOUNDARY_TOKEN)
+    if sbd_translated_guess_index != -1:
+        sbd_translated_guess = sbd_translated_guess[
+                :sbd_translated_guess_index]
+        info('sbd_translated_guess', sbd_translated_guess)
+        best_index = None
+        best_ratio = 0.0
+        for i in range(len(input_text)):
+            candidate_sentence = input_text[:i]
+            sm = SequenceMatcher()
+            sm.set_seqs(candidate_sentence, sbd_translated_guess)
+            ratio = sm.ratio()
+            if best_index == None or ratio > best_ratio:
+                best_index = i
+                best_ratio = ratio
+        return best_index
+    else:
+        return -1
+
 def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     """Applies the translation in pkg to translate input_text.
 
@@ -293,8 +336,22 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     info('apply_packaged_translation')
 
     # Sentence boundary detection
-    if settings.experimental_enabled:
+    if pkg.from_code == SBD_FROM_CODE:
         sentences = [input_text]
+    elif settings.experimental_enabled:
+        DEFAULT_SENTENCE_LENGTH = 110
+        sentences = []
+        start_index = 0
+        while start_index < len(input_text) - 1:
+            sbd_index = start_index + detect_sentence(input_text[start_index:])
+            if sbd_index == -1:
+                sbd_index = start_index + DEFAULT_SENTENCE_LENGTH
+            sentences.append(input_text[start_index:sbd_index])
+            print('=' * 20)
+            print('start_index', start_index)
+            print('sbd_index', sbd_index)
+            print(input_text[start_index:sbd_index])
+            start_index = sbd_index
     else:
         stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
                 dir=str(pkg.package_path / 'stanza'),
@@ -403,6 +460,13 @@ def get_installed_languages():
         languages = [english] + languages
 
     return languages
+
+def get_sbd_translation():
+    packages = package.get_installed_packages()
+    for pkg in packages:
+        if pkg.from_code == SBD_FROM_CODE and pkg.to_code == SBD_TO_CODE:
+            return PackageTranslation(SBD_FROM_CODE, SBD_TO_CODE, pkg)
+    return None
 
 def load_installed_languages():
     """Deprecated 1.2, use get_installed_languages"""
