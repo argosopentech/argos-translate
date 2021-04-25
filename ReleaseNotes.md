@@ -1,3 +1,9 @@
+1.3:
+- argospm CLI tool
+- CLI improvements
+- Experimental sentence boundary detection using OpenNMT Seq2Seq model
+- Removed requests dependency
+
 1.2:
 - Download packages from GUI
 - Multiple hypotheses in translations
