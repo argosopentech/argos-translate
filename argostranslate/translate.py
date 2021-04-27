@@ -369,18 +369,13 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
 
     # Translation
     BATCH_SIZE = 32
-    translated_batches = []
-    i = 0
-    while i < len(tokenized):
-        j = min(len(tokenized[i:]), i + BATCH_SIZE)
-        translated_batches += translator.translate_batch(
-                tokenized[i:j],
-                replace_unknowns=True,
-                max_batch_size=BATCH_SIZE,
-                beam_size=num_hypotheses,
-                num_hypotheses=num_hypotheses,
-                length_penalty=0.2)
-        i = j
+    translated_batches = translator.translate_batch(
+            tokenized,
+            replace_unknowns=True,
+            max_batch_size=BATCH_SIZE,
+            beam_size=num_hypotheses,
+            num_hypotheses=num_hypotheses,
+            length_penalty=0.2)
     info('translated_batches', translated_batches)
 
     # Build hypotheses
