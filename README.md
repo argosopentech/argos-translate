@@ -174,6 +174,8 @@ argos-translate-gui
 When installing with snap a .desktop file should also be installed which will make Argos Translate available from the desktop menu.
 
 ## Contributing
+[![Awesome Humane Tech](https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true)](https://github.com/humanetech-community/awesome-humane-tech)
+
 Contributions are welcome! Available issues are on the [GitHub issues page](https://github.com/argosopentech/argos-translate/issues).
 
 ## Support
