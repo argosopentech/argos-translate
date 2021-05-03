@@ -52,3 +52,30 @@ class TestITranslation:
                 translate.ITranslation.split_into_paragraphs(test_case["input"])
                 == test_case["output"]
             )
+
+    def test_combine_paragraphs(self):
+        test_cases = [
+            {
+                "input": ["this and that", "along with this"],
+                "output": "this and that\nalong with this",
+            },
+            {
+                "input": ["one.", "and two."],
+                "output": "one.\nand two.",
+            },
+        ]
+        for test_case in test_cases:
+            assert (
+                translate.ITranslation.combine_paragraphs(test_case["input"]) == test_case["output"]
+            )
+
+    def test_string(self):
+        with pytest.raises(AttributeError):
+            str(translate.ITranslation())
+
+        # Add attributes manually
+        translation = translate.ITranslation()
+        translation.from_lang = "English"
+        translation.to_lang = "Spanish"
+
+        assert str(translation) == "English -> Spanish"
