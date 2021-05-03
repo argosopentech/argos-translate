@@ -79,3 +79,18 @@ class TestITranslation:
         translation.to_lang = "Spanish"
 
         assert str(translation) == "English -> Spanish"
+
+
+class TestLanguage:
+    def test_string(self):
+        assert str(translate.Language("es", "Spanish")) == "Spanish"
+
+    def test_get_translation(self):
+        # No language test
+        to = translate.Language("en", "English")
+        assert translate.Language("es", "Spanish").get_translation(to) == None
+
+        lang = translate.Language("es", "Spanish")
+        # Add the language as supported (add it to translations_from)
+        lang.translations_from.append(to)
+        assert translate.Language("es", "Spanish").get_translation(to) == None
