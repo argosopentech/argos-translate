@@ -88,9 +88,46 @@ class TestLanguage:
     def test_get_translation(self):
         # No language test
         to = translate.Language("en", "English")
-        assert translate.Language("es", "Spanish").get_translation(to) == None
+        assert translate.Language("es", "Spanish").get_translation(to) is None
 
-        lang = translate.Language("es", "Spanish")
+        es = translate.Language("es", "Spanish")
+        en = translate.Language("en", "English")
+        en.to_lang = en
         # Add the language as supported (add it to translations_from)
-        lang.translations_from.append(to)
-        assert translate.Language("es", "Spanish").get_translation(to) == None
+        es.translations_from.append(en)
+        assert es.get_translation(en) == en
+
+
+class TestPackageTranslation:
+    NotImplemented
+
+
+class TestIdentityTranslation:
+    def test_hypotheses(self):
+        lang = translate.Language("es", "Spanish")
+        identity_translation = translate.IdentityTranslation(lang)
+        returned = identity_translation.hypotheses("this is some text", 1)
+        for single_return in returned:
+            assert isinstance(single_return, translate.Hypothesis)
+            assert single_return.score == 0
+            assert single_return.value == "this is some text"
+
+
+class TestCompositeTranslation:
+    def test_hypotheses(self):
+        lang_one = translate.Language("en", "English")
+        lang_two = translate.Language("es", "Spanish")
+
+        t1 = translate.IdentityTranslation(lang_one)
+        t2 = translate.IdentityTranslation(lang_two)
+
+        composite = translate.CompositeTranslation(t1, t2)
+        output = composite.hypotheses("This is some text", 1)
+        assert len(output) == 1
+        assert isinstance(output[0], translate.Hypothesis)
+        assert output[0].score == 0
+        assert output[0].value == "This is some text"
+
+
+class TestCachedTranslation:
+    NotImplemented
