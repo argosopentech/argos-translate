@@ -6,7 +6,7 @@ def info(*args):
     if settings.debug:
         print(args)
 
-def warn(*args):
+def warning(*args):
     print(args)
 
 def error(*args):

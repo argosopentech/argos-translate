@@ -6,7 +6,7 @@ import sentencepiece as spm
 import stanza
 
 from argostranslate import translate, package, settings, utils
-from argostranslate.utils import info, warn, error
+from argostranslate.utils import info, warning, error
 
 class Hypothesis:
     """Represents a translation hypothesis
