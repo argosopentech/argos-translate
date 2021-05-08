@@ -35,30 +35,30 @@ class WorkerStatusButton(QPushButton):
     def __init__(self, text, bound_worker_function):
         super().__init__(text)
         self.text = text
-        self.worker_thread = WorkerThread(bound_worker_function)
-        self.worker_thread.finished.connect(self.finished_handler)
+        self.bound_worker_function = bound_worker_function
         self.clicked.connect(self.clicked_handler)
-        self.status = self.Status.NOT_STARTED
-        self.update_status_indicator()
+        self.set_status(self.Status.NOT_STARTED)
 
-    def update_status_indicator(self):
+    def clicked_handler(self):
+        info('WorkerStatusButton clicked_handler')
+        if self.status == self.Status.NOT_STARTED:
+            self.worker_thread = WorkerThread(self.bound_worker_function)
+            self.worker_thread.finished.connect(self.finished_handler)
+            self.set_status(self.Status.RUNNING)
+            self.worker_thread.start()
+
+    def finished_handler(self):
+        info('WorkerStatusButton finished_handler')
+        self.set_status(self.Status.DONE)
+
+    def set_status(self, status):
+        self.status = status
         if self.status == self.Status.NOT_STARTED:
             self.setText(self.text)
         elif self.status == self.Status.RUNNING:
             self.setText('⌛')
         elif self.status == self.Status.DONE:
             self.setText('✓')
-
-    def clicked_handler(self):
-        info('WorkerStatusButton clicked_handler')
-        self.status = self.Status.RUNNING
-        self.update_status_indicator()
-        self.worker_thread.start()
-
-    def finished_handler(self):
-        info('WorkerStatusButton finished_handler')
-        self.status = self.Status.DONE
-        self.update_status_indicator()
 
 class PackagesTable(QTableWidget):
     packages_changed = pyqtSignal()
