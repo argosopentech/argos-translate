@@ -173,6 +173,39 @@ argos-translate-gui
 
 When installing with snap a .desktop file should also be installed which will make Argos Translate available from the desktop menu.
 
+## Uninstall
+
+If you want to uninstall Argos Translate, you may choose the applicable method.
+
+### Uninstall PYPI/pip package
+
+If you installed Argos Translate via `pip` you can uninstall it using
+
+``` shell
+python3 -m pip uninstall argostranslate
+```
+
+You may choose to also delete temporary and cached files:
+
+``` shell
+rm -r ~/.local/cache/argos-translate
+rm -r ~/.local/share/argos-translate
+```
+
+### Uninstall Snap
+
+The following command will uninstall the snap package.
+
+``` shell
+sudo snap remove argos-translate argos-translate-base-langs
+```
+
+If you installed additional language packs, you might want to remove them as well, e.g.
+
+``` shell
+sudo snap remove argos-translate-de-en
+```
+
 ## Contributing
 [![Awesome Humane Tech](https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true)](https://github.com/humanetech-community/awesome-humane-tech)
 
