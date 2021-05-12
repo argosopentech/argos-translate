@@ -59,6 +59,7 @@ class TestPackage:
             self.package = package.Package("example/")
 
         self.package = package.Package("tests/data/package/")
+        self.readme = "# This is the test package readme\n"
 
     def test_get_readme(self):
         with pytest.raises(FileNotFoundError):
@@ -69,4 +70,7 @@ class TestPackage:
             package_one = package.Package("path/to/nowhere")
             assert package_one.get_readme() == None
 
-        assert self.package.get_readme() == "# This is the test package readme\n"
+        assert self.package.get_readme() == self.readme
+
+    def test_get_description(self):
+        self.package.get_description() == self.readme
