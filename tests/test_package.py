@@ -51,3 +51,22 @@ class TestIPackage:
 
         expected = f"{test_package.from_name} -> {test_package.to_name}"
         assert str(test_package) == expected
+
+
+class TestPackage:
+    def setup_method(self):
+        with pytest.raises(FileNotFoundError):
+            self.package = package.Package("example/")
+
+        self.package = package.Package("tests/data/package/")
+
+    def test_get_readme(self):
+        with pytest.raises(FileNotFoundError):
+            package_one = package.Package("example/")
+            assert package_one.get_readme() == None
+
+        with pytest.raises(FileNotFoundError):
+            package_one = package.Package("path/to/nowhere")
+            assert package_one.get_readme() == None
+
+        assert self.package.get_readme() == "# This is the test package readme\n"
