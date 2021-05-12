@@ -5,6 +5,7 @@ import os
 import json
 import shutil
 import urllib.request
+from os.path import join, isfile
 
 """
 ## `package` module example usage
@@ -24,6 +25,7 @@ for available_package in available_packages:
 ```
 """
 
+
 class IPackage:
     """A package, can be either installed locally or available from a remote package index.
 
@@ -38,11 +40,11 @@ class IPackage:
         links [list(str)]: A list of links to download the package
 
     Packages are a zip archive of a directory with metadata.json
-    in its root the .argosmodel file extension. By default a 
-    OpenNMT CTranslate2 directory named model/ created using 
+    in its root the .argosmodel file extension. By default a
+    OpenNMT CTranslate2 directory named model/ created using
     ct2-opennmt-tf-converter is expected in the root directory
     along with a sentencepiece model named sentencepiece.model
-    for tokenizing and Stanza for sentence boundary detection. 
+    for tokenizing and Stanza for sentence boundary detection.
     Packages may also optionally have a README.md in the root.
 
     from_code and to_code should be ISO 639 codes if applicable.
@@ -89,12 +91,14 @@ class IPackage:
         raise NotImplementedError()
 
     def __eq__(self, other):
-        return self.package_version == other.package_version and \
-                self.argos_version == other.argos_version and \
-                self.from_code == other.from_code and \
-                self.from_name == other.from_name and \
-                self.to_code == other.to_code and \
-                self.to_name == other.to_name
+        return (
+            self.package_version == other.package_version
+            and self.argos_version == other.argos_version
+            and self.from_code == other.from_code
+            and self.from_name == other.from_name
+            and self.to_code == other.to_code
+            and self.to_name == other.to_name
+        )
 
     def __str__(self):
         return "{} -> {}".format(self.from_name, self.to_name)
@@ -102,6 +106,7 @@ class IPackage:
 
 class Package(IPackage):
     """An installed package"""
+
     def __init__(self, package_path):
         """Create a new Package from path.
 
@@ -110,10 +115,11 @@ class Package(IPackage):
 
         """
         self.package_path = package_path
-        metadata_path = package_path / 'metadata.json'
-        if not metadata_path.exists():
-            raise Exception('Error opening package at ' +
-                    str(metadata_path) + ' no metadata.json')
+        metadata_path = join(package_path, 'metadata.json')
+        if not isfile(metadata_path):
+            raise FileNotFoundError(
+                'Error opening package at ' + str(metadata_path) + ' no metadata.json'
+            )
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
@@ -131,8 +137,8 @@ class Package(IPackage):
                 if README.md can't be read
 
         """
-        readme_path = self.package_path / 'README.md'
-        if not readme_path.is_file():
+        readme_path = join(self.package_path, 'README.md')
+        if not isfile(readme_path):
             return None
         with open(readme_path, 'r') as readme_file:
             return readme_file.read()
@@ -141,8 +147,10 @@ class Package(IPackage):
     def get_description(self):
         return self.get_readme()
 
+
 class AvailablePackage(IPackage):
     """A package available for download"""
+
     def __init__(self, metadata):
         """Creates a new AvailablePackage from a metadata object"""
         self.load_metadata_from_json(metadata)
@@ -151,7 +159,7 @@ class AvailablePackage(IPackage):
         """Downloads the AvailablePackage and returns its path"""
         url = self.links[0]
         filename = self.from_code + '_' + self.to_code + '.argosmodel'
-        filepath = settings.downloads_dir / filename
+        filepath = join(settings.downloads_dir, filename)
         response = urllib.request.urlopen(url)
         data = response.read()
         with open(filepath, 'wb') as f:
@@ -160,6 +168,7 @@ class AvailablePackage(IPackage):
 
     def get_description(self):
         return "{} → {}".format(self.from_name, self.to_name)
+
 
 def install_from_path(path):
     """Install a package file (zip archive ending in .argosmodel).
@@ -173,6 +182,7 @@ def install_from_path(path):
     with zipfile.ZipFile(path, 'r') as zip:
         zip.extractall(path=settings.package_data_dir)
 
+
 def uninstall(pkg):
     """Uninstalls a package.
 
@@ -181,6 +191,7 @@ def uninstall(pkg):
 
     """
     shutil.rmtree(pkg.package_path)
+
 
 def get_installed_packages(path=None):
     """Return a list of installed Packages
@@ -203,12 +214,14 @@ def get_installed_packages(path=None):
                 to_return.append(Package(path))
     return to_return
 
+
 def update_package_index():
     """Downloads remote package index"""
     response = urllib.request.urlopen(settings.remote_package_index)
     data = response.read()
     with open(settings.local_package_index, 'wb') as f:
         f.write(data)
+
 
 def get_available_packages():
     """Returns a list of AvailablePackages from the package index."""
@@ -221,8 +234,10 @@ def get_available_packages():
                 to_return.append(package)
             return to_return
     except FileNotFoundError:
-        raise Exception('Local package index not found,' +
-                ' use package.update_package_index() to load it')
+        raise Exception(
+            'Local package index not found,' + ' use package.update_package_index() to load it'
+        )
+
 
 def load_available_packages():
     """Deprecated 1.2, use get_available_packages"""
