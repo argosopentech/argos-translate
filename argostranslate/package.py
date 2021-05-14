@@ -111,7 +111,7 @@ class Package(IPackage):
         """Create a new Package from path.
 
         Args:
-            package_path (str): Path to installed package directory.
+            package_path (pathlib.Path): Path to installed package directory.
 
         """
         self.package_path = package_path
@@ -137,7 +137,7 @@ class Package(IPackage):
                 if README.md can't be read
 
         """
-        readme_path = join(self.package_path, 'README.md')
+        readme_path = self.package_path, 'README.md'
         if not isfile(readme_path):
             return None
         with open(readme_path, 'r') as readme_file:
@@ -159,7 +159,7 @@ class AvailablePackage(IPackage):
         """Downloads the AvailablePackage and returns its path"""
         url = self.links[0]
         filename = self.from_code + '_' + self.to_code + '.argosmodel'
-        filepath = join(settings.downloads_dir, filename)
+        filepath = settings.downloads_dir / filename
         response = urllib.request.urlopen(url)
         data = response.read()
         with open(filepath, 'wb') as f:
@@ -174,7 +174,7 @@ def install_from_path(path):
     """Install a package file (zip archive ending in .argosmodel).
 
     Args:
-        path (str): The path to the .argosmodel file to install.
+        path (pathlib): The path to the .argosmodel file to install.
 
     """
     if not zipfile.is_zipfile(path):
@@ -202,7 +202,7 @@ def get_installed_packages(path=None):
     if it is set.
 
     Args:
-        path (str): Path to look for installed package directories in.
+        path (pathlib.Path): Path to look for installed package directories in.
             Defaults to the path in settings module.
 
     """

@@ -1,3 +1,6 @@
+1.4:
+- Consistently use pathlib.Path in package module instead of strings
+
 1.3:
 - argospm CLI tool
 - CLI improvements
