@@ -69,13 +69,13 @@ class IPackage:
             metadata: A json object from json.load
 
         """
-        self.package_version = metadata.get('package_version')
-        self.argos_version = metadata.get('argos_version')
+        self.package_version = metadata.get('package_version', '')
+        self.argos_version = metadata.get('argos_version', '')
         self.from_code = metadata.get('from_code')
-        self.from_name = metadata.get('from_name')
+        self.from_name = metadata.get('from_name', '')
         self.to_code = metadata.get('to_code')
-        self.to_name = metadata.get('to_name')
-        self.links = metadata.get('links')
+        self.to_name = metadata.get('to_name', '')
+        self.links = metadata.get('links', list())
 
     def get_readme(self):
         """Returns the text of the README.md in this package.
