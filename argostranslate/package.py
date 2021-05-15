@@ -163,7 +163,10 @@ class AvailablePackage(IPackage):
         url = self.links[0]
         filename = self.from_code + '_' + self.to_code + '.argosmodel'
         filepath = settings.downloads_dir / filename
-        response = urllib.request.urlopen(url)
+        try:
+            response = urllib.request.urlopen(url)
+        except:
+            return
         data = response.read()
         with open(filepath, 'wb') as f:
             f.write(data)
@@ -220,7 +223,10 @@ def get_installed_packages(path=None):
 
 def update_package_index():
     """Downloads remote package index"""
-    response = urllib.request.urlopen(settings.remote_package_index)
+    try:
+        response = urllib.request.urlopen(settings.remote_package_index)
+    except:
+        return
     data = response.read()
     with open(settings.local_package_index, 'wb') as f:
         f.write(data)
