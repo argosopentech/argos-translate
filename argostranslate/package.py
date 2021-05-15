@@ -73,9 +73,12 @@ class IPackage:
         self.argos_version = metadata.get('argos_version', '')
         self.from_code = metadata.get('from_code')
         self.from_name = metadata.get('from_name', '')
+        self.from_codes = metadata.get('from_codes', list())
         self.to_code = metadata.get('to_code')
+        self.to_codes = metadata.get('to_codes', list())
         self.to_name = metadata.get('to_name', '')
         self.links = metadata.get('links', list())
+        self.type = metadata.get('type', 'translate')
 
     def get_readme(self):
         """Returns the text of the README.md in this package.

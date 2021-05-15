@@ -277,8 +277,6 @@ class CachedTranslation(ITranslation):
             hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip('\n')
         return hypotheses_to_return
 
-SBD_FROM_CODE = 'sbd_from'
-SBD_TO_CODE = 'sbd_to'
 DETECT_SENTENCE_BOUNDARIES_TOKEN = '<detect-sentence-boundaries>'
 SENTENCE_BOUNDARY_TOKEN = '<sentence-boundary>'
 
@@ -336,16 +334,19 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     info('apply_packaged_translation')
 
     # Sentence boundary detection
-    if pkg.from_code == SBD_FROM_CODE:
+    if pkg.type == 'sbd':
         sentences = [input_text]
     elif settings.experimental_enabled:
-        DEFAULT_SENTENCE_LENGTH = 110
+        DEFAULT_SENTENCE_LENGTH = 250
         sentences = []
         start_index = 0
         while start_index < len(input_text) - 1:
-            sbd_index = start_index + detect_sentence(input_text[start_index:])
-            if sbd_index == -1:
+            detected_sentence_index = detect_sentence(input_text[start_index:])
+            if detected_sentence_index == -1:
+                # Couldn't find sentence boundary
                 sbd_index = start_index + DEFAULT_SENTENCE_LENGTH
+            else:
+                sbd_index = start_index + detected_sentence_index 
             sentences.append(input_text[start_index:sbd_index])
             print('=' * 20)
             print('start_index', start_index)
@@ -463,8 +464,8 @@ def get_installed_languages():
 def get_sbd_translation():
     packages = package.get_installed_packages()
     for pkg in packages:
-        if pkg.from_code == SBD_FROM_CODE and pkg.to_code == SBD_TO_CODE:
-            return PackageTranslation(SBD_FROM_CODE, SBD_TO_CODE, pkg)
+        if pkg.type == 'sbd':
+            return PackageTranslation(None, None, pkg)
     return None
 
 def load_installed_languages():
