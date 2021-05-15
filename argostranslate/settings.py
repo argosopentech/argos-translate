@@ -4,9 +4,13 @@ import sys
 import shutil
 import platform
 
+TRUE_VALUES = ['1', 'TRUE', 'True', 'true']
+
 debug = False
 if 'DEBUG' in os.environ:
-    debug = os.environ['DEBUG'] in ['1', 'TRUE', 'True', 'true']
+    debug = os.environ['DEBUG'] in TRUE_VALUES
+
+dev_mode = os.getenv('ARGOS_DEV_MODE') in TRUE_VALUES
 
 home_dir = Path.home()
 if 'SNAP' in os.environ:
@@ -26,11 +30,15 @@ cache_dir = Path(os.getenv('XDG_CACHE_HOME',
         default=home_dir / '.local' / 'cache')) / 'argos-translate'
 os.makedirs(cache_dir, exist_ok=True)
 
-remote_repo = os.getenv('ARGOS_PACKAGE_INDEX',
-        default='https://raw.githubusercontent.com/argosopentech/argospm-index/main')
+if not dev_mode:
+    remote_repo = os.getenv('ARGOS_PACKAGE_INDEX',
+            default='https://raw.githubusercontent.com/argosopentech/argospm-index/main')
+else:
+    remote_repo = os.getenv('ARGOS_PACKAGE_INDEX',
+            default='https://raw.githubusercontent.com/argosopentech/argospm-index-dev/main')
 remote_package_index = remote_repo + '/index.json'
 
-experimental_enabled = os.getenv('ARGOS_EXPERIMENTAL_ENABLED') in ['1', 'TRUE', 'True', 'true']
+experimental_enabled = os.getenv('ARGOS_EXPERIMENTAL_ENABLED') in TRUE_VALUES
 
 downloads_dir = cache_dir / 'downloads'
 os.makedirs(downloads_dir, exist_ok=True)
