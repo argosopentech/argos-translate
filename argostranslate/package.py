@@ -161,7 +161,7 @@ class AvailablePackage(IPackage):
     def download(self):
         """Downloads the AvailablePackage and returns its path"""
         url = self.links[0]
-        filename = self.from_code + '_' + self.to_code + '.argosmodel'
+        filename = self.type + '-' + self.from_code + '_' + self.to_code + '.argosmodel'
         filepath = settings.downloads_dir / filename
         try:
             response = urllib.request.urlopen(url)
