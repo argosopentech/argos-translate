@@ -336,7 +336,14 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     # Sentence boundary detection
     if pkg.type == 'sbd':
         sentences = [input_text]
-    elif settings.experimental_enabled:
+    elif settings.stanza_available:
+        stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
+                dir=str(pkg.package_path / 'stanza'),
+                processors='tokenize', use_gpu=False,
+                logging_level='WARNING')
+        stanza_sbd = stanza_pipeline(input_text)
+        sentences = [sentence.text for sentence in stanza_sbd.sentences]
+    else:
         DEFAULT_SENTENCE_LENGTH = 250
         sentences = []
         start_index = 0
@@ -348,18 +355,10 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
             else:
                 sbd_index = start_index + detected_sentence_index 
             sentences.append(input_text[start_index:sbd_index])
-            print('=' * 20)
-            print('start_index', start_index)
-            print('sbd_index', sbd_index)
-            print(input_text[start_index:sbd_index])
+            info('start_index', start_index)
+            info('sbd_index', sbd_index)
+            info(input_text[start_index:sbd_index])
             start_index = sbd_index
-    else:
-        stanza_pipeline = stanza.Pipeline(lang=pkg.from_code,
-                dir=str(pkg.package_path / 'stanza'),
-                processors='tokenize', use_gpu=False,
-                logging_level='WARNING')
-        stanza_sbd = stanza_pipeline(input_text)
-        sentences = [sentence.text for sentence in stanza_sbd.sentences]
     info('sentences', sentences)
 
     # Tokenization
@@ -405,6 +404,9 @@ def get_installed_languages():
     info('get_installed_languages')
 
     packages = package.get_installed_packages()
+
+    # Filter for translate packages
+    packages = filter(lambda x: x.type == 'translate', packages)
 
     # Load languages and translations from packages
     language_of_code = dict()

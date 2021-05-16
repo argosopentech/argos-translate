@@ -40,6 +40,8 @@ remote_package_index = remote_repo + '/index.json'
 
 experimental_enabled = os.getenv('ARGOS_EXPERIMENTAL_ENABLED') in TRUE_VALUES
 
+stanza_available = os.getenv('ARGOS_STANZA_AVAILABLE') in (TRUE_VALUES + [None])
+
 downloads_dir = cache_dir / 'downloads'
 os.makedirs(downloads_dir, exist_ok=True)
 
