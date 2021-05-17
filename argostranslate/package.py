@@ -121,6 +121,9 @@ class Package(IPackage):
 
         """
         self.package_path = package_path
+        if type(self.package_path) == str:
+            # Convert strings to pathlib.Path objects
+            self.package_path = Path(self.package_path)
         metadata_path = package_path / 'metadata.json'
         if not metadata_path.exists():
             raise FileNotFoundError(
