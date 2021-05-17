@@ -5,7 +5,6 @@ import os
 import json
 import shutil
 import urllib.request
-from os.path import join, isfile
 
 """
 ## `package` module example usage
@@ -122,8 +121,8 @@ class Package(IPackage):
 
         """
         self.package_path = package_path
-        metadata_path = join(package_path, 'metadata.json')
-        if not isfile(metadata_path):
+        metadata_path = package_path / 'metadata.json'
+        if not metadata_path.exists():
             raise FileNotFoundError(
                 'Error opening package at ' + str(metadata_path) + ' no metadata.json'
             )
@@ -144,8 +143,8 @@ class Package(IPackage):
                 if README.md can't be read
 
         """
-        readme_path = self.package_path, 'README.md'
-        if not isfile(readme_path):
+        readme_path = self.package_path / 'README.md'
+        if not readme_path.exists():
             return None
         with open(readme_path, 'r') as readme_file:
             return readme_file.read()
