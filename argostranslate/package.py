@@ -69,16 +69,16 @@ class IPackage:
             metadata: A json object from json.load
 
         """
-        self.package_version = metadata.get('package_version', '')
-        self.argos_version = metadata.get('argos_version', '')
-        self.from_code = metadata.get('from_code')
-        self.from_name = metadata.get('from_name', '')
-        self.from_codes = metadata.get('from_codes', list())
-        self.to_code = metadata.get('to_code')
-        self.to_codes = metadata.get('to_codes', list())
-        self.to_name = metadata.get('to_name', '')
-        self.links = metadata.get('links', list())
-        self.type = metadata.get('type', 'translate')
+        self.package_version = metadata.get("package_version", "")
+        self.argos_version = metadata.get("argos_version", "")
+        self.from_code = metadata.get("from_code")
+        self.from_name = metadata.get("from_name", "")
+        self.from_codes = metadata.get("from_codes", list())
+        self.to_code = metadata.get("to_code")
+        self.to_codes = metadata.get("to_codes", list())
+        self.to_name = metadata.get("to_name", "")
+        self.links = metadata.get("links", list())
+        self.type = metadata.get("type", "translate")
 
     def get_readme(self):
         """Returns the text of the README.md in this package.
@@ -108,7 +108,7 @@ class IPackage:
             return "{} -> {}".format(self.from_name, self.to_name)
         elif self.type:
             return self.type
-        return ''
+        return ""
 
 
 class Package(IPackage):
@@ -125,10 +125,10 @@ class Package(IPackage):
             # Convert strings to pathlib.Path objects
             package_path = Path(package_path)
         self.package_path = package_path
-        metadata_path = package_path / 'metadata.json'
+        metadata_path = package_path / "metadata.json"
         if not metadata_path.exists():
             raise FileNotFoundError(
-                'Error opening package at ' + str(metadata_path) + ' no metadata.json'
+                "Error opening package at " + str(metadata_path) + " no metadata.json"
             )
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
@@ -147,10 +147,10 @@ class Package(IPackage):
                 if README.md can't be read
 
         """
-        readme_path = self.package_path / 'README.md'
+        readme_path = self.package_path / "README.md"
         if not readme_path.exists():
             return None
-        with open(readme_path, 'r') as readme_file:
+        with open(readme_path, "r") as readme_file:
             return readme_file.read()
         return None
 
@@ -170,17 +170,20 @@ class AvailablePackage(IPackage):
         url = self.links[0]
         filename = self.type
         if self.from_code:
-            filename += '-' + self.from_code
+            filename += "-" + self.from_code
         if self.to_code:
             filename += self.to_code
-        filename += '.argosmodel'
+        filename += ".argosmodel"
 
         # Install sbd package if needed
-        if self.type == 'translate' and not settings.stanza_available:
-            if len(list(filter(lambda x: x.type == 'sbd', get_installed_packages()))) == 0:
+        if self.type == "translate" and not settings.stanza_available:
+            if (
+                len(list(filter(lambda x: x.type == "sbd", get_installed_packages())))
+                == 0
+            ):
                 sbd_packages = filter(
-                        lambda x: x.type == 'sbd',
-                        get_available_packages())
+                    lambda x: x.type == "sbd", get_available_packages()
+                )
                 for sbd_package in sbd_packages:
                     print(sbd_package)
                     download_path = sbd_package.download()
@@ -192,7 +195,7 @@ class AvailablePackage(IPackage):
         except:
             return
         data = response.read()
-        with open(filepath, 'wb') as f:
+        with open(filepath, "wb") as f:
             f.write(data)
         return filepath
 
@@ -208,8 +211,8 @@ def install_from_path(path):
 
     """
     if not zipfile.is_zipfile(path):
-        raise Exception('Not a valid Argos Model (must be a zip archive)')
-    with zipfile.ZipFile(path, 'r') as zip:
+        raise Exception("Not a valid Argos Model (must be a zip archive)")
+    with zipfile.ZipFile(path, "r") as zip:
         zip.extractall(path=settings.package_data_dir)
 
 
@@ -252,7 +255,7 @@ def update_package_index():
     except:
         return
     data = response.read()
-    with open(settings.local_package_index, 'wb') as f:
+    with open(settings.local_package_index, "wb") as f:
         f.write(data)
 
 
@@ -268,7 +271,7 @@ def get_available_packages():
             return to_return
     except FileNotFoundError:
         raise Exception(
-            'Local package index not found, use package.update_package_index() to load it'
+            "Local package index not found, use package.update_package_index() to load it"
         )
 
 
@@ -283,7 +286,7 @@ def argospm_package_name(pkg):
     """
     to_return = pkg.type
     if pkg.from_code and pkg.to_code:
-        to_return += '-' + pkg.from_code + '_' + pkg.to_code
+        to_return += "-" + pkg.from_code + "_" + pkg.to_code
     return to_return
 
 

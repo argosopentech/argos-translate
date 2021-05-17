@@ -12,6 +12,7 @@ from argostranslate import translate, package, settings, utils
 from argostranslate.utils import info, warning, error
 from argostranslate.utils import WorkerThread
 
+
 class TranslationThread(QThread):
     send_text_update = pyqtSignal(str)
 
@@ -22,9 +23,10 @@ class TranslationThread(QThread):
 
     def run(self):
         if self.show_loading_message:
-            self.send_text_update.emit('Loading...')
+            self.send_text_update.emit("Loading...")
         translated_text = self.translation_function()
         self.send_text_update.emit(translated_text)
+
 
 class WorkerStatusButton(QPushButton):
     class Status(Enum):
@@ -40,7 +42,7 @@ class WorkerStatusButton(QPushButton):
         self.set_status(self.Status.NOT_STARTED)
 
     def clicked_handler(self):
-        info('WorkerStatusButton clicked_handler')
+        info("WorkerStatusButton clicked_handler")
         if self.status == self.Status.NOT_STARTED:
             self.worker_thread = WorkerThread(self.bound_worker_function)
             self.worker_thread.finished.connect(self.finished_handler)
@@ -48,7 +50,7 @@ class WorkerStatusButton(QPushButton):
             self.worker_thread.start()
 
     def finished_handler(self):
-        info('WorkerStatusButton finished_handler')
+        info("WorkerStatusButton finished_handler")
         self.set_status(self.Status.DONE)
 
     def set_status(self, status):
@@ -56,9 +58,10 @@ class WorkerStatusButton(QPushButton):
         if self.status == self.Status.NOT_STARTED:
             self.setText(self.text)
         elif self.status == self.Status.RUNNING:
-            self.setText('⌛')
+            self.setText("⌛")
         elif self.status == self.Status.DONE:
-            self.setText('✓')
+            self.setText("✓")
+
 
 class PackagesTable(QTableWidget):
     packages_changed = pyqtSignal()
@@ -70,26 +73,26 @@ class PackagesTable(QTableWidget):
     class AvailableActions(Enum):
         UNINSTALL = 0
         INSTALL = 1
-    
+
     def __init__(self, table_content, available_actions):
         super().__init__()
         self.table_content = table_content
         self.available_actions = available_actions
-        
+
         self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         headers = [
-                'Readme',
-                'Name',
-                'Package name',
-                'From code',
-                'To code',
-                'Version',
-            ]
+            "Readme",
+            "Name",
+            "Package name",
+            "From code",
+            "To code",
+            "Version",
+        ]
         if self.AvailableActions.UNINSTALL in self.available_actions:
-            headers.append('Uninstall')
+            headers.append("Uninstall")
         if self.AvailableActions.INSTALL in self.available_actions:
-            headers.append('Install')
+            headers.append("Install")
         self.setColumnCount(len(headers))
         self.setHorizontalHeaderLabels(headers)
         self.verticalHeader().setVisible(False)
@@ -108,11 +111,11 @@ class PackagesTable(QTableWidget):
         elif self.table_content == self.TableContent.INSTALLED:
             return package.get_installed_packages()
         else:
-            raise Exception('Invalid table content')
+            raise Exception("Invalid table content")
 
     def populate(self):
         packages = self.get_packages()
-        
+
         self.setRowCount(len(packages))
         for i, pkg in enumerate(packages):
             name = str(pkg)
@@ -121,9 +124,8 @@ class PackagesTable(QTableWidget):
             from_code = pkg.from_code
             to_code = pkg.to_code
             pkg = packages[i]
-            readme_button = QPushButton('view')
-            bound_view_package_readme_function = partial(
-                self.view_package_readme, pkg)
+            readme_button = QPushButton("view")
+            bound_view_package_readme_function = partial(self.view_package_readme, pkg)
             readme_button.clicked.connect(bound_view_package_readme_function)
             row_index = 0
             self.setCellWidget(i, row_index, readme_button)
@@ -139,18 +141,22 @@ class PackagesTable(QTableWidget):
             self.setItem(i, row_index, QTableWidgetItem(package_version))
             row_index += 1
             if self.AvailableActions.UNINSTALL in self.available_actions:
-                uninstall_button = QPushButton('🗑')
-                bound_uninstall_function = partial(PackagesTable.uninstall_package, self, pkg)
+                uninstall_button = QPushButton("🗑")
+                bound_uninstall_function = partial(
+                    PackagesTable.uninstall_package, self, pkg
+                )
                 uninstall_button.clicked.connect(bound_uninstall_function)
                 self.setCellWidget(i, row_index, uninstall_button)
                 row_index += 1
             if self.AvailableActions.INSTALL in self.available_actions:
                 if pkg not in self.installed_packages:
-                    bound_install_function = partial(PackagesTable.install_package, self, pkg)
-                    install_button = WorkerStatusButton('⬇', bound_install_function)
+                    bound_install_function = partial(
+                        PackagesTable.install_package, self, pkg
+                    )
+                    install_button = WorkerStatusButton("⬇", bound_install_function)
                     self.setCellWidget(i, row_index, install_button)
                 else:
-                    self.setItem(i, row_index, QTableWidgetItem('Installed'))
+                    self.setItem(i, row_index, QTableWidgetItem("Installed"))
                 row_index += 1
         # Resize table widget
         self.setMinimumSize(QSize(0, 0))
@@ -168,11 +174,13 @@ class PackagesTable(QTableWidget):
         except OSError as e:
             # packages included in a snap archive are on a
             # read-only filesystem and can't be deleted
-            if 'SNAP' in os.environ:
+            if "SNAP" in os.environ:
                 error_message_box = QMessageBox()
-                error_message_box.setWindowTitle('Error')
-                error_message_box.setText('Error deleting package: \n' + 
-                    'Packages pre-installed in a snap archive can\'t be deleted')
+                error_message_box.setWindowTitle("Error")
+                error_message_box.setText(
+                    "Error deleting package: \n"
+                    + "Packages pre-installed in a snap archive can't be deleted"
+                )
                 error_message_box.setIcon(QMessageBox.Warning)
                 error_message_box.exec_()
             else:
@@ -194,29 +202,36 @@ class PackagesTable(QTableWidget):
         about_message_box.setIcon(QMessageBox.Information)
         about_message_box.exec_()
 
+
 class ManagePackagesWindow(QWidget):
     packages_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
 
-        self.packages_table = PackagesTable(PackagesTable.TableContent.INSTALLED,
-                                            [PackagesTable.AvailableActions.UNINSTALL])
+        self.packages_table = PackagesTable(
+            PackagesTable.TableContent.INSTALLED,
+            [PackagesTable.AvailableActions.UNINSTALL],
+        )
 
         # Download packages
         def open_download_packages_view(self):
             self.download_packages_window = DownloadPackagesWindow()
             self.download_packages_window.packages_changed.connect(
-                    partial(PackagesTable.populate, self.packages_table))
+                partial(PackagesTable.populate, self.packages_table)
+            )
             self.download_packages_window.show()
             self.download_packages_window.packages_changed.connect(
-                    self.packages_changed.emit)
-        self.download_packages_button = QPushButton('Download packages')
+                self.packages_changed.emit
+            )
+
+        self.download_packages_button = QPushButton("Download packages")
         self.download_packages_button.clicked.connect(
-                partial(open_download_packages_view, self))
+            partial(open_download_packages_view, self)
+        )
 
         # Install from file
-        self.install_package_file_button = QPushButton('Install package file')
+        self.install_package_file_button = QPushButton("Install package file")
         self.install_package_file_button.clicked.connect(self.add_packages)
 
         # Add packages row
@@ -241,15 +256,17 @@ class ManagePackagesWindow(QWidget):
     def add_packages(self):
         file_dialog = QFileDialog()
         filepaths = file_dialog.getOpenFileNames(
-                self,
-                'Select .argosmodel package files',
-                str(Path.home()),
-                'Argos Models (*.argosmodel)')[0]
+            self,
+            "Select .argosmodel package files",
+            str(Path.home()),
+            "Argos Models (*.argosmodel)",
+        )[0]
         if len(filepaths) > 0:
             for file_path in filepaths:
                 package.install_from_path(file_path)
             self.packages_changed.emit()
             self.packages_table.populate()
+
 
 class DownloadPackagesWindow(QWidget):
     packages_changed = pyqtSignal()
@@ -264,8 +281,10 @@ class DownloadPackagesWindow(QWidget):
         available_packages = package.get_available_packages()
 
         # Packages table
-        self.packages_table = PackagesTable(PackagesTable.TableContent.AVAILABLE,
-                                            [PackagesTable.AvailableActions.INSTALL])
+        self.packages_table = PackagesTable(
+            PackagesTable.TableContent.AVAILABLE,
+            [PackagesTable.AvailableActions.INSTALL],
+        )
         self.packages_table.packages_changed.connect(self.packages_changed.emit)
         self.packages_table.populate()
         self.packages_layout = QVBoxLayout()
@@ -277,8 +296,9 @@ class DownloadPackagesWindow(QWidget):
         self.layout.addStretch()
         self.setLayout(self.layout)
 
+
 class GUIWindow(QMainWindow):
-    # Above this number of characters in the input text will show a 
+    # Above this number of characters in the input text will show a
     # message in the output text while the translation
     # is happening
     SHOW_LOADING_THRESHOLD = 300
@@ -296,14 +316,11 @@ class GUIWindow(QMainWindow):
 
         # Language selection
         self.left_language_combo = QComboBox()
-        self.language_swap_button = QPushButton('↔')
+        self.language_swap_button = QPushButton("↔")
         self.right_language_combo = QComboBox()
-        self.left_language_combo.currentIndexChanged.connect(
-                self.translate)
-        self.right_language_combo.currentIndexChanged.connect(
-                self.translate)
-        self.language_swap_button.clicked.connect(
-                self.swap_languages_button_clicked)
+        self.left_language_combo.currentIndexChanged.connect(self.translate)
+        self.right_language_combo.currentIndexChanged.connect(self.translate)
+        self.language_swap_button.clicked.connect(self.swap_languages_button_clicked)
         self.language_selection_layout = QHBoxLayout()
         self.language_selection_layout.addStretch()
         self.language_selection_layout.addWidget(self.left_language_combo)
@@ -315,25 +332,26 @@ class GUIWindow(QMainWindow):
 
         # TextEdits
         self.left_textEdit = QTextEdit()
-        self.left_textEdit.setPlainText('Text to translate from')
+        self.left_textEdit.setPlainText("Text to translate from")
         self.left_textEdit.textChanged.connect(self.translate)
         self.right_textEdit = QTextEdit()
-        self.right_textEdit.setPlainText('Text to translate to')
+        self.right_textEdit.setPlainText("Text to translate to")
         self.textEdit_layout = QHBoxLayout()
         self.textEdit_layout.addWidget(self.left_textEdit)
         self.textEdit_layout.addWidget(self.right_textEdit)
 
         # Menu
         self.menu = self.menuBar()
-        self.manage_packages_action = self.menu.addAction('Manage Packages')
+        self.manage_packages_action = self.menu.addAction("Manage Packages")
         self.manage_packages_action.triggered.connect(
-                self.manage_packages_action_triggered)
-        self.about_action = self.menu.addAction('About')
+            self.manage_packages_action_triggered
+        )
+        self.about_action = self.menu.addAction("About")
         self.about_action.triggered.connect(self.about_action_triggered)
         self.menu.setNativeMenuBar(False)
 
         # Icon
-        icon_path = Path(os.path.dirname(__file__)) / 'img' / 'icon.png'
+        icon_path = Path(os.path.dirname(__file__)) / "img" / "icon.png"
         icon_path = str(icon_path)
         self.setWindowIcon(QIcon(icon_path))
 
@@ -347,17 +365,18 @@ class GUIWindow(QMainWindow):
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.window_layout)
         self.setCentralWidget(self.central_widget)
-        self.setWindowTitle('Argos Translate')
+        self.setWindowTitle("Argos Translate")
 
     def swap_languages_button_clicked(self):
         left_index = self.left_language_combo.currentIndex()
         self.left_language_combo.setCurrentIndex(
-                self.right_language_combo.currentIndex())
+            self.right_language_combo.currentIndex()
+        )
         self.right_language_combo.setCurrentIndex(left_index)
 
     def about_action_triggered(self):
         about_message_box = QMessageBox()
-        about_message_box.setWindowTitle('About')
+        about_message_box.setWindowTitle("About")
         about_message_box.setText(settings.about_text)
         about_message_box.setIcon(QMessageBox.Information)
         about_message_box.exec_()
@@ -372,10 +391,12 @@ class GUIWindow(QMainWindow):
         language_names = tuple([language.name for language in self.languages])
         self.left_language_combo.clear()
         self.left_language_combo.addItems(language_names)
-        if len(language_names) > 0: self.left_language_combo.setCurrentIndex(0)
+        if len(language_names) > 0:
+            self.left_language_combo.setCurrentIndex(0)
         self.right_language_combo.clear()
         self.right_language_combo.addItems(language_names)
-        if len(language_names) > 1: self.right_language_combo.setCurrentIndex(1)
+        if len(language_names) > 1:
+            self.right_language_combo.setCurrentIndex(1)
         self.translate()
 
     def update_right_textEdit(self, text):
@@ -395,7 +416,8 @@ class GUIWindow(QMainWindow):
             showError (bool): If True show an error messagebox if the
                 currently selected translation isn't installed
         """
-        if len(self.languages) < 1: return
+        if len(self.languages) < 1:
+            return
         input_text = self.left_textEdit.toPlainText()
         input_combo_value = self.left_language_combo.currentIndex()
         input_language = self.languages[input_combo_value]
@@ -403,15 +425,13 @@ class GUIWindow(QMainWindow):
         output_language = self.languages[output_combo_value]
         translation = input_language.get_translation(output_language)
         if translation:
-            bound_translation_function = partial(translation.translate,
-                    input_text)
+            bound_translation_function = partial(translation.translate, input_text)
             show_loading_message = len(input_text) > self.SHOW_LOADING_THRESHOLD
-            new_worker_thread = TranslationThread(bound_translation_function,
-                    show_loading_message)
-            new_worker_thread.send_text_update.connect(
-                    self.update_right_textEdit)
-            new_worker_thread.finished.connect(
-                    self.handle_worker_thread_finished)
+            new_worker_thread = TranslationThread(
+                bound_translation_function, show_loading_message
+            )
+            new_worker_thread.send_text_update.connect(self.update_right_textEdit)
+            new_worker_thread.finished.connect(self.handle_worker_thread_finished)
             if self.worker_thread == None:
                 self.worker_thread = new_worker_thread
                 self.worker_thread.start()
@@ -419,7 +439,8 @@ class GUIWindow(QMainWindow):
                 self.queued_translation = new_worker_thread
 
         else:
-            error('No translation available for this language pair')
+            error("No translation available for this language pair")
+
 
 class GUIApplication:
     def __init__(self):
@@ -428,6 +449,6 @@ class GUIApplication:
         self.main_window.show()
         self.app.exec_()
 
+
 def main():
     app = GUIApplication()
-
