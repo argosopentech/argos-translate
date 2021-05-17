@@ -80,12 +80,11 @@ class PackagesTable(QTableWidget):
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         headers = [
                 'Readme',
-                'From name',
-                'To name',
-                'Package version',
-                'Argos version',
+                'Name',
+                'Package name',
                 'From code',
                 'To code',
+                'Version',
             ]
         if self.AvailableActions.UNINSTALL in self.available_actions:
             headers.append('Uninstall')
@@ -116,10 +115,9 @@ class PackagesTable(QTableWidget):
         
         self.setRowCount(len(packages))
         for i, pkg in enumerate(packages):
-            from_name = pkg.from_name
-            to_name = pkg.to_name
+            name = str(pkg)
+            package_name = package.argospm_package_name(pkg)
             package_version = pkg.package_version
-            argos_version = pkg.argos_version
             from_code = pkg.from_code
             to_code = pkg.to_code
             pkg = packages[i]
@@ -130,17 +128,15 @@ class PackagesTable(QTableWidget):
             row_index = 0
             self.setCellWidget(i, row_index, readme_button)
             row_index += 1
-            self.setItem(i, row_index, QTableWidgetItem(from_name))
+            self.setItem(i, row_index, QTableWidgetItem(name))
             row_index += 1
-            self.setItem(i, row_index, QTableWidgetItem(to_name))
-            row_index += 1
-            self.setItem(i, row_index, QTableWidgetItem(package_version))
-            row_index += 1
-            self.setItem(i, row_index, QTableWidgetItem(argos_version))
+            self.setItem(i, row_index, QTableWidgetItem(package_name))
             row_index += 1
             self.setItem(i, row_index, QTableWidgetItem(from_code))
             row_index += 1
             self.setItem(i, row_index, QTableWidgetItem(to_code))
+            row_index += 1
+            self.setItem(i, row_index, QTableWidgetItem(package_version))
             row_index += 1
             if self.AvailableActions.UNINSTALL in self.available_actions:
                 uninstall_button = QPushButton('🗑')

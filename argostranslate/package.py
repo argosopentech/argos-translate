@@ -104,7 +104,11 @@ class IPackage:
         )
 
     def __str__(self):
-        return "{} -> {}".format(self.from_name, self.to_name)
+        if len(self.from_name) > 0 and len(self.to_name) > 0:
+            return "{} -> {}".format(self.from_name, self.to_name)
+        elif self.type:
+            return self.type
+        return ''
 
 
 class Package(IPackage):
@@ -261,8 +265,23 @@ def get_available_packages():
             return to_return
     except FileNotFoundError:
         raise Exception(
-            'Local package index not found,' + ' use package.update_package_index() to load it'
+            'Local package index not found, use package.update_package_index() to load it'
         )
+
+
+def argospm_package_name(pkg):
+    """Gets argospm name of an IPackage.
+
+    Args:
+        pkg (IPackage): The package to get the name of.
+
+    Returns:
+        str: Package name for argospm
+    """
+    to_return = pkg.type
+    if pkg.from_code and pkg.to_code:
+        to_return += '-' + pkg.from_code + '_' + pkg.to_code
+    return to_return
 
 
 def load_available_packages():
