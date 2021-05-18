@@ -426,8 +426,16 @@ def get_installed_languages():
 
     packages = package.get_installed_packages()
 
+    # If stanza not available filter for sbd available
+    if not settings.stanza_available:
+        sbd_packages = list(filter(lambda x: x.type == 'sbd', packages))
+        sbd_available_codes = set()
+        for sbd_package in sbd_packages:
+            sbd_available_codes = sbd_available_codes.union(sbd_package.from_codes)
+        packages = list(filter(lambda x: x.from_code in sbd_available_codes, packages))
+
     # Filter for translate packages
-    packages = filter(lambda x: x.type == "translate", packages)
+    packages = list(filter(lambda x: x.type == "translate", packages))
 
     # Load languages and translations from packages
     language_of_code = dict()

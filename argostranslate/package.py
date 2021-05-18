@@ -185,7 +185,6 @@ class AvailablePackage(IPackage):
                     lambda x: x.type == "sbd", get_available_packages()
                 )
                 for sbd_package in sbd_packages:
-                    print(sbd_package)
                     download_path = sbd_package.download()
                     install_from_path(download_path)
 
