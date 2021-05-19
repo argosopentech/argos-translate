@@ -263,11 +263,27 @@ def get_available_packages():
     try:
         with open(settings.local_package_index) as index_file:
             index = json.load(index_file)
-            to_return = []
+            packages = []
             for metadata in index:
                 package = AvailablePackage(metadata)
-                to_return.append(package)
-            return to_return
+                packages.append(package)
+
+            # If stanza not available filter for sbd available
+            if not settings.stanza_available:
+                installed_and_available_packages = packages + get_installed_packages()
+                sbd_packages = list(
+                    filter(lambda x: x.type == "sbd", installed_and_available_packages)
+                )
+                sbd_available_codes = set()
+                for sbd_package in sbd_packages:
+                    sbd_available_codes = sbd_available_codes.union(
+                        sbd_package.from_codes
+                    )
+                packages = list(
+                    filter(lambda x: x.from_code in sbd_available_codes, packages)
+                )
+
+            return packages
     except FileNotFoundError:
         raise Exception(
             "Local package index not found, use package.update_package_index() to load it"

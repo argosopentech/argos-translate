@@ -10,6 +10,7 @@ argospm list
 argospm remove translate-en_es
 """
 
+
 def update_index(args):
     """Update the package index."""
     package.update_package_index()
@@ -38,7 +39,11 @@ def search_packages(args):
             continue
         if args.to_lang and args.to_lang != pkg.to_code:
             continue
-        print("{0}: {1.from_code} -> {1.to_code}".format(package.argospm_package_name(pkg), pkg))
+        print(
+            "{0}: {1.from_code} -> {1.to_code}".format(
+                package.argospm_package_name(pkg), pkg
+            )
+        )
 
 
 def list_packages(args):

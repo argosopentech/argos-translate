@@ -428,7 +428,7 @@ def get_installed_languages():
 
     # If stanza not available filter for sbd available
     if not settings.stanza_available:
-        sbd_packages = list(filter(lambda x: x.type == 'sbd', packages))
+        sbd_packages = list(filter(lambda x: x.type == "sbd", packages))
         sbd_available_codes = set()
         for sbd_package in sbd_packages:
             sbd_available_codes = sbd_available_codes.union(sbd_package.from_codes)
