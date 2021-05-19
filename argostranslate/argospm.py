@@ -40,9 +40,8 @@ def search_packages(args):
         if args.to_lang and args.to_lang != pkg.to_code:
             continue
         print(
-            "{0}: {1.from_code} -> {1.to_code}".format(
-                package.argospm_package_name(pkg), pkg
-            )
+            f"{package.argospm_package_name(pkg)}: "
+            + f"{pkg.from_code} -> {pkg.to_code}"
         )
 
 
