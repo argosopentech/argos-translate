@@ -181,6 +181,7 @@ class AvailablePackage(IPackage):
                 len(list(filter(lambda x: x.type == "sbd", get_installed_packages())))
                 == 0
             ):
+                # No sbd packages are installed, download all available
                 sbd_packages = filter(
                     lambda x: x.type == "sbd", get_available_packages()
                 )
