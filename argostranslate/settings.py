@@ -3,6 +3,7 @@ import os
 import sys
 import shutil
 import platform
+from enum import Enum
 
 TRUE_VALUES = ["1", "TRUE", "True", "true"]
 
@@ -50,6 +51,16 @@ remote_package_index = remote_repo + "/index.json"
 experimental_enabled = os.getenv("ARGOS_EXPERIMENTAL_ENABLED") in TRUE_VALUES
 
 stanza_available = os.getenv("ARGOS_STANZA_AVAILABLE") in (TRUE_VALUES + [None])
+
+
+class ModelProvider(Enum):
+    OPENNMT = 0
+    OPENAI = 1
+
+
+model_keys = {"OPENNMT": ModelProvider.OPENNMT, "OPENAI": ModelProvider.OPENAI}
+
+model_provider = os.getenv("ARGOS_MODEL_PROVIDER", ModelProvider.OPENNMT)
 
 downloads_dir = cache_dir / "downloads"
 os.makedirs(downloads_dir, exist_ok=True)
