@@ -1,5 +1,6 @@
 1.4:
 - Consistently use pathlib.Path in package module instead of strings
+- py2app support
 
 1.3:
 - argospm CLI tool
