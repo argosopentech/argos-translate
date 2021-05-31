@@ -107,11 +107,16 @@ class PackagesTable(QTableWidget):
 
     def get_packages(self):
         if self.table_content == self.TableContent.AVAILABLE:
-            return package.get_available_packages()
+            packages = package.get_available_packages()
         elif self.table_content == self.TableContent.INSTALLED:
-            return package.get_installed_packages()
+            packages = package.get_installed_packages()
         else:
             raise Exception("Invalid table content")
+
+        # Filter sbd packages in GUI
+        packages = list(filter(lambda x: x.type != "sbd", packages))
+
+        return packages
 
     def populate(self):
         packages = self.get_packages()
