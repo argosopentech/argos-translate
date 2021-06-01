@@ -358,7 +358,7 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
             lang=pkg.from_code,
             dir=str(pkg.package_path / "stanza"),
             processors="tokenize",
-            use_gpu=False,
+            use_gpu=settings.device == 'cuda',
             logging_level="WARNING",
         )
         stanza_sbd = stanza_pipeline(input_text)
