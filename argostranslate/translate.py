@@ -1,12 +1,14 @@
-from pathlib import Path
+import logging
+
 from difflib import SequenceMatcher
 
 import ctranslate2
 import sentencepiece as spm
 import stanza
 
-from argostranslate import translate, package, settings, utils
-from argostranslate.utils import info, warning, error
+from argostranslate import package, settings
+
+logging.basicConfig(level=logging.DEBUG if settings.debug else logging.INFO)
 
 
 class Hypothesis:
@@ -84,7 +86,6 @@ class ITranslation:
 
         Args:
             paragraphs ([str]): A list of paragraphs.
-            num_hypotheses (int): Number of hypothetic results to be combined
 
         Returns:
             [str]: list of n paragraphs combined into one string.
@@ -147,11 +148,11 @@ class PackageTranslation(ITranslation):
         self.translator = None
 
     def hypotheses(self, input_text, num_hypotheses):
-        if self.translator == None:
+        if self.translator is None:
             model_path = str(self.pkg.package_path / "model")
-            self.translator = ctranslate2.Translator(model_path)
+            self.translator = ctranslate2.Translator(model_path, device=settings.device)
         paragraphs = ITranslation.split_into_paragraphs(input_text)
-        info("paragraphs", paragraphs)
+        logging.debug("paragraphs: %r", paragraphs)
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraphs.append(
@@ -159,7 +160,7 @@ class PackageTranslation(ITranslation):
                     self.pkg, paragraph, self.translator, num_hypotheses
                 )
             )
-        info("translated_paragraphs", translated_paragraphs)
+        logging.debug("translated_paragraphs: %r", translated_paragraphs)
 
         # Construct new hypotheses using all paragraphs
         hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
@@ -171,7 +172,7 @@ class PackageTranslation(ITranslation):
                 score = hypotheses_to_return[i].score + translated_paragraph[i].score
                 hypotheses_to_return[i] = Hypothesis(value, score)
             hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip("\n")
-        info("hypotheses_to_return", hypotheses_to_return)
+        logging.debug("hypotheses_to_return: %r", hypotheses_to_return)
         return hypotheses_to_return
 
 
@@ -250,7 +251,7 @@ class CachedTranslation(ITranslation):
         """Creates a CachedTranslation.
 
         Args:
-            translation (ITranslation): The underlying translation to cache.
+            underlying (ITranslation): The underlying translation to cache.
 
         """
         self.underlying = underlying
@@ -267,7 +268,7 @@ class CachedTranslation(ITranslation):
             # If len() of our cached items are different than `num_hypotheses` it means that
             # the search parameter is changed by caller, so we can't re-use cache, and should update it.
             if (
-                translated_paragraph == None
+                translated_paragraph is None
                 or len(translated_paragraph) != num_hypotheses
             ):
                 translated_paragraph = self.underlying.hypotheses(
@@ -310,14 +311,14 @@ def detect_sentence(input_text, sentence_guess_length=150):
     # TODO: Cache
     sbd_translation = get_sbd_translation()
     sentence_guess = input_text[:sentence_guess_length]
-    info("sentence_guess", sentence_guess)
+    logging.debug("sentence_guess: %r", sentence_guess)
     sbd_translated_guess = sbd_translation.translate(
         DETECT_SENTENCE_BOUNDARIES_TOKEN + sentence_guess
     )
     sbd_translated_guess_index = sbd_translated_guess.find(SENTENCE_BOUNDARY_TOKEN)
     if sbd_translated_guess_index != -1:
         sbd_translated_guess = sbd_translated_guess[:sbd_translated_guess_index]
-        info("sbd_translated_guess", sbd_translated_guess)
+        logging.debug("sbd_translated_guess: %r", sbd_translated_guess)
         best_index = None
         best_ratio = 0.0
         for i in range(len(input_text)):
@@ -325,7 +326,7 @@ def detect_sentence(input_text, sentence_guess_length=150):
             sm = SequenceMatcher()
             sm.set_seqs(candidate_sentence, sbd_translated_guess)
             ratio = sm.ratio()
-            if best_index == None or ratio > best_ratio:
+            if best_index is None or ratio > best_ratio:
                 best_index = i
                 best_ratio = ratio
         return best_index
@@ -347,7 +348,7 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
 
     """
 
-    info("apply_packaged_translation")
+    logging.debug("apply_packaged_translation")
 
     # Sentence boundary detection
     if pkg.type == "sbd":
@@ -374,17 +375,17 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
             else:
                 sbd_index = start_index + detected_sentence_index
             sentences.append(input_text[start_index:sbd_index])
-            info("start_index", start_index)
-            info("sbd_index", sbd_index)
-            info(input_text[start_index:sbd_index])
+            logging.debug("start_index", start_index)
+            logging.debug("sbd_index", sbd_index)
+            logging.debug(input_text[start_index:sbd_index])
             start_index = sbd_index
-    info("sentences", sentences)
+    logging.debug("sentences: %r", sentences)
 
     # Tokenization
     sp_model_path = str(pkg.package_path / "sentencepiece.model")
     sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
     tokenized = [sp_processor.encode(sentence, out_type=str) for sentence in sentences]
-    info("tokenized", tokenized)
+    logging.debug("tokenized: %r", tokenized)
 
     # Translation
     BATCH_SIZE = 32
@@ -396,7 +397,7 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
         num_hypotheses=num_hypotheses,
         length_penalty=0.2,
     )
-    info("translated_batches", translated_batches)
+    logging.debug("translated_batches: %r", translated_batches)
 
     # Build hypotheses
     value_hypotheses = []
@@ -415,14 +416,14 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
             value = value[1:]
         hypothesis = Hypothesis(value, cumulative_score)
         value_hypotheses.append(hypothesis)
-    info("value_hypotheses", value_hypotheses)
+    logging.debug("value_hypotheses: %r", value_hypotheses)
     return value_hypotheses
 
 
 def get_installed_languages():
     """Returns a list of Languages installed from packages"""
 
-    info("get_installed_languages")
+    logging.debug("get_installed_languages")
 
     packages = package.get_installed_packages()
 
@@ -468,7 +469,7 @@ def get_installed_languages():
             keep_adding_translations = False
             for translation in language.translations_from:
                 for translation_2 in translation.to_lang.translations_from:
-                    if language.get_translation(translation_2.to_lang) == None:
+                    if language.get_translation(translation_2.to_lang) is None:
                         # The language currently doesn't have a way to translate
                         # to this language
                         keep_adding_translations = True
@@ -487,10 +488,10 @@ def get_installed_languages():
             en_index = i
             break
     english = None
-    if en_index != None:
+    if en_index is not None:
         english = languages.pop(en_index)
     languages.sort(key=lambda x: x.name)
-    if english != None:
+    if english is None:
         languages = [english] + languages
 
     return languages

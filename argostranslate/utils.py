@@ -1,19 +1,4 @@
-from argostranslate import settings
-
 from PyQt5.QtCore import *
-
-
-def info(*args):
-    if settings.debug:
-        print(args)
-
-
-def warning(*args):
-    print(args)
-
-
-def error(*args):
-    print(args)
 
 
 class WorkerThread(QThread):

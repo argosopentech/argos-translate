@@ -93,3 +93,6 @@ Technologies, LLC (www.argosopentech.com).
 # Fix Intel bug
 # https://github.com/argosopentech/argos-translate/issues/40
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+
+# Supported values: cpu and cuda
+device = os.environ.get("ARGOS_DEVICE_TYPE", "cpu")
