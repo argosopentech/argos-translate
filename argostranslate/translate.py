@@ -491,7 +491,7 @@ def get_installed_languages():
     if en_index is not None:
         english = languages.pop(en_index)
     languages.sort(key=lambda x: x.name)
-    if english is None:
+    if english is not None:
         languages = [english] + languages
 
     return languages
