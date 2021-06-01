@@ -192,7 +192,8 @@ class AvailablePackage(IPackage):
         filepath = settings.downloads_dir / filename
         try:
             response = urllib.request.urlopen(url)
-        except:
+        except Exception as err:
+            logging.error(err)
             return
         data = response.read()
         with open(filepath, "wb") as f:
