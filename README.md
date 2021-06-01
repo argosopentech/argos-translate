@@ -78,6 +78,17 @@ console.log(await res.json());
 }
 ```
 
+### How to enable GPU support
+
+To enable GPU support, you need to set the `ARGOS_DEVICE_TYPE` env variable to `cuda`.
+
+```
+$ ARGOS_DEVICE_TYPE=cuda argos-translate --from-lang en --to-lang es "Hello World"
+Hola Mundo
+```
+
+The above env variable instructs [CTranslate2](https://github.com/OpenNMT/CTranslate2) to use cuda.
+if you encounter any issues with GPU, please consider reading CTranslate2 documentation.
 
 ## Installation
 ### Install from PyPI

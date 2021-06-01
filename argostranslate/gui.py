@@ -1,6 +1,7 @@
+import logging
 from pathlib import Path
+
 import os
-import threading
 from functools import partial
 from enum import Enum
 
@@ -9,8 +10,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from argostranslate import translate, package, settings, utils
-from argostranslate.utils import info, warning, error
-from argostranslate.utils import WorkerThread
+
+logging.basicConfig(level=logging.DEBUG if settings.debug else logging.INFO)
 
 
 class TranslationThread(QThread):
@@ -42,15 +43,15 @@ class WorkerStatusButton(QPushButton):
         self.set_status(self.Status.NOT_STARTED)
 
     def clicked_handler(self):
-        info("WorkerStatusButton clicked_handler")
+        logging.debug("WorkerStatusButton clicked_handler")
         if self.status == self.Status.NOT_STARTED:
-            self.worker_thread = WorkerThread(self.bound_worker_function)
+            self.worker_thread = utils.WorkerThread(self.bound_worker_function)
             self.worker_thread.finished.connect(self.finished_handler)
             self.set_status(self.Status.RUNNING)
             self.worker_thread.start()
 
     def finished_handler(self):
-        info("WorkerStatusButton finished_handler")
+        logging.debug("WorkerStatusButton finished_handler")
         self.set_status(self.Status.DONE)
 
     def set_status(self, status):
@@ -409,18 +410,13 @@ class GUIWindow(QMainWindow):
 
     def handle_worker_thread_finished(self):
         self.worker_thread = None
-        if self.queued_translation != None:
+        if self.queued_translation is not None:
             self.worker_thread = self.queued_translation
             self.worker_thread.start()
             self.queued_translation = None
 
     def translate(self):
-        """Try to translate based on languages selected.
-
-        Args:
-            showError (bool): If True show an error messagebox if the
-                currently selected translation isn't installed
-        """
+        """Try to translate based on languages selected."""
         if len(self.languages) < 1:
             return
         input_text = self.left_textEdit.toPlainText()
@@ -437,14 +433,14 @@ class GUIWindow(QMainWindow):
             )
             new_worker_thread.send_text_update.connect(self.update_right_textEdit)
             new_worker_thread.finished.connect(self.handle_worker_thread_finished)
-            if self.worker_thread == None:
+            if self.worker_thread is None:
                 self.worker_thread = new_worker_thread
                 self.worker_thread.start()
             else:
                 self.queued_translation = new_worker_thread
 
         else:
-            error("No translation available for this language pair")
+            logging.error("No translation available for this language pair")
 
 
 class GUIApplication:

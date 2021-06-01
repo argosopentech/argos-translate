@@ -1,7 +1,8 @@
+import logging
+
 from argostranslate import settings
 
 import zipfile
-import os
 import json
 import shutil
 import urllib.request
@@ -152,7 +153,6 @@ class Package(IPackage):
             return None
         with open(readme_path, "r") as readme_file:
             return readme_file.read()
-        return None
 
     def get_description(self):
         return self.get_readme()
@@ -240,7 +240,7 @@ def get_installed_packages(path=None):
 
     """
     to_return = []
-    packages_path = settings.package_dirs if path == None else path
+    packages_path = settings.package_dirs if path is None else path
     for directory in packages_path:
         for path in directory.iterdir():
             if path.is_dir():
@@ -252,7 +252,8 @@ def update_package_index():
     """Downloads remote package index"""
     try:
         response = urllib.request.urlopen(settings.remote_package_index)
-    except:
+    except Exception as err:
+        logging.error(err)
         return
     data = response.read()
     with open(settings.local_package_index, "wb") as f:
