@@ -375,8 +375,8 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
             else:
                 sbd_index = start_index + detected_sentence_index
             sentences.append(input_text[start_index:sbd_index])
-            logging.debug("start_index", start_index)
-            logging.debug("sbd_index", sbd_index)
+            logging.debug("start_index: %r", start_index)
+            logging.debug("sbd_index: %r", sbd_index)
             logging.debug(input_text[start_index:sbd_index])
             start_index = sbd_index
     logging.debug("sentences: %r", sentences)
