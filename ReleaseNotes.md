@@ -1,6 +1,11 @@
 1.4:
-- Consistently use pathlib.Path in package module instead of strings
+- GPU support
+- Better support for seq2seq sentence boundary detection
 - py2app support
+- Improved logging
+- CI testing
+- Code formatting
+- Consistently use pathlib.Path in package module instead of strings
 
 1.3:
 - argospm CLI tool
