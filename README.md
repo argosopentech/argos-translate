@@ -78,18 +78,6 @@ console.log(await res.json());
 }
 ```
 
-### How to enable GPU support
-
-To enable GPU support, you need to set the `ARGOS_DEVICE_TYPE` env variable to `cuda`.
-
-```
-$ ARGOS_DEVICE_TYPE=cuda argos-translate --from-lang en --to-lang es "Hello World"
-Hola Mundo
-```
-
-The above env variable instructs [CTranslate2](https://github.com/OpenNMT/CTranslate2) to use cuda.
-if you encounter any issues with GPU, please consider reading CTranslate2 documentation.
-
 ## Installation
 ### Install from PyPI
 Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate/) and can be installed with pip.
@@ -151,6 +139,19 @@ source env/bin/activate
 python3 -m pip install --upgrade pip
 python3 -m pip install .
 ```
+
+### GPU Acceleration
+
+To enable GPU support, you need to set the `ARGOS_DEVICE_TYPE` env variable to `cuda`.
+
+```
+$ ARGOS_DEVICE_TYPE=cuda argos-translate --from-lang en --to-lang es "Hello World"
+Hola Mundo
+```
+
+The above env variable instructs [CTranslate2](https://github.com/OpenNMT/CTranslate2) to use cuda.
+if you encounter any issues with GPU, please consider reading CTranslate2 documentation.
+
 
 ### Build and install snap package
 1. Install [snapd](https://snapcraft.io/docs/installing-snapd) if it isn't already installed.
