@@ -1,6 +1,4 @@
-import logging
 from pathlib import Path
-
 import os
 from functools import partial
 from enum import Enum
@@ -10,8 +8,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from argostranslate import translate, package, settings, utils
+from argostranslate.utils import info, logging
 
-logging.basicConfig(level=logging.DEBUG if settings.debug else logging.INFO)
 
 
 class TranslationThread(QThread):
@@ -43,7 +41,7 @@ class WorkerStatusButton(QPushButton):
         self.set_status(self.Status.NOT_STARTED)
 
     def clicked_handler(self):
-        logging.debug("WorkerStatusButton clicked_handler")
+        info("WorkerStatusButton clicked_handler")
         if self.status == self.Status.NOT_STARTED:
             self.worker_thread = utils.WorkerThread(self.bound_worker_function)
             self.worker_thread.finished.connect(self.finished_handler)
@@ -51,7 +49,7 @@ class WorkerStatusButton(QPushButton):
             self.worker_thread.start()
 
     def finished_handler(self):
-        logging.debug("WorkerStatusButton finished_handler")
+        info("WorkerStatusButton finished_handler")
         self.set_status(self.Status.DONE)
 
     def set_status(self, status):
@@ -440,7 +438,7 @@ class GUIWindow(QMainWindow):
                 self.queued_translation = new_worker_thread
 
         else:
-            logging.error("No translation available for this language pair")
+            error("No translation available for this language pair")
 
 
 class GUIApplication:

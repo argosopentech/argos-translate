@@ -8,6 +8,9 @@ import shutil
 import urllib.request
 from pathlib import Path
 
+from argostranslate import utils
+from argostranslate.utils import info, error
+
 """
 ## `package` module example usage
 ```
@@ -193,7 +196,7 @@ class AvailablePackage(IPackage):
         try:
             response = urllib.request.urlopen(url)
         except Exception as err:
-            logging.error(err)
+            error(err)
             return
         data = response.read()
         with open(filepath, "wb") as f:
@@ -254,7 +257,7 @@ def update_package_index():
     try:
         response = urllib.request.urlopen(settings.remote_package_index)
     except Exception as err:
-        logging.error(err)
+        error(err)
         return
     data = response.read()
     with open(settings.local_package_index, "wb") as f:
