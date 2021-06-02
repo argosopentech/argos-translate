@@ -285,8 +285,9 @@ def get_available_packages():
                 packages = list(
                     filter(lambda x: x.from_code in sbd_available_codes, packages)
                 )
+                return packages + sbd_packages
 
-            return packages + sbd_packages
+            return packages
     except FileNotFoundError:
         raise Exception(
             "Local package index not found, use package.update_package_index() to load it"
