@@ -354,11 +354,6 @@ class GUIWindow(QMainWindow):
         self.about_action.triggered.connect(self.about_action_triggered)
         self.menu.setNativeMenuBar(False)
 
-        # Icon
-        icon_path = Path(os.path.dirname(__file__)) / "img" / "icon.png"
-        icon_path = str(icon_path)
-        self.setWindowIcon(QIcon(icon_path))
-
         # Load languages
         self.load_languages()
 
@@ -445,6 +440,12 @@ class GUIApplication:
     def __init__(self):
         self.app = QApplication([])
         self.main_window = GUIWindow()
+
+        # Icon
+        icon_path = Path(os.path.dirname(__file__)) / "img" / "icon.png"
+        icon_path = str(icon_path)
+        self.app.setWindowIcon(QIcon(icon_path))
+
         self.main_window.show()
         self.app.exec_()
 
