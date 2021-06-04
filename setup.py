@@ -9,7 +9,7 @@ with open("README.md") as f:
 # py2app
 APP = ["bin/argos-translate-gui"]
 DATA_FILES = []
-OPTIONS = {"packages": ["sentencepiece"]}
+OPTIONS = {"packages": ["sentencepiece"], "iconfile": "argostranslate/img/icon.icns"}
 
 setup(
     name="argostranslate",
