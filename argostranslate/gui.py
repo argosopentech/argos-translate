@@ -11,7 +11,6 @@ from argostranslate import translate, package, settings, utils
 from argostranslate.utils import info, error
 
 
-
 class TranslationThread(QThread):
     send_text_update = pyqtSignal(str)
 
