@@ -85,8 +85,8 @@ if "SNAP" in os.environ:
 local_package_index = cache_dir / "index.json"
 
 about_text = (
-    "Argos Translate is an open source neural machine"
-    "translation application created by Argos Open"
+    "Argos Translate is an open source neural machine "
+    "translation application created by Argos Open "
     "Technologies, LLC (www.argosopentech.com). "
 )
 
