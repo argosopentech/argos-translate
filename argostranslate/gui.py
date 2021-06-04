@@ -8,7 +8,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from argostranslate import translate, package, settings, utils
-from argostranslate.utils import info, logging
+from argostranslate.utils import info, error
 
 
 
