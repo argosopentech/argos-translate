@@ -107,12 +107,15 @@ class IPackage:
             and self.to_name == other.to_name
         )
 
-    def __str__(self):
+    def __repr__(self):
         if len(self.from_name) > 0 and len(self.to_name) > 0:
             return "{} -> {}".format(self.from_name, self.to_name)
         elif self.type:
             return self.type
         return ""
+
+    def __str__(self):
+        return self.__repr__().replace('->', '→')
 
 
 class Package(IPackage):
