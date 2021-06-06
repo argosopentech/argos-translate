@@ -283,9 +283,13 @@ def get_available_packages():
 
                 # If stanza not available filter for sbd available
                 if not settings.stanza_available:
-                    installed_and_available_packages = packages + get_installed_packages()
+                    installed_and_available_packages = (
+                        packages + get_installed_packages()
+                    )
                     sbd_packages = list(
-                        filter(lambda x: x.type == "sbd", installed_and_available_packages)
+                        filter(
+                            lambda x: x.type == "sbd", installed_and_available_packages
+                        )
                     )
                     sbd_available_codes = set()
                     for sbd_package in sbd_packages:
