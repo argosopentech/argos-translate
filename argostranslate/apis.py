@@ -3,14 +3,16 @@ import sys
 from urllib import request, parse
 
 
-def translate(q, source="en", target="es", url="https://translate.astian.org/translate"):
+def translate(
+    q, source="en", target="es", url="https://translate.astian.org/translate"
+):
     """Connect to LibreTranslate API
 
     Args:
         q (str): The text to translate
         source (str): The source language code (ISO 639)
         target (str): The target language code (ISO 639)
-    
+
     Returns: The translated text
     """
     params = {"q": q, "source": source, "target": target}

@@ -25,8 +25,8 @@ class TestHypothesis:
 
     def test_repr(self):
         test_cases = [
-            {"input": ("this", 0.2), "output": "Hypothesis('this', 0.2)"},
-            {"input": ("another thing", 3.0), "output": "Hypothesis('another thing', 3.0)"},
+            {"input": ("this", 0.2), "output": "('this', 0.2)"},
+            {"input": ("another thing", 3.0), "output": "('another thing', 3.0)"},
         ]
         for test_case in test_cases:
             current_repr = translate.Hypothesis(*test_case["input"]).__repr__()
@@ -66,7 +66,8 @@ class TestITranslation:
         ]
         for test_case in test_cases:
             assert (
-                translate.ITranslation.combine_paragraphs(test_case["input"]) == test_case["output"]
+                translate.ITranslation.combine_paragraphs(test_case["input"])
+                == test_case["output"]
             )
 
     def test_string(self):
@@ -78,7 +79,7 @@ class TestITranslation:
         translation.from_lang = "English"
         translation.to_lang = "Spanish"
 
-        assert str(translation) == "English -> Spanish"
+        assert repr(translation) == "English -> Spanish"
 
 
 class TestLanguage:

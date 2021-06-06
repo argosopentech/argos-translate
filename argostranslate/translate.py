@@ -25,11 +25,11 @@ class Hypothesis:
     def __lt__(self, other):
         return self.score < other.score
 
-    def __str__(self):
-        return "({}, {})".format(repr(self.value), self.score)
-
     def __repr__(self):
-        return type(self).__name__ + self.__str__()
+        return f"({repr(self.value)}, {self.score})"
+
+    def __str__(self):
+        return repr(self)
 
 
 class ITranslation:
@@ -92,8 +92,11 @@ class ITranslation:
         """
         return "\n".join(paragraphs)
 
-    def __str__(self):
+    def __repr__(self):
         return str(self.from_lang) + " -> " + str(self.to_lang)
+
+    def __str__(self):
+        return repr(self).replace("->", "→")
 
 
 class Language:

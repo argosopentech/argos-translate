@@ -115,7 +115,7 @@ class IPackage:
         return ""
 
     def __str__(self):
-        return self.__repr__().replace('->', '→')
+        return repr(self).replace("->", "→")
 
 
 class Package(IPackage):

@@ -50,7 +50,7 @@ class TestIPackage:
         test_package.load_metadata_from_json(self.test_metadata)
 
         expected = f"{test_package.from_name} -> {test_package.to_name}"
-        assert str(test_package) == expected
+        assert repr(test_package) == expected
 
 
 class TestPackage:
