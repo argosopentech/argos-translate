@@ -1,13 +1,13 @@
 import logging
 
-from argostranslate import settings
-
 import zipfile
 import json
 import shutil
 import urllib.request
 from pathlib import Path
+from threading import Lock
 
+from argostranslate import settings
 from argostranslate import utils
 from argostranslate.utils import info, error
 
@@ -28,6 +28,10 @@ for available_package in available_packages:
     package.install_from_path(download_path)
 ```
 """
+
+# Threading logic
+# Hold lock while installing or uninstalling packages
+package_lock = Lock()
 
 
 class IPackage:
@@ -141,11 +145,6 @@ class Package(IPackage):
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
 
-    def remove(self):
-        """Removes an installed package."""
-
-        shutil.rmtree(self.package_path)
-
     def get_readme(self):
         """Returns the text of the README.md in this package.
 
@@ -217,10 +216,11 @@ def install_from_path(path):
         path (pathlib): The path to the .argosmodel file to install.
 
     """
-    if not zipfile.is_zipfile(path):
-        raise Exception("Not a valid Argos Model (must be a zip archive)")
-    with zipfile.ZipFile(path, "r") as zip:
-        zip.extractall(path=settings.package_data_dir)
+    with package_lock:
+        if not zipfile.is_zipfile(path):
+            raise Exception("Not a valid Argos Model (must be a zip archive)")
+        with zipfile.ZipFile(path, "r") as zip:
+            zip.extractall(path=settings.package_data_dir)
 
 
 def uninstall(pkg):
@@ -230,7 +230,8 @@ def uninstall(pkg):
         pkg (Package): The package to uninstall
 
     """
-    shutil.rmtree(pkg.package_path)
+    with package_lock:
+        shutil.rmtree(pkg.package_path)
 
 
 def get_installed_packages(path=None):
@@ -246,58 +247,61 @@ def get_installed_packages(path=None):
             Defaults to the path in settings module.
 
     """
-    to_return = []
-    packages_path = settings.package_dirs if path is None else path
-    for directory in packages_path:
-        for path in directory.iterdir():
-            if path.is_dir():
-                to_return.append(Package(path))
-    return to_return
+    with package_lock:
+        to_return = []
+        packages_path = settings.package_dirs if path is None else path
+        for directory in packages_path:
+            for path in directory.iterdir():
+                if path.is_dir():
+                    to_return.append(Package(path))
+        return to_return
 
 
 def update_package_index():
     """Downloads remote package index"""
-    try:
-        response = urllib.request.urlopen(settings.remote_package_index)
-    except Exception as err:
-        error(err)
-        return
-    data = response.read()
-    with open(settings.local_package_index, "wb") as f:
-        f.write(data)
+    with package_lock:
+        try:
+            response = urllib.request.urlopen(settings.remote_package_index)
+        except Exception as err:
+            error(err)
+            return
+        data = response.read()
+        with open(settings.local_package_index, "wb") as f:
+            f.write(data)
 
 
 def get_available_packages():
     """Returns a list of AvailablePackages from the package index."""
-    try:
-        with open(settings.local_package_index) as index_file:
-            index = json.load(index_file)
-            packages = []
-            for metadata in index:
-                package = AvailablePackage(metadata)
-                packages.append(package)
+    with package_lock:
+        try:
+            with open(settings.local_package_index) as index_file:
+                index = json.load(index_file)
+                packages = []
+                for metadata in index:
+                    package = AvailablePackage(metadata)
+                    packages.append(package)
 
-            # If stanza not available filter for sbd available
-            if not settings.stanza_available:
-                installed_and_available_packages = packages + get_installed_packages()
-                sbd_packages = list(
-                    filter(lambda x: x.type == "sbd", installed_and_available_packages)
-                )
-                sbd_available_codes = set()
-                for sbd_package in sbd_packages:
-                    sbd_available_codes = sbd_available_codes.union(
-                        sbd_package.from_codes
+                # If stanza not available filter for sbd available
+                if not settings.stanza_available:
+                    installed_and_available_packages = packages + get_installed_packages()
+                    sbd_packages = list(
+                        filter(lambda x: x.type == "sbd", installed_and_available_packages)
                     )
-                packages = list(
-                    filter(lambda x: x.from_code in sbd_available_codes, packages)
-                )
-                return packages + sbd_packages
+                    sbd_available_codes = set()
+                    for sbd_package in sbd_packages:
+                        sbd_available_codes = sbd_available_codes.union(
+                            sbd_package.from_codes
+                        )
+                    packages = list(
+                        filter(lambda x: x.from_code in sbd_available_codes, packages)
+                    )
+                    return packages + sbd_packages
 
-            return packages
-    except FileNotFoundError:
-        raise Exception(
-            "Local package index not found, use package.update_package_index() to load it"
-        )
+                return packages
+        except FileNotFoundError:
+            raise Exception(
+                "Local package index not found, use package.update_package_index() to load it"
+            )
 
 
 def argospm_package_name(pkg):

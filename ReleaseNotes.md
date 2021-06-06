@@ -6,6 +6,7 @@
 - CI testing
 - Code formatting
 - Consistently use pathlib.Path in package module instead of strings
+- Broke backwards compatibility with package.Package.remove
 
 1.3:
 - argospm CLI tool
