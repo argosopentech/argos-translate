@@ -1,7 +1,7 @@
 1.4:
-- GPU support
 - Better support for seq2seq sentence boundary detection
 - py2app support
+- GPU support
 - Improved logging
 - CI testing
 - Code formatting
