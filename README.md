@@ -36,22 +36,25 @@ Argos Translate also manages automatically pivoting through intermediate languag
 
 ### Python
 ```
->>> from argostranslate import package, translate
->>> package.install_from_path('en_es.argosmodel')
->>> installed_languages = translate.get_installed_languages()
+from argostranslate import package, translate
+package.install_from_path('en_es.argosmodel')
+installed_languages = translate.get_installed_languages()
+
 >>> [str(lang) for lang in installed_languages]
-['English', 'Spanish']
->>> translation_en_es = installed_languages[0].get_translation(installed_languages[1])
->>> translation_en_es.translate("Hello World!")
-'¡Hola Mundo!'
+>>> ['English', 'Spanish']
+
+translation_en_es = installed_languages[0].get_translation(installed_languages[1])
+translation_en_es.translate("Hello World!")
+
+>>> '¡Hola Mundo!'
 ```
 
 ### Command Line
 ```
-$ argos-translate --from-lang en --to-lang es "Hello World"
+argos-translate --from-lang en --to-lang es "Hello World"
 Hola Mundo
 
-$ echo "Text to translate" | argos-translate --from-lang en --to-lang es
+echo "Text to translate" | argos-translate --from-lang en --to-lang es
 Texto para traducir
 ```
 
