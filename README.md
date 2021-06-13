@@ -88,8 +88,11 @@ Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate
 python3 -m pip install --upgrade pip
 python3 -m pip install argostranslate
 ```
-#### Installation for Windows
-CTranslate2, the inference engine for Argos Translate, [currently only distributes binaries for Linux and MacOS](https://github.com/OpenNMT/CTranslate2/issues/133) so to install Argos Translate on Windows you will need to build CTranslate2 from source.
+### Purchase for macOS
+[Buy](https://github.com/argosopentech/argos-translate/discussions/131)
+
+![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
+ 
 ### Install from Snap Store
 Argos Translate is available from the Snap Store and auto installs a content snap to support translation between Arabic, Chinese, English, French, Russian, and Spanish. Additional languages can be installed from supplementary content snaps.
 
@@ -113,6 +116,9 @@ To run command line interface on Snapcraft:
 ```
 argos-translate.cli --help
 ```
+
+### Installation for Windows
+CTranslate2, the inference engine for Argos Translate, [currently only distributes binaries for Linux and MacOS](https://github.com/OpenNMT/CTranslate2/issues/133) so to install Argos Translate on Windows you will need to build CTranslate2 from source.
 
 ### Python source installation
 #### Dependencies
