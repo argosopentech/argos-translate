@@ -1,4 +1,4 @@
-class LanguageModel:
+class ILanguageModel:
     def infer(x):
         """Run language model on input x
 
@@ -7,4 +7,4 @@ class LanguageModel:
 
         Returns: (str) Output of inference
         """
-        return prompt
+        raise NotImplementedError()

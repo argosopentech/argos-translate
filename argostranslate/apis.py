@@ -2,6 +2,9 @@ import json
 import sys
 from urllib import request, parse
 
+from argostranslate import models
+from argostranslate.models import ILanguageModel
+
 
 def translate(
     q, source="en", target="es", url="https://translate.astian.org/translate"
@@ -43,35 +46,39 @@ def translate(
 # -d '{"prompt": "This is a test", "max_tokens": 5}'
 
 
-def infer(prompt, api_key):
-    """Connect to OpenAI API
+class OpenAILanguageModel(ILanguageModel):
+    def infer(prompt, api_key):
+        """Connect to OpenAI API
 
-    Args:
-        prompt (str): The prompt to run inference on.
-        api_key (str): OpenAI API key
+        Args:
+            prompt (str): The prompt to run inference on.
+            api_key (str): OpenAI API key
 
-    Returns: The generated text
-    """
-    url = "https://api.openai.com/v1/engines/davinci/completions"
+        Returns: The generated text
+        """
+        url = "https://api.openai.com/v1/engines/davinci/completions"
 
-    params = {"prompt": prompt, "max_tokens": 100}
+        params = {"prompt": prompt, "max_tokens": 100}
 
-    headers = {"Content-Type": "application/json", "Authorization": "Bearer " + api_key}
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + api_key,
+        }
 
-    encoded_params = json.dumps(params).encode()
+        encoded_params = json.dumps(params).encode()
 
-    req = request.Request(url, data=encoded_params, headers=headers, method="POST")
+        req = request.Request(url, data=encoded_params, headers=headers, method="POST")
 
-    try:
-        response = request.urlopen(req)
-    except Exception as e:
-        print(e, sys.stderr)
-        return None
+        try:
+            response = request.urlopen(req)
+        except Exception as e:
+            print(e, sys.stderr)
+            return None
 
-    try:
-        response_str = response.read().decode()
-    except Exception as e:
-        print(e, sys.stderr)
-        return None
+        try:
+            response_str = response.read().decode()
+        except Exception as e:
+            print(e, sys.stderr)
+            return None
 
-    return json.loads(response_str)
+        return json.loads(response_str)
