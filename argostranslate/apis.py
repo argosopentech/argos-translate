@@ -6,37 +6,42 @@ from argostranslate import models
 from argostranslate.models import ILanguageModel
 
 
-def translate(
-    q, source="en", target="es", url="https://translate.astian.org/translate"
-):
-    """Connect to LibreTranslate API
+class LibreTranslateTranslation(ITranslation):
+    def api_connect(
+        q, source="en", target="es", url="https://translate.astian.org/translate"
+    ):
+        """Connect to LibreTranslate API
 
-    Args:
-        q (str): The text to translate
-        source (str): The source language code (ISO 639)
-        target (str): The target language code (ISO 639)
+        Args:
+            q (str): The text to translate
+            source (str): The source language code (ISO 639)
+            target (str): The target language code (ISO 639)
 
-    Returns: The translated text
-    """
-    params = {"q": q, "source": source, "target": target}
+        Returns: The translated text
+        """
+        params = {"q": q, "source": source, "target": target}
 
-    url_params = parse.urlencode(params)
+        url_params = parse.urlencode(params)
 
-    req = request.Request(url, data=url_params.encode())
+        req = request.Request(url, data=url_params.encode())
 
-    try:
-        response = request.urlopen(req)
-    except Exception as e:
-        print(e, sys.stderr)
-        return None
+        try:
+            response = request.urlopen(req)
+        except Exception as e:
+            print(e, sys.stderr)
+            return None
 
-    try:
-        response_str = response.read().decode()
-    except Exception as e:
-        print(e, sys.stderr)
-        return None
+        try:
+            response_str = response.read().decode()
+        except Exception as e:
+            print(e, sys.stderr)
+            return None
 
-    return json.loads(response_str)
+        return json.loads(response_str)
+
+    def hypotheses(self, input_text, num_hypotheses):
+        assert num_hypotheses == 1
+        return api_connect(input_text)["translatedText"]
 
 
 # OpenAI API
