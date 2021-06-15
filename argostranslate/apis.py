@@ -6,11 +6,28 @@ from argostranslate.models import ILanguageModel, ITranslation
 
 
 class LibreTranslateAPI:
-    DEFAULT_URL = "https://translate.astian.org/"
-    # TODO: Add constructor to set url
+    """Connect to the LibreTranslate API"""
 
-    def translate(self, q, source="en", target="es", url=None):
-        """Connect to LibreTranslate API
+    """Example usage:
+    from argostranslate.apis import LibreTranslateAPI
+    lt = LibreTranslateAPI("https://translate.astian.org/")
+    print(lt.detect("Hello World"))
+    print(lt.languages())
+    print(lt.translate("LibreTranslate is awesome!", "en", "es"))
+    """
+
+    DEFAULT_URL = "https://translate.astian.org/"
+
+    def __init__(self, url=None):
+        self.url = DEFAULT_URL if url is None else url
+        assert len(self.url) > 0
+
+        # Add trailing slash
+        if self.url[-1] != "/":
+            self.url += "/"
+
+    def translate(self, q, source="en", target="es"):
+        """Translate string
 
         Args:
             q (str): The text to translate
@@ -20,8 +37,8 @@ class LibreTranslateAPI:
 
         Returns: The translated text
         """
-        if url is None:
-            url = LibreTranslateAPI.DEFAULT_URL + "translate"
+
+        url = self.url + "translate"
 
         params = {"q": q, "source": source, "target": target}
 
@@ -29,45 +46,48 @@ class LibreTranslateAPI:
 
         req = request.Request(url, data=url_params.encode())
 
-        try:
-            response = request.urlopen(req)
-        except Exception as e:
-            print(e, sys.stderr)
-            return None
+        response = request.urlopen(req)
 
-        try:
-            response_str = response.read().decode()
-        except Exception as e:
-            print(e, sys.stderr)
-            return None
+        response_str = response.read().decode()
 
-        return json.loads(response_str)
+        return json.loads(response_str)["translatedText"]
 
-    def languages(url=None):
-        """Connect to LibreTranslate API
+    def languages(self):
+        """Retrieve list of supported languages
 
-        Args:
-            url (str): The url for the languages endpoint. None for default.
-
-        Returns: The translated text
+        Returns: A list of available languages ex. [{"code":"en", "name":"English"}]
         """
 
-        if url is None:
-            url = LibreTranslateAPI.DEFAULT_URL + "languages"
+        url = self.url + "languages"
 
         req = request.Request(url, method="POST")
 
-        try:
-            response = request.urlopen(req)
-        except Exception as e:
-            print(e, sys.stderr)
-            return None
+        response = request.urlopen(req)
 
-        try:
-            response_str = response.read().decode()
-        except Exception as e:
-            print(e, sys.stderr)
-            return None
+        response_str = response.read().decode()
+
+        return json.loads(response_str)
+
+    def detect(self, q):
+        """Detect the language of a single text
+
+        Args:
+            q (str): Text to detect
+
+        Returns: The detected languages ex. [{"confidence": 0.6, "language": "en"}]
+        """
+
+        url = self.url + "detect"
+
+        params = {"q": q}
+
+        url_params = parse.urlencode(params)
+
+        req = request.Request(url, data=url_params.encode())
+
+        response = request.urlopen(req)
+
+        response_str = response.read().decode()
 
         return json.loads(response_str)
 
