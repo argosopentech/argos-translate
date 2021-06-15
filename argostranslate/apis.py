@@ -33,7 +33,6 @@ class LibreTranslateAPI:
             q (str): The text to translate
             source (str): The source language code (ISO 639)
             target (str): The target language code (ISO 639)
-            url (str): The url for the translate endpoint. None for default.
 
         Returns: The translated text
         """
