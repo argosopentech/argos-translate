@@ -1,4 +1,4 @@
-ctranslate2==1.20.1
+ctranslate2==2.1.0
 sentencepiece==0.1.94
 stanza==1.1.1
 PyQt5==5.15.4

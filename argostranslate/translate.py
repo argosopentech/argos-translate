@@ -332,6 +332,7 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
         beam_size=max(num_hypotheses, 4),
         num_hypotheses=num_hypotheses,
         length_penalty=0.2,
+        return_scores=True
     )
     info("translated_batches", translated_batches)
 

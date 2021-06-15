@@ -151,7 +151,7 @@ python3 -m pip install .
 
 ### GPU Acceleration
 
-To enable GPU support, you need to set the `ARGOS_DEVICE_TYPE` env variable to `cuda`.
+To enable GPU support, you need to set the `ARGOS_DEVICE_TYPE` env variable to `cuda` or `auto`.
 
 ```
 $ ARGOS_DEVICE_TYPE=cuda argos-translate --from-lang en --to-lang es "Hello World"
@@ -159,7 +159,7 @@ Hola Mundo
 ```
 
 The above env variable instructs [CTranslate2](https://github.com/OpenNMT/CTranslate2) to use cuda.
-if you encounter any issues with GPU, please consider reading CTranslate2 documentation.
+if you encounter any issues with GPU, please consider reading [CTranslate2 documentation](https://github.com/OpenNMT/CTranslate2#what-hardware-is-supported).
 
 
 ### Build and install snap package
