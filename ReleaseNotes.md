@@ -1,3 +1,6 @@
+1.5:
+- Upgrade to CTranslate2 2.0
+
 1.4:
 - Better support for seq2seq sentence boundary detection
 - py2app support
