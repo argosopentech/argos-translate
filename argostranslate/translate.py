@@ -233,6 +233,14 @@ DETECT_SENTENCE_BOUNDARIES_TOKEN = "<detect-sentence-boundaries>"
 SENTENCE_BOUNDARY_TOKEN = "<sentence-boundary>"
 
 
+def get_sbd_translation():
+    packages = package.get_installed_packages()
+    for pkg in packages:
+        if pkg.type == "sbd":
+            return PackageTranslation(None, None, pkg)
+    return None
+
+
 def detect_sentence(input_text, sentence_guess_length=150):
     """Given input text, return the index after the end of the first sentence.
 
@@ -332,7 +340,7 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
         beam_size=max(num_hypotheses, 4),
         num_hypotheses=num_hypotheses,
         length_penalty=0.2,
-        return_scores=True
+        return_scores=True,
     )
     info("translated_batches", translated_batches)
 
@@ -432,14 +440,6 @@ def get_installed_languages():
         languages = [english] + languages
 
     return languages
-
-
-def get_sbd_translation():
-    packages = package.get_installed_packages()
-    for pkg in packages:
-        if pkg.type == "sbd":
-            return PackageTranslation(None, None, pkg)
-    return None
 
 
 def load_installed_languages():
