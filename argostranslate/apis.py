@@ -2,7 +2,7 @@ import json
 import sys
 from urllib import request, parse
 
-from argostranslate.models import ILanguageModel, ITranslation
+from argostranslate.models import ILanguageModel
 
 
 class LibreTranslateAPI:
@@ -110,23 +110,6 @@ class LibreTranslateAPI:
         response_str = response.read().decode()
 
         return json.loads(response_str)
-
-
-class LibreTranslateTranslation(ITranslation):
-    def __init__(self, from_lang, to_lang, api):
-        self.from_lang = from_lang
-        self.to_lang = to_lang
-        self.api = api
-
-    def hypotheses(self, input_text, num_hypotheses=1):
-        """LibreTranslate only supports single hypotheses.
-
-        A list of length num_hypotheses will be returned with identical hypotheses.
-        """
-        result = self.api.translate(input_text, self.from_lang, self.to_lang)[
-            "translatedText"
-        ]
-        return [result] * num_hypotheses
 
 
 # OpenAI API
