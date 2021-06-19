@@ -120,7 +120,15 @@ class LibreTranslateAPI:
 
 
 class OpenAILanguageModel(ILanguageModel):
-    def infer(prompt, api_key):
+    def __init__(self, api_key):
+        """Create an API connection.
+
+        Args:
+            api_key (str): The API key for the OpenAI API
+        """
+        self.api_key = api_key
+
+    def infer(self, prompt):
         """Connect to OpenAI API
 
         Args:
@@ -135,7 +143,7 @@ class OpenAILanguageModel(ILanguageModel):
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + api_key,
+            "Authorization": "Bearer " + self.api_key,
         }
 
         encoded_params = json.dumps(params).encode()
