@@ -1,12 +1,10 @@
 import logging
 
-from difflib import SequenceMatcher
-
 import ctranslate2
 import sentencepiece as spm
 import stanza
 
-from argostranslate import package, settings, models
+from argostranslate import package, settings, models, sbd
 from argostranslate.utils import info, error
 
 
@@ -178,23 +176,6 @@ class PackageTranslation(ITranslation):
         return hypotheses_to_return
 
 
-class LibreTranslateTranslation(ITranslation):
-    def __init__(self, from_lang, to_lang, api):
-        self.from_lang = from_lang
-        self.to_lang = to_lang
-        self.api = api
-
-    def hypotheses(self, input_text, num_hypotheses=1):
-        """LibreTranslate only supports single hypotheses.
-
-        A list of length num_hypotheses will be returned with identical hypotheses.
-        """
-        result = self.api.translate(input_text, self.from_lang, self.to_lang)[
-            "translatedText"
-        ]
-        return [result] * num_hypotheses
-
-
 class IdentityTranslation(ITranslation):
     """A Translation that doesn't modify input_text."""
 
@@ -312,53 +293,21 @@ class CachedTranslation(ITranslation):
         return hypotheses_to_return
 
 
-DETECT_SENTENCE_BOUNDARIES_TOKEN = "<detect-sentence-boundaries>"
-SENTENCE_BOUNDARY_TOKEN = "<sentence-boundary>"
+class LibreTranslateTranslation(ITranslation):
+    def __init__(self, from_lang, to_lang, api):
+        self.from_lang = from_lang
+        self.to_lang = to_lang
+        self.api = api
 
+    def hypotheses(self, input_text, num_hypotheses=1):
+        """LibreTranslate only supports single hypotheses.
 
-def get_sbd_translation():
-    packages = package.get_installed_packages()
-    for pkg in packages:
-        if pkg.type == "sbd":
-            return PackageTranslation(None, None, pkg)
-    return None
-
-
-def detect_sentence(input_text, sentence_guess_length=150):
-    """Given input text, return the index after the end of the first sentence.
-
-    Args:
-        input_text (str): The text to detect the first sentence of.
-        sentence_guess_length (int): Estimated number of chars > than most sentences.
-
-    Returns:
-        int: The index of the character after the end of the sentence.
-                -1 if not found.
-    """
-    # TODO: Cache
-    sbd_translation = get_sbd_translation()
-    sentence_guess = input_text[:sentence_guess_length]
-    info("sentence_guess:", sentence_guess)
-    sbd_translated_guess = sbd_translation.translate(
-        DETECT_SENTENCE_BOUNDARIES_TOKEN + sentence_guess
-    )
-    sbd_translated_guess_index = sbd_translated_guess.find(SENTENCE_BOUNDARY_TOKEN)
-    if sbd_translated_guess_index != -1:
-        sbd_translated_guess = sbd_translated_guess[:sbd_translated_guess_index]
-        info("sbd_translated_guess:", sbd_translated_guess)
-        best_index = None
-        best_ratio = 0.0
-        for i in range(len(input_text)):
-            candidate_sentence = input_text[:i]
-            sm = SequenceMatcher()
-            sm.set_seqs(candidate_sentence, sbd_translated_guess)
-            ratio = sm.ratio()
-            if best_index is None or ratio > best_ratio:
-                best_index = i
-                best_ratio = ratio
-        return best_index
-    else:
-        return -1
+        A list of length num_hypotheses will be returned with identical hypotheses.
+        """
+        result = self.api.translate(input_text, self.from_lang, self.to_lang)[
+            "translatedText"
+        ]
+        return [result] * num_hypotheses
 
 
 def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
@@ -394,8 +343,16 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
         DEFAULT_SENTENCE_LENGTH = 250
         sentences = []
         start_index = 0
+
+        # Get sbd translation
+        sbd_package = sbd.get_sbd_package()
+        assert sbd_package is not None
+        sbd_translation = PackageTranslation(None, None, sbd_package)
+
         while start_index < len(input_text) - 1:
-            detected_sentence_index = detect_sentence(input_text[start_index:])
+            detected_sentence_index = sbd.detect_sentence(
+                input_text[start_index:], sbd_translation
+            )
             if detected_sentence_index == -1:
                 # Couldn't find sentence boundary
                 sbd_index = start_index + DEFAULT_SENTENCE_LENGTH
