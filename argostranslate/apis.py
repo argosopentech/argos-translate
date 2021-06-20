@@ -24,7 +24,7 @@ class LibreTranslateAPI:
             api_key (str): The API key.
         """
 
-        self.url = DEFAULT_URL if url is None else url
+        self.url = self.DEFAULT_URL if url is None else url
         self.api_key = api_key
 
         # Add trailing slash

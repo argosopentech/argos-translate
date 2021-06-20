@@ -4,7 +4,7 @@ import ctranslate2
 import sentencepiece as spm
 import stanza
 
-from argostranslate import package, settings, models, sbd
+from argostranslate import package, settings, models, sbd, apis
 from argostranslate.utils import info, error
 
 
@@ -304,10 +304,8 @@ class LibreTranslateTranslation(ITranslation):
 
         A list of length num_hypotheses will be returned with identical hypotheses.
         """
-        result = self.api.translate(input_text, self.from_lang, self.to_lang)[
-            "translatedText"
-        ]
-        return [result] * num_hypotheses
+        result = self.api.translate(input_text, self.from_lang.code, self.to_lang.code)
+        return [Hypothesis(result, 0)] * num_hypotheses
 
 
 def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
@@ -410,61 +408,79 @@ def get_installed_languages():
 
     info("get_installed_languages")
 
-    packages = package.get_installed_packages()
+    if settings.model_provider == settings.ModelProvider.OPENNMT:
+        packages = package.get_installed_packages()
 
-    # If stanza not available filter for sbd available
-    if not settings.stanza_available:
-        sbd_packages = list(filter(lambda x: x.type == "sbd", packages))
-        sbd_available_codes = set()
-        for sbd_package in sbd_packages:
-            sbd_available_codes = sbd_available_codes.union(sbd_package.from_codes)
-        packages = list(filter(lambda x: x.from_code in sbd_available_codes, packages))
+        # If stanza not available filter for sbd available
+        if not settings.stanza_available:
+            sbd_packages = list(filter(lambda x: x.type == "sbd", packages))
+            sbd_available_codes = set()
+            for sbd_package in sbd_packages:
+                sbd_available_codes = sbd_available_codes.union(sbd_package.from_codes)
+            packages = list(
+                filter(lambda x: x.from_code in sbd_available_codes, packages)
+            )
 
-    # Filter for translate packages
-    packages = list(filter(lambda x: x.type == "translate", packages))
+        # Filter for translate packages
+        packages = list(filter(lambda x: x.type == "translate", packages))
 
-    # Load languages and translations from packages
-    language_of_code = dict()
-    for pkg in packages:
-        if pkg.from_code not in language_of_code:
-            language_of_code[pkg.from_code] = Language(pkg.from_code, pkg.from_name)
-        if pkg.to_code not in language_of_code:
-            language_of_code[pkg.to_code] = Language(pkg.to_code, pkg.to_name)
-        from_lang = language_of_code[pkg.from_code]
-        to_lang = language_of_code[pkg.to_code]
-        translation_to_add = CachedTranslation(
-            PackageTranslation(from_lang, to_lang, pkg)
-        )
-        from_lang.translations_from.append(translation_to_add)
-        to_lang.translations_to.append(translation_to_add)
+        # Load languages and translations from packages
+        language_of_code = dict()
+        for pkg in packages:
+            if pkg.from_code not in language_of_code:
+                language_of_code[pkg.from_code] = Language(pkg.from_code, pkg.from_name)
+            if pkg.to_code not in language_of_code:
+                language_of_code[pkg.to_code] = Language(pkg.to_code, pkg.to_name)
+            from_lang = language_of_code[pkg.from_code]
+            to_lang = language_of_code[pkg.to_code]
+            translation_to_add = CachedTranslation(
+                PackageTranslation(from_lang, to_lang, pkg)
+            )
+            from_lang.translations_from.append(translation_to_add)
+            to_lang.translations_to.append(translation_to_add)
 
-    languages = list(language_of_code.values())
+        languages = list(language_of_code.values())
 
-    # Add translations so everything can translate to itself
-    for language in languages:
-        identity_translation = IdentityTranslation(language)
-        language.translations_from.append(identity_translation)
-        language.translations_to.append(identity_translation)
+        # Add translations so everything can translate to itself
+        for language in languages:
+            identity_translation = IdentityTranslation(language)
+            language.translations_from.append(identity_translation)
+            language.translations_to.append(identity_translation)
 
-    # Pivot through intermediate languages to add translations
-    # that don't already exist
-    for language in languages:
-        keep_adding_translations = True
-        while keep_adding_translations:
-            keep_adding_translations = False
-            for translation in language.translations_from:
-                for translation_2 in translation.to_lang.translations_from:
-                    if language.get_translation(translation_2.to_lang) is None:
-                        # The language currently doesn't have a way to translate
-                        # to this language
-                        keep_adding_translations = True
-                        composite_translation = CompositeTranslation(
-                            translation, translation_2
-                        )
-                        language.translations_from.append(composite_translation)
-                        translation_2.to_lang.translations_to.append(
-                            composite_translation
-                        )
+        # Pivot through intermediate languages to add translations
+        # that don't already exist
+        for language in languages:
+            keep_adding_translations = True
+            while keep_adding_translations:
+                keep_adding_translations = False
+                for translation in language.translations_from:
+                    for translation_2 in translation.to_lang.translations_from:
+                        if language.get_translation(translation_2.to_lang) is None:
+                            # The language currently doesn't have a way to translate
+                            # to this language
+                            keep_adding_translations = True
+                            composite_translation = CompositeTranslation(
+                                translation, translation_2
+                            )
+                            language.translations_from.append(composite_translation)
+                            translation_2.to_lang.translations_to.append(
+                                composite_translation
+                            )
+
+    elif settings.model_provider == settings.ModelProvider.LIBRETRANSLATE:
+        # TODO: Add API key and custom URL support
+        libretranslate_api = apis.LibreTranslateAPI()
+        supported_languages = (
+            libretranslate_api.languages()
+        )  # [{"code":"en", "name":"English"}]
+        languages = [Language(l["code"], l["name"]) for l in supported_languages]
+        for from_lang in languages:
+            for to_lang in languages:
+                translation = LibreTranslateTranslation(
+                    from_lang, to_lang, libretranslate_api
+                )
+                from_lang.translations_from.append(translation)
+                to_lang.translations_to.append(translation)
 
     # Put English first if available so it shows up as the from language in the gui
     en_index = None

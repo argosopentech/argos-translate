@@ -55,12 +55,18 @@ stanza_available = os.getenv("ARGOS_STANZA_AVAILABLE") in (TRUE_VALUES + [None])
 
 class ModelProvider(Enum):
     OPENNMT = 0
-    OPENAI = 1
+    LIBRETRANSLATE = 1
+    OPENAI = 2
 
 
-model_keys = {"OPENNMT": ModelProvider.OPENNMT, "OPENAI": ModelProvider.OPENAI}
-
-model_provider = os.getenv("ARGOS_MODEL_PROVIDER", ModelProvider.OPENNMT)
+model_mapping = {
+    "OPENNMT": ModelProvider.OPENNMT,
+    "LIBRETRANSLATE": ModelProvider.LIBRETRANSLATE,
+    "OPENAI": ModelProvider.OPENAI,
+}
+model_provider = os.getenv("ARGOS_MODEL_PROVIDER", "OPENNMT")
+assert model_provider in model_mapping.keys()
+model_provider = model_mapping[model_provider]
 
 downloads_dir = cache_dir / "downloads"
 os.makedirs(downloads_dir, exist_ok=True)
