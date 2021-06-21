@@ -2,6 +2,8 @@ import json
 import sys
 from urllib import request, parse
 
+from argostranslate.models import ILanguageModel
+
 
 class LibreTranslateAPI:
     """Connect to the LibreTranslate API"""
@@ -117,7 +119,7 @@ class LibreTranslateAPI:
 # -d '{"prompt": "This is a test", "max_tokens": 5}'
 
 
-class OpenAIAPI:
+class OpenAIAPI(ILanguageModel):
     def __init__(self, api_key):
         """Create an API connection.
 

@@ -4,7 +4,7 @@ import ctranslate2
 import sentencepiece as spm
 import stanza
 
-from argostranslate import package, settings, models, sbd, apis
+from argostranslate import package, settings, models, sbd, apis, fewshot
 from argostranslate.utils import info, error
 
 
@@ -308,6 +308,29 @@ class LibreTranslateTranslation(ITranslation):
         return [Hypothesis(result, 0)] * num_hypotheses
 
 
+class FewShotTranslation(ITranslation):
+    # TODO: Document and handle detect language
+    def __init__(self, from_lang, to_lang, language_model):
+        self.from_lang = from_lang
+        self.to_lang = to_lang
+        self.language_model = language_model
+
+    def hypotheses(self, input_text, num_hypotheses=1):
+        prompt = fewshot.generate_prompt(
+            input_text,
+            self.from_lang.name,
+            self.from_lang.code,
+            self.to_lang.name,
+            self.to_lang.code,
+        )
+        info("fewshot prompt", prompt)
+        response = self.language_model.infer(prompt)
+        info("fewshot response", response)
+        result = fewshot.parse_inference(response)
+        info("fewshot result", result)
+        return [Hypothesis(result, 0)] * num_hypotheses
+
+
 def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
     """Applies the translation in pkg to translate input_text.
 
@@ -479,6 +502,16 @@ def get_installed_languages():
                 translation = LibreTranslateTranslation(
                     from_lang, to_lang, libretranslate_api
                 )
+                from_lang.translations_from.append(translation)
+                to_lang.translations_to.append(translation)
+
+    elif settings.model_provider == settings.ModelProvider.OPENAI:
+        language_model = apis.OpenAIAPI(settings.openai_api_key)
+        # TODO
+        languages = [Language("en", "English"), Language("es", "Spanish")]
+        for from_lang in languages:
+            for to_lang in languages:
+                translation = FewShotTranslation(from_lang, to_lang, language_model)
                 from_lang.translations_from.append(translation)
                 to_lang.translations_to.append(translation)
 

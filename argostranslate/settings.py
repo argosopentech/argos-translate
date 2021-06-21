@@ -68,6 +68,9 @@ model_provider = os.getenv("ARGOS_MODEL_PROVIDER", "OPENNMT")
 assert model_provider in model_mapping.keys()
 model_provider = model_mapping[model_provider]
 
+libretranslate_api_key = os.getenv("LIBRETRANSLATE_API_KEY", None)
+openai_api_key = os.getenv("OPENAI_API_KEY", None)
+
 downloads_dir = cache_dir / "downloads"
 os.makedirs(downloads_dir, exist_ok=True)
 
