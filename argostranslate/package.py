@@ -173,12 +173,7 @@ class AvailablePackage(IPackage):
     def download(self):
         """Downloads the AvailablePackage and returns its path"""
         url = self.links[0]
-        filename = self.type
-        if self.from_code:
-            filename += "-" + self.from_code
-        if self.to_code:
-            filename += self.to_code
-        filename += ".argosmodel"
+        filename = argospm_package_name(self) +  ".argosmodel"
 
         # Install sbd package if needed
         if self.type == "translate" and not settings.stanza_available:
