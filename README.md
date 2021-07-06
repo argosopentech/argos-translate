@@ -20,13 +20,18 @@ Argos Translate also manages automatically pivoting through intermediate languag
 - French
 - German
 - Hindi
+- Indonesian
+- Irish
 - Italian
 - Japanese
+- Korean
 - Polish
 - Portuguese
-- Turkish
 - Russian
 - Spanish
+- Turkish
+- Vietnamese
+- [Request languages](https://github.com/argosopentech/argos-translate/discussions/91)
 
 ## Examples
 ### GUI
