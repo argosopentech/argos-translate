@@ -316,19 +316,41 @@ class FewShotTranslation(ITranslation):
         self.language_model = language_model
 
     def hypotheses(self, input_text, num_hypotheses=1):
-        prompt = fewshot.generate_prompt(
-            input_text,
-            self.from_lang.name,
-            self.from_lang.code,
-            self.to_lang.name,
-            self.to_lang.code,
-        )
-        info("fewshot prompt", prompt)
-        response = self.language_model.infer(prompt)
-        info("fewshot response", response)
-        result = fewshot.parse_inference(response)
-        info("fewshot result", result)
-        return [Hypothesis(result, 0)] * num_hypotheses
+        # Split into sentences
+        DEFAULT_SENTENCE_LENGTH = 250
+        sentences = []
+        start_index = 0
+        while start_index < len(input_text) - 1:
+            prompt = sbd.generate_fewshot_sbd_prompt(input_text[start_index:])
+            response = sbd.parse_fewshot_response(self.language_model.infer(prompt))
+            detected_sentence_index = sbd.process_seq2seq_sbd(input_text[start_index:], response)
+            if detected_sentence_index == -1:
+                # Couldn't find sentence boundary
+                sbd_index = start_index + DEFAULT_SENTENCE_LENGTH
+            else:
+                sbd_index = start_index + detected_sentence_index
+            sentences.append(input_text[start_index:sbd_index])
+            info("start_index", start_index)
+            info("sbd_index", sbd_index)
+            info(input_text[start_index:sbd_index])
+            start_index = sbd_index
+
+        to_return = ''
+        for sentence in sentences:
+            prompt = fewshot.generate_prompt(
+                sentence,
+                self.from_lang.name,
+                self.from_lang.code,
+                self.to_lang.name,
+                self.to_lang.code,
+            )
+            info("fewshot prompt", prompt)
+            response = self.language_model.infer(prompt)
+            info("fewshot response", response)
+            result = fewshot.parse_inference(response)
+            info("fewshot result", result)
+            to_return += result
+        return [Hypothesis(to_return, 0)] * num_hypotheses
 
 
 def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
