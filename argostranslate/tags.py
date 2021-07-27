@@ -98,6 +98,8 @@ class TagTranslation(translate.ITranslation):
         if type(tag) == str:
             return self.underlying_translation.translate(tag)
 
+        translated_text = self.underlying_translation.translate(text)
+
         if isinstance(tag, TagLiteral):
             return TagLiteral(translated_text)
 
@@ -123,8 +125,6 @@ class TagTranslation(translate.ITranslation):
                     self.underlying_translation.translate(child.text())
                 )
                 injection_tags.append(injection_tag)
-
-        translated_text = self.underlying_translation.translate(text)
 
         for injection_tag in injection_tags:
             injection_index = translated_text.find(injection_tag.text)
