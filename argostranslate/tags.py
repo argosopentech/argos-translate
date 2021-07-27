@@ -20,29 +20,44 @@ for translated_tag in translated_tags:
 
 
 class ITag:
+    """Represents a tag tree"""
+
     def children(self):
-        """List of ITags and strs"""
-        raise NotImplmentedError()
+        """List of ITags and strs representing the children of the tag (empty list if no children)
+
+        Returns:
+            [ITag or str]: Children
+        """
+        raise NotImplementedError()
 
     def text(self):
-        raise NotImplmentedError()
+        """The combined text of all of the children
+
+        Returns:
+            str: Combined text
+        """
+        raise NotImplementedError()
 
     def __str__(self):
         return f'{ str(type(self)) } "{ str(self.text()) }"'
 
 
 class TagLiteral(ITag):
+    """Represents a single tag with text contents"""
+
     def __init__(self, text):
         self._text = text
 
     def children(self):
-        return None
+        return list()
 
     def text(self):
         return self._text
 
 
 class Tag(ITag):
+    """Represents a tag with children"""
+
     def __init__(self, children):
         self._children = children
 
@@ -62,14 +77,29 @@ class TagTranslation(translate.ITranslation):
     MAX_SEQUENCE_LENGTH = 200
 
     def __init__(self, underlying_translation):
+        """Construct a TagTranslation
+
+        Args:
+            underlying_translation (translate.ITranslation): The translation to use for translating strs
+        """
         self.underlying_translation = underlying_translation
 
     def translate_tag(self, tag):
-        """Takes an ITag or str and returns an ITag or str"""
+        """Recursively takes either an ITag or a str and returns a translated tag tree
+
+        Args:
+            tag (ITag or str): The tag tree to translate
+
+        Returns:
+            ITag or str: A translated tag tree in the same form
+        """
         info("translate_tag", tag)
 
         if type(tag) == str:
             return self.underlying_translation.translate(tag)
+
+        if isinstance(tag, TagLiteral):
+            return TagLiteral(translated_text)
 
         text = tag.text()
         children = tag.children()
@@ -82,11 +112,6 @@ class TagTranslation(translate.ITranslation):
             # Translate children seperatly
             return Tag([self.translate_tag(child) for child in children])
 
-        translated_text = self.underlying_translation.translate(text)
-
-        if isinstance(tag, TagLiteral):
-            return TagLiteral(translated_text)
-
         class InjectionTag:
             def __init__(self, text):
                 self.text = text
@@ -98,6 +123,8 @@ class TagTranslation(translate.ITranslation):
                     self.underlying_translation.translate(child.text())
                 )
                 injection_tags.append(injection_tag)
+
+        translated_text = self.underlying_translation.translate(text)
 
         for injection_tag in injection_tags:
             injection_index = translated_text.find(injection_tag.text)
@@ -112,9 +139,23 @@ class TagTranslation(translate.ITranslation):
                 )
                 return Tag([self.translate_tag(child) for child in children])
 
-        # TODO check for overlap
-
+        # Check for overlap
         injection_tags.sort(key=lambda x: x.injection_index)
+        for i in range(len(injection_tags) - 1):
+            injection_tag = injection_tags[i]
+            next_injection_tag = injection_tags[i + 1]
+            if (
+                injection_tag.injection_index + len(injection_tag.text)
+                >= next_injection_tag.injection_index
+            ):
+                info(
+                    "translate_tag",
+                    "injection_tags_overlap",
+                    injection_tag,
+                    next_injection_tag,
+                )
+                return Tag([self.translate_tag(child) for child in children])
+
         to_return = []
         i = 0
         for injection_tag in injection_tags:
