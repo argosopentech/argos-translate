@@ -59,7 +59,7 @@ def remove_package(args):
     for installed_package in installed_packages:
         name = package.argospm_package_name(installed_package)
         if name == package_name:
-            installed_package.remove()
+            package.uninstall(installed_package)
             print(f"Removed package {name}")
             break
     else:
