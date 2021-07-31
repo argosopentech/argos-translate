@@ -75,6 +75,13 @@ class Tag(ITag):
 MAX_SEQUENCE_LENGTH = 200
 
 
+def translate_children(underlying_translation, tag):
+    # Translate children seperatly
+    for i in range(len(tag._children)):
+        tag._children[i] = translate_tags(underlying_translation, tag._children[i])
+    return tag
+
+
 def translate_tags(underlying_translation, tag):
     """Recursively takes either an ITag or a str and returns a translated tag tree
 
@@ -94,7 +101,8 @@ def translate_tags(underlying_translation, tag):
     translated_text = underlying_translation.translate(text)
 
     if isinstance(tag, TagLiteral):
-        return TagLiteral(translated_text)
+        tag._text = translated_text
+        return tag
 
     children = tag.children()
 
@@ -103,19 +111,20 @@ def translate_tags(underlying_translation, tag):
         and len(list(filter(lambda x: isinstance(x, Tag), children))) > 0
     )
     if len(text) > MAX_SEQUENCE_LENGTH or composite_tag_children:
-        # Translate children seperatly
-        return Tag(
-            [translate_tags(underlying_translation, child) for child in children]
-        )
+        return translate_children(underlying_translation, tag)
 
     class InjectionTag:
-        def __init__(self, text):
+        def __init__(self, text, tag):
             self.text = text
+            self.tag = tag
+            tag._text = text
 
     injection_tags = []
     for child in children:
         if isinstance(child, TagLiteral):
-            injection_tag = InjectionTag(underlying_translation.translate(child.text()))
+            injection_tag = InjectionTag(
+                underlying_translation.translate(child.text()), child
+            )
             injection_tags.append(injection_tag)
 
     for injection_tag in injection_tags:
@@ -129,9 +138,7 @@ def translate_tags(underlying_translation, tag):
                 translated_text,
                 injection_tag.text,
             )
-            return Tag(
-                [translate_tags(underlying_translation, child) for child in children]
-            )
+            return translate_children(underlying_translation, tag)
 
     # Check for overlap
     injection_tags.sort(key=lambda x: x.injection_index)
@@ -148,18 +155,17 @@ def translate_tags(underlying_translation, tag):
                 injection_tag,
                 next_injection_tag,
             )
-            return Tag(
-                [translate_tags(underlying_translation, child) for child in children]
-            )
+            return translate_children(underlying_translation, tag)
 
     to_return = []
     i = 0
     for injection_tag in injection_tags:
         if i < injection_tag.injection_index:
             to_return.append(translated_text[i : injection_tag.injection_index])
-        to_return.append(TagLiteral(injection_tag.text))
+        to_return.append(injection_tag.tag)
         i = injection_tag.injection_index + len(injection_tag.text)
     if i < len(translated_text):
         to_return.append(translated_text[i:])
 
-    return Tag(to_return)
+    tag._children = to_return
+    return tag
