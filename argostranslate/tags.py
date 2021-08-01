@@ -1,4 +1,3 @@
-from argostranslate import translate
 from argostranslate.utils import info, error
 
 """
