@@ -138,7 +138,6 @@ def translate_tags(underlying_translation, tag):
         def __init__(self, text, tag):
             self.text = text
             self.tag = tag
-            tag._text = text
 
     injection_tags = []
     for child in children:
