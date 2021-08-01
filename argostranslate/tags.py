@@ -9,7 +9,7 @@ from argostranslate import package, translate
 installed_languages = translate.get_installed_languages()
 translation_en_es = installed_languages[0].get_translation(installed_languages[1])
 
-t = Tag(['I went to ', TagLiteral('Paris'), ' last summer.'])
+t = Tag(['I went to ', Tag(['Paris']), ' last summer.'])
 
 translated_tags = translate_tags(translation_en_es, t).children()
 for translated_tag in translated_tags:
@@ -41,19 +41,6 @@ class ITag:
         return f'{ str(type(self)) } "{ str(self.text()) }"'
 
 
-class TagLiteral(ITag):
-    """Represents a single tag with text contents"""
-
-    def __init__(self, text):
-        self._text = text
-
-    def children(self):
-        return list()
-
-    def text(self):
-        return self._text
-
-
 class Tag(ITag):
     """Represents a tag with children"""
 
@@ -75,11 +62,42 @@ class Tag(ITag):
 MAX_SEQUENCE_LENGTH = 200
 
 
+def is_tag_literal(tag):
+    if type(tag) is str:
+        return False
+    elif len(tag.children()) == 1 and type(tag.children()[0]) is str:
+        return True
+    return False
+
+
 def translate_children(underlying_translation, tag):
     # Translate children seperatly
     for i in range(len(tag._children)):
-        tag._children[i] = translate_tags(underlying_translation, tag._children[i])
+        child = tag._children[i]
+        translation = translate_tags(underlying_translation, tag._children[i])
+        if type(child) is str and type(translation) is str:
+            if len(child) > 0 and child[0] == " ":
+                if not (len(translation) > 0 and translation[0] == " "):
+                    translation = " " + translation
+            if len(child) > 0 and child[-1] == " ":
+                if not (len(translation) > 0 and translation[-1] == " "):
+                    translation = translation + " "
+        tag._children[i] = translation
     return tag
+
+
+def is_small_tree(tag, depth=0):
+    depth += 1
+    if depth > 3:
+        return False
+    if type(tag) is str:
+        return True
+    if len(tag.children()) > 5:
+        return False
+    for child in tag.children():
+        if not is_small_tree(tag, depth):
+            return False
+    return True
 
 
 def translate_tags(underlying_translation, tag):
@@ -96,11 +114,14 @@ def translate_tags(underlying_translation, tag):
     if type(tag) == str:
         return underlying_translation.translate(tag)
 
+    if not is_small_tree(tag):
+        return translate_children(underlying_translation, tag)
+
     text = tag.text()
 
     translated_text = underlying_translation.translate(text)
 
-    if isinstance(tag, TagLiteral):
+    if is_tag_literal(tag):
         tag._text = translated_text
         return tag
 
@@ -121,7 +142,7 @@ def translate_tags(underlying_translation, tag):
 
     injection_tags = []
     for child in children:
-        if isinstance(child, TagLiteral):
+        if is_tag_literal(child):
             injection_tag = InjectionTag(
                 underlying_translation.translate(child.text()), child
             )
