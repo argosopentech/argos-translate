@@ -54,7 +54,7 @@ class Tag(ITag):
         return "".join(
             [
                 (child.text() if type(child) != str else child)
-                for child in self._children
+                for child in self.children()
             ]
         )
 
@@ -73,8 +73,8 @@ def is_tag_literal(tag):
 def translate_children(underlying_translation, tag):
     # Translate children seperatly
     for i in range(len(tag._children)):
-        child = tag._children[i]
-        translation = translate_tags(underlying_translation, tag._children[i])
+        child = tag.children()[i]
+        translation = translate_tags(underlying_translation, tag.children()[i])
         if type(child) is str and type(translation) is str:
             if len(child) > 0 and child[0] == " ":
                 if not (len(translation) > 0 and translation[0] == " "):
@@ -82,7 +82,7 @@ def translate_children(underlying_translation, tag):
             if len(child) > 0 and child[-1] == " ":
                 if not (len(translation) > 0 and translation[-1] == " "):
                     translation = translation + " "
-        tag._children[i] = translation
+        tag.children()[i] = translation
     return tag
 
 
