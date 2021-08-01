@@ -3,31 +3,27 @@ from argostranslate.utils import info, error
 
 """
 import argostranslate
-from argostranslate.tags import *
-from argostranslate import package, translate
+from argostranslate.tags import translate_tags, Tag
+from argostranslate import translate
 
 installed_languages = translate.get_installed_languages()
-translation_en_es = installed_languages[0].get_translation(installed_languages[1])
+translation = installed_languages[0].get_translation(installed_languages[1])
 
 t = Tag(['I went to ', Tag(['Paris']), ' last summer.'])
 
-translated_tags = translate_tags(translation_en_es, t).children()
+translated_tags = translate_tags(translation, t).children
 for translated_tag in translated_tags:
     print(str(translated_tag))
-
 """
 
 
 class ITag:
-    """Represents a tag tree"""
+    """Represents a tag tree
 
-    def children(self):
-        """List of ITags and strs representing the children of the tag (empty list if no children)
-
-        Returns:
-            [ITag or str]: Children
-        """
-        raise NotImplementedError()
+    Attributes:
+        children [ITag or str]: List of ITags and strs representing
+        the children of the tag (empty list if no children)
+    """
 
     def text(self):
         """The combined text of all of the children
@@ -38,24 +34,18 @@ class ITag:
         raise NotImplementedError()
 
     def __str__(self):
-        return f'{ str(type(self)) } "{ str(self.text()) }"'
+        return f'{ str(type(self)) } "{ str(self.children) }"'
 
 
 class Tag(ITag):
     """Represents a tag with children"""
 
     def __init__(self, children):
-        self._children = children
-
-    def children(self):
-        return self._children
+        self.children = children
 
     def text(self):
         return "".join(
-            [
-                (child.text() if type(child) != str else child)
-                for child in self.children()
-            ]
+            [(child.text() if type(child) != str else child) for child in self.children]
         )
 
 
@@ -65,16 +55,16 @@ MAX_SEQUENCE_LENGTH = 200
 def is_tag_literal(tag):
     if type(tag) is str:
         return False
-    elif len(tag.children()) == 1 and type(tag.children()[0]) is str:
+    elif len(tag.children) == 1 and type(tag.children[0]) is str:
         return True
     return False
 
 
 def translate_children(underlying_translation, tag):
     # Translate children seperatly
-    for i in range(len(tag._children)):
-        child = tag.children()[i]
-        translation = translate_tags(underlying_translation, tag.children()[i])
+    for i in range(len(tag.children)):
+        child = tag.children[i]
+        translation = translate_tags(underlying_translation, tag.children[i])
         if type(child) is str and type(translation) is str:
             if len(child) > 0 and child[0] == " ":
                 if not (len(translation) > 0 and translation[0] == " "):
@@ -82,7 +72,7 @@ def translate_children(underlying_translation, tag):
             if len(child) > 0 and child[-1] == " ":
                 if not (len(translation) > 0 and translation[-1] == " "):
                     translation = translation + " "
-        tag.children()[i] = translation
+        tag.children[i] = translation
     return tag
 
 
@@ -92,9 +82,9 @@ def is_small_tree(tag, depth=0):
         return False
     if type(tag) is str:
         return True
-    if len(tag.children()) > 5:
+    if len(tag.children) > 5:
         return False
-    for child in tag.children():
+    for child in tag.children:
         if not is_small_tree(tag, depth):
             return False
     return True
@@ -125,7 +115,7 @@ def translate_tags(underlying_translation, tag):
         tag._text = translated_text
         return tag
 
-    children = tag.children()
+    children = tag.children
 
     composite_tag_children = (
         children is not None
@@ -187,5 +177,5 @@ def translate_tags(underlying_translation, tag):
     if i < len(translated_text):
         to_return.append(translated_text[i:])
 
-    tag._children = to_return
+    tag.children = to_return
     return tag
