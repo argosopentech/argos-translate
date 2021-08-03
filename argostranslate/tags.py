@@ -102,6 +102,74 @@ def depth(tag):
     return max([depth(t) for t in tag.children])
 
 
+def inject_tags(underlying_translation, tag):
+    """Returns translated tag tree with injection tags, None if not possible"""
+
+    class InjectionTag:
+        """
+
+        Attributes:
+            text (str): The text of the tag
+            tag (ITag): The depth 1 ITag it represents
+            injection_index: The index in the outer translated string that this tag can be injected into.
+        """
+        def __init__(self, text, tag):
+            self.text = text
+            self.tag = tag
+
+    injection_tags = []
+    for child in tag.children:
+        if depth(child) == 1:
+            injection_tag = InjectionTag(
+                underlying_translation.translate(child.text()), child
+            )
+            injection_tags.append(injection_tag)
+
+    for injection_tag in injection_tags:
+        injection_index = translated_text.find(injection_tag.text)
+        if injection_index != -1:
+            injection_tag.injection_index = injection_index
+        else:
+            info(
+                "inject_tags",
+                "injection text not found",
+                translated_text,
+                injection_tag.text,
+            )
+            return None
+
+    # Check for overlap
+    injection_tags.sort(key=lambda x: x.injection_index)
+    for i in range(len(injection_tags) - 1):
+        injection_tag = injection_tags[i]
+        next_injection_tag = injection_tags[i + 1]
+        if (
+            injection_tag.injection_index + len(injection_tag.text)
+            >= next_injection_tag.injection_index
+        ):
+            info(
+                "inject_tags",
+                "injection tags overlap",
+                injection_tag,
+                next_injection_tag,
+            )
+            return None
+
+    to_return = []
+    i = 0
+    for injection_tag in injection_tags:
+        if i < injection_tag.injection_index:
+            to_return.append(translated_text[i : injection_tag.injection_index])
+        to_return.append(injection_tag.tag)
+        i = injection_tag.injection_index + len(injection_tag.text)
+    if i < len(translated_text):
+        to_return.append(translated_text[i:])
+
+    tag.children = to_return
+
+    return tag
+
+
 def translate_tags_new(underlying_translation, tag):
     """Translate an ITag or str
 
@@ -113,14 +181,16 @@ def translate_tags_new(underlying_translation, tag):
     Returns:
         ITag or str: A translated tag tree
     """
+    depth = depth(tag)
+
     if type(tag) is str:
         tag = underlying_translation.translate(tag)
-    elif depth(tag) > 1:
+    elif depth == 2:
+        inject_tags(underlying_translation, tag)
+    else:
         tag.children = [
             translate_tags_new(underlying_translation, child) for child in tag.children
         ]
-
-    # TODO
 
     return tag
 
