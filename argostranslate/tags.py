@@ -58,6 +58,8 @@ def depth(tag):
     """
     if type(tag) is str:
         return 0
+    if len(tag.children) == 0:
+        return 0
     return max([depth(t) for t in tag.children])
 
 
