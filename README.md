@@ -30,6 +30,7 @@ Argos Translate also manages automatically pivoting through intermediate languag
 - Russian
 - Spanish
 - Turkish
+- Ukranian
 - Vietnamese
 - [Request languages](https://github.com/argosopentech/argos-translate/discussions/91)
 
