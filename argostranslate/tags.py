@@ -89,6 +89,42 @@ def is_small_tree(tag, depth=0):
     return True
 
 
+def depth(tag):
+    """Returns the depth of an ITag or str.
+
+    A str had depth 0, ITag(['str']) has depth 1. 
+
+    Args:
+        tag (ITag or str): The ITag or string to get the depth of.
+    """
+    if type(tag) is str:
+        return 0
+    return max([depth(t) for t in tag.children])
+
+
+def translate_tags_new(underlying_translation, tag):
+    """Translate an ITag or str
+
+    Recursively takes either an ITag or a str, modifies it in place, and returns the translated tag tree
+
+    Args:
+        tag (ITag or str): The tag tree to translate
+
+    Returns:
+        ITag or str: A translated tag tree
+    """
+    if type(tag) is str:
+        tag = underlying_translation.translate(tag)
+    elif depth(tag) > 1:
+        tag.children = [
+            translate_tags_new(underlying_translation, child) for child in tag.children
+        ]
+
+    # TODO
+
+    return tag
+
+
 def translate_tags(underlying_translation, tag):
     """Recursively takes either an ITag or a str and returns a translated tag tree
 
