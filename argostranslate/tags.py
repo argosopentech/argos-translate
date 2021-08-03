@@ -10,8 +10,8 @@ translation = installed_languages[0].get_translation(installed_languages[1])
 
 t = Tag(['I went to ', Tag(['Paris']), ' last summer.'])
 
-translated_tags = translate_tags(translation, t).children
-for translated_tag in translated_tags:
+translated_tags = translate_tags(translation, t)
+for translated_tag in translated_tags.children:
     print(str(translated_tag))
 """
 
@@ -37,8 +37,6 @@ class ITag:
 
 
 class Tag(ITag):
-    """Represents a tag with children"""
-
     def __init__(self, children):
         self.children = children
 
@@ -51,7 +49,7 @@ class Tag(ITag):
 def depth(tag):
     """Returns the depth of an ITag or str.
 
-    A str had depth 0, ITag(['str']) has depth 1. 
+    A str has depth 0, ITag([]) has depth 0, ITag(['str']) has depth 1. 
 
     Args:
         tag (ITag or str): The ITag or string to get the depth of.
@@ -70,7 +68,7 @@ def inject_tags(underlying_translation, tag):
 
     Args:
         underlying_translation(translate.ITranslation): The translation to apply to the tags.
-        tag (ITag): A depth 2 tag tree to attempt injection on.
+        tag (ITag): A depth=2 tag tree to attempt injection on.
     """
     MAX_SEQUENCE_LENGTH = 200
 
