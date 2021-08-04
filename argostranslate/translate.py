@@ -369,7 +369,7 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
 
     """
 
-    info("apply_packaged_translation")
+    info("apply_packaged_translation", input_text)
 
     # Sentence boundary detection
     if pkg.type == "sbd":
@@ -408,13 +408,13 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
             info("sbd_index", sbd_index)
             info(input_text[start_index:sbd_index])
             start_index = sbd_index
-    info("sentences:", sentences)
+    info("sentences", sentences)
 
     # Tokenization
     sp_model_path = str(pkg.package_path / "sentencepiece.model")
     sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
     tokenized = [sp_processor.encode(sentence, out_type=str) for sentence in sentences]
-    info("tokenized:", tokenized)
+    info("tokenized", tokenized)
 
     # Translation
     BATCH_SIZE = 32
