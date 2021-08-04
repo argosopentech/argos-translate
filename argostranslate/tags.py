@@ -25,6 +25,7 @@ class ITag:
     """
 
     def text(self):
+
         """The combined text of all of the children
 
         Returns:
@@ -61,7 +62,7 @@ def depth(tag):
     return max([depth(t) for t in tag.children])
 
 
-def inject_tags(underlying_translation, tag):
+def inject_tags_inference(underlying_translation, tag):
     """Returns translated tag tree with injection tags, None if not possible
 
     tag is only modified in place if tag injection is successful.
@@ -69,6 +70,9 @@ def inject_tags(underlying_translation, tag):
     Args:
         underlying_translation(translate.ITranslation): The translation to apply to the tags.
         tag (ITag): A depth=2 tag tree to attempt injection on.
+ 
+    Returns:
+        ITag: A translated version of tag, None if not possible to tag inject
     """
     MAX_SEQUENCE_LENGTH = 200
 
@@ -84,7 +88,8 @@ def inject_tags(underlying_translation, tag):
         Attributes:
             text (str): The text of the tag
             tag (ITag): The depth 1 ITag it represents
-            injection_index: The index in the outer translated string that this tag can be injected into.
+            injection_index: The index in the outer translated string that
+                    this tag can be injected into.
         """
 
         def __init__(self, text, tag):
@@ -95,10 +100,12 @@ def inject_tags(underlying_translation, tag):
     injection_tags = []
     for child in tag.children:
         if depth(child) == 1:
-            injection_tag = InjectionTag(
-                underlying_translation.translate(child.text()), child
+            injection_tags.appen(
+                InjectionTag(underlying_translation.translate(child.text()), child)
             )
-            injection_tags.append(injection_tag)
+        elif type(child) is not str:
+            info("inject_tags_inference", "can't inject depth 0 ITag")
+            return None
 
     for injection_tag in injection_tags:
         injection_index = translated_text.find(injection_tag.text)
@@ -106,7 +113,7 @@ def inject_tags(underlying_translation, tag):
             injection_tag.injection_index = injection_index
         else:
             info(
-                "inject_tags",
+                "inject_tags_inference",
                 "injection text not found in translated text",
                 translated_text,
                 injection_tag.text,
@@ -123,7 +130,7 @@ def inject_tags(underlying_translation, tag):
             >= next_injection_tag.injection_index
         ):
             info(
-                "inject_tags",
+                "inject_tags_inference",
                 "injection tags overlap",
                 injection_tag,
                 next_injection_tag,
@@ -155,12 +162,12 @@ def translate_tags(underlying_translation, tag):
         tag (ITag or str): The tag tree to translate
 
     Returns:
-        ITag or str: A translated tag tree
+        ITag or str: The translated tag tree
     """
     if type(tag) is str:
         tag = underlying_translation.translate(tag)
     elif depth(tag) == 2:
-        tag_injection = inject_tags(underlying_translation, tag)
+        tag_injection = inject_tags_inference(underlying_translation, tag)
         if tag_injection is not None:
             info("translate_tags", "tag injection successful")
             tag = tag_injection

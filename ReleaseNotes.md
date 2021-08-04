@@ -1,4 +1,5 @@
 1.5:
+- Tag injection
 - Upgrade to CTranslate2 2.0
 
 1.4:
