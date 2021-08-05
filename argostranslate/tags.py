@@ -80,7 +80,7 @@ def inject_tags_inference(underlying_translation, tag):
     if len(text) > MAX_SEQUENCE_LENGTH:
         return None
 
-    translated_text = underlying_translatiotn.tranlsate(text)
+    translated_text = underlying_translatiotn.translate(text)
 
     class InjectionTag:
         """
