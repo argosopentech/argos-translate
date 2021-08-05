@@ -384,6 +384,8 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
         )
         stanza_sbd = stanza_pipeline(input_text)
         sentences = [sentence.text for sentence in stanza_sbd.sentences]
+        if len(sentences) < 2:
+            sentences = [input_text]
     else:
         DEFAULT_SENTENCE_LENGTH = 250
         sentences = []

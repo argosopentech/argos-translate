@@ -62,29 +62,6 @@ def depth(tag):
     return max([depth(t) for t in tag.children])
 
 
-def translate_preserve_formatting(underlying_translation, input_text):
-    """Translates but preserves a space if it exists on either end of translation.
-
-    Args:
-        underlying_translation (translate.ITranslation): The translation to apply
-        input_text (str): The text to translate
-
-    Returns:
-        str: The translated text
-    """
-    translated_text = underlying_translation.translate(input_text)
-    if len(input_text) > 0:
-        if input_text[0] == " " and not (
-            len(translated_text) > 0 and translated_text[0] == " "
-        ):
-            translated_text = " " + translated_text
-        if input_text[-1] == " " and not (
-            len(translated_text) > 0 and translated_text[-1] == " "
-        ):
-            translated_text = translated_text + " "
-    return translated_text
-
-
 def inject_tags_inference(underlying_translation, tag):
     """Returns translated tag tree with injection tags, None if not possible
 
@@ -103,7 +80,7 @@ def inject_tags_inference(underlying_translation, tag):
     if len(text) > MAX_SEQUENCE_LENGTH:
         return None
 
-    translated_text = translate_preserve_formatting(underlying_translation, text)
+    translated_text = underlying_translatiotn.tranlsate(text)
 
     class InjectionTag:
         """
@@ -123,9 +100,7 @@ def inject_tags_inference(underlying_translation, tag):
     injection_tags = []
     for child in tag.children:
         if depth(child) == 1:
-            translated = translate_preserve_formatting(
-                underlying_translation, child.text()
-            )
+            translated = underlying_transltion.translate(child.text())
             injection_tags.append(InjectionTag(translated, child))
         elif type(child) is not str:
             info("inject_tags_inference", "can't inject depth 0 ITag")
@@ -189,7 +164,7 @@ def translate_tags(underlying_translation, tag):
         ITag or str: The translated tag tree
     """
     if type(tag) is str:
-        tag = translate_preserve_formatting(underlying_translation, tag)
+        tag = underlying_translation.translate(tag)
     elif depth(tag) == 2:
         tag_injection = inject_tags_inference(underlying_translation, tag)
         if tag_injection is not None:
