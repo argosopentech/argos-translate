@@ -87,6 +87,9 @@ console.log(await res.json());
 }
 ```
 
+### HTML Translation
+The [translate-html](https://github.com/argosopentech/translate-html) library is built on top of Argos Translate and [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/) and parses and translates HTML.
+
 ## Installation
 ### Install from PyPI
 Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate/) and can be installed with pip.
