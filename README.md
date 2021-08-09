@@ -16,6 +16,7 @@ Argos Translate also manages automatically pivoting through intermediate languag
 ### Supported languages
 - Arabic
 - Chinese
+- Dutch
 - English
 - French
 - German
