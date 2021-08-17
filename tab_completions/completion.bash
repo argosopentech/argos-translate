@@ -23,4 +23,16 @@ _argostranslate_completions ()
 }
 
 
+# Tab Completion for argospm
+_argospm_completions ()
+{
+  local cur
+
+  COMPREPLY=($(compgen -W "update install list remove help" "${COMP_WORDS[1]}"))
+
+  return 0
+}
+
+
+complete -F _argospm_completions argospm
 complete -F _argostranslate_completions argos-translate argos-translate-cli
