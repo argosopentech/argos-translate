@@ -42,7 +42,8 @@ Argos Translate also manages automatically pivoting through intermediate languag
 
 
 ### Python
-```
+
+```python
 from argostranslate import package, translate
 package.install_from_path('en_es.argosmodel')
 installed_languages = translate.get_installed_languages()
@@ -57,6 +58,7 @@ translation_en_es.translate("Hello World!")
 ```
 
 ### Command Line
+
 ```
 argos-translate --from-lang en --to-lang es "Hello World"
 Hola Mundo
@@ -64,12 +66,18 @@ Hola Mundo
 echo "Text to translate" | argos-translate --from-lang en --to-lang es
 Texto para traducir
 ```
+#### Enable tab completion for Bash
+
+```bash
+curl -sSL https://raw.githubusercontent.com/argosopentech/argos-translate/master/tab_completions/completion.bash > /etc/bash_completion.d/argospm.bash
+```
 
 ### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
 ![Web App Screenshot](img/WebAppScreenshot.png)
 
 ### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) API
-```
+
+```javascript
 const res = await fetch("https://libretranslate.com/translate", {
 	method: "POST",
 	body: JSON.stringify({
