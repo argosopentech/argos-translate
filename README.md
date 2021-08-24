@@ -14,34 +14,12 @@ Argos Translate also manages automatically pivoting through intermediate languag
 - [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
 
 ### Supported languages
-- Arabic
-- Chinese
-- Dutch
-- English
-- French
-- German
-- Hindi
-- Indonesian
-- Irish
-- Italian
-- Japanese
-- Korean
-- Polish
-- Portuguese
-- Russian
-- Spanish
-- Turkish
-- Ukranian
-- Vietnamese
+Arabic, Chinese, Dutch, English, French, German, Hindi, Indonesian, Irish, Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, Turkish, Ukranian, Vietnamese
+
 - [Request languages](https://github.com/argosopentech/argos-translate/discussions/91)
 
 ## Examples
-### GUI
-![Screenshot](/img/Screenshot.png)
-![Screenshot2](/img/Screenshot2.png)
-
-
-### Python
+### [Python](https://argos-translate.readthedocs.io/en/latest/py-modindex.html)
 
 ```python
 from argostranslate import package, translate
@@ -90,6 +68,11 @@ console.log(await res.json());
     "translatedText": "¡Hola!"
 }
 ```
+
+### GUI
+![Screenshot](/img/Screenshot.png)
+![Screenshot2](/img/Screenshot2.png)
+
 
 ### HTML Translation
 The [translate-html](https://github.com/argosopentech/translate-html) library is built on top of Argos Translate and [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/) and parses and translates HTML.
