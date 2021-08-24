@@ -70,4 +70,4 @@ Enable tab completion for Bash
 
 .. code-block:: bash
 
-  curl -sSL https://raw.githubusercontent.com/argosopentech/argos-translate/master/tab_completions/completion.bash > /etc/bash_completion.d/argospm.bash
+  curl -sSL https://raw.githubusercontent.com/argosopentech/argos-translate/master/scripts/completion.bash > /etc/bash_completion.d/argospm.bash
