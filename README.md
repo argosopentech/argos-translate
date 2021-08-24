@@ -84,8 +84,7 @@ Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate
 python3 -m pip install --upgrade pip
 python3 -m pip install argostranslate
 ```
-### macOS
-[Download](https://github.com/argosopentech/argos-translate/releases/)
+### [macOS](https://github.com/argosopentech/argos-translate/releases/)
 
 ![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
  
