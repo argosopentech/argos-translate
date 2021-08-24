@@ -85,8 +85,7 @@ python3 -m pip install --upgrade pip
 python3 -m pip install argostranslate
 ```
 ### macOS
-[Download](https://www.fulfillment.argosopentech.com/argos-translate/macos/1981867401692101689462823333574892722487703316879849724390796876302268929269575834660004918158927127779617803719686848953512695878948840276478203680869921/
-)
+[Download](https://github.com/argosopentech/argos-translate/releases/)
 
 ![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
  
