@@ -4,6 +4,14 @@ argostranslate package
 Submodules
 ----------
 
+argostranslate.apis module
+-------------------------
+
+.. automodule:: argostranslate.apis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 argostranslate.gui module
 -------------------------
 
