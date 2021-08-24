@@ -57,7 +57,7 @@ translation_en_es.translate("Hello World!")
 >>> '¡Hola Mundo!'
 ```
 
-### Command Line
+### [Command Line](https://argos-translate.readthedocs.io/en/latest/source/cli.html)
 
 ```
 argos-translate --from-lang en --to-lang es "Hello World"
@@ -65,11 +65,6 @@ Hola Mundo
 
 echo "Text to translate" | argos-translate --from-lang en --to-lang es
 Texto para traducir
-```
-#### Enable tab completion for Bash
-
-```bash
-curl -sSL https://raw.githubusercontent.com/argosopentech/argos-translate/master/tab_completions/completion.bash > /etc/bash_completion.d/argospm.bash
 ```
 
 ### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) Web App ([Demo](https://libretranslate.com/))

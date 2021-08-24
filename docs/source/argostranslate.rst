@@ -5,7 +5,7 @@ Submodules
 ----------
 
 argostranslate.apis module
--------------------------
+--------------------------
 
 .. automodule:: argostranslate.apis
    :members:
@@ -13,7 +13,7 @@ argostranslate.apis module
    :show-inheritance:
 
 argostranslate.argospm module
--------------------------
+-----------------------------
 
 .. automodule:: argostranslate.argospm
    :members:
@@ -29,7 +29,7 @@ argostranslate.cli module
    :show-inheritance:
 
 argostranslate.fewshot module
--------------------------
+-----------------------------
 
 .. automodule:: argostranslate.cli
    :members:
@@ -45,7 +45,7 @@ argostranslate.gui module
    :show-inheritance:
 
 argostranslate.models module
--------------------------
+----------------------------
 
 .. automodule:: argostranslate.models
    :members:
@@ -93,7 +93,7 @@ argostranslate.translate module
    :show-inheritance:
 
 argostranslate.utils module
--------------------------
+---------------------------
 
 .. automodule:: argostranslate.utils
    :members:
