@@ -14,7 +14,7 @@ Argos Translate also manages automatically pivoting through intermediate languag
 - [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
 
 ### Supported languages
-Arabic, Chinese, Dutch, English, French, German, Hindi, Hungarian, Indonesian, Irish, Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, Turkish, Ukranian, Vietnamese
+Arabic, Chinese, Dutch, English, Finnish, French, German, Hindi, Hungarian, Indonesian, Irish, Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, Turkish, Ukranian, Vietnamese
 
 - [Request languages](https://github.com/argosopentech/argos-translate/discussions/91)
 
