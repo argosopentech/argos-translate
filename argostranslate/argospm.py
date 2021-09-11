@@ -27,20 +27,35 @@ def get_available_packages():
     return available_packages
 
 
+def install_all_packages():
+    """Install all packages."""
+
+    available_packages = get_available_packages()
+
+    for available_package in available_packages:
+        download_path = available_package.download()
+        package.install_from_path(download_path)
+        print(f"Installed package to path {download_path}")
+
+
 def install_package(args):
     """Install package."""
 
     available_packages = get_available_packages()
     package_name = args.name
-    for available_package in available_packages:
-        name = package.argospm_package_name(available_package)
-        if name == package_name:
-            download_path = available_package.download()
-            package.install_from_path(download_path)
-            print(f"Installed package to path {download_path}")
-            break
+
+    if package_name == "translate":
+        install_all_packages()
     else:
-        print("Package not found")
+        for available_package in available_packages:
+            name = package.argospm_package_name(available_package)
+            if name == package_name:
+                download_path = available_package.download()
+                package.install_from_path(download_path)
+                print(f"Installed package to path {download_path}")
+                break
+        else:
+            print("Package not found")
 
 
 def search_packages(args):
