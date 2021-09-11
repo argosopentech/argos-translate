@@ -117,7 +117,7 @@ def main():
     search_parser.set_defaults(callback=search_packages)
 
     install_parser = subparser.add_parser("install", help="Install package.")
-    install_parser.add_argument("name", help="Package name")
+    install_parser.add_argument("name", help="Package name, use \"translate\" to install all packages")
     install_parser.set_defaults(callback=install_package)
 
     list_parser = subparser.add_parser("list", help="List installed packages.")
