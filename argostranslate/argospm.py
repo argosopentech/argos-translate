@@ -16,9 +16,21 @@ def update_index(args):
     package.update_package_index()
 
 
+def get_available_packages():
+    """Get available packages and update packages list if it is not done"""
+    try:
+        available_packages = package.get_available_packages()
+    except FileNotFoundError:
+        update_index()
+        available_packages = package.get_available_packages()
+
+    return available_packages
+
+
 def install_package(args):
     """Install package."""
-    available_packages = package.get_available_packages()
+
+    available_packages = get_available_packages()
     package_name = args.name
     for available_package in available_packages:
         name = package.argospm_package_name(available_package)
@@ -33,7 +45,8 @@ def install_package(args):
 
 def search_packages(args):
     """Display packages from remote index."""
-    available_packages = package.get_available_packages()
+
+    available_packages = get_available_packages()
     for pkg in available_packages:
         if args.from_lang and args.from_lang != pkg.from_code:
             continue
