@@ -18,7 +18,13 @@ def update_index(args):
 
 def install_package(args):
     """Install package."""
-    available_packages = package.get_available_packages()
+
+    try:
+        available_packages = package.get_available_packages()
+    except FileNotFoundError:
+        update_index()
+        available_packages = package.get_available_packages()
+
     package_name = args.name
     for available_package in available_packages:
         name = package.argospm_package_name(available_package)
