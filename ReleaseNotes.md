@@ -1,3 +1,6 @@
+1.6:
+- Bug fixes
+
 1.5:
 - Tag injection
 - Upgrade to CTranslate2 2.0
