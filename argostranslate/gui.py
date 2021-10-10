@@ -78,7 +78,7 @@ class PackagesTable(QTableWidget):
         self.available_actions = available_actions
 
         self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         headers = ["Readme", "Name", "Package name", "From code", "To code", "Version"]
         if self.AvailableActions.UNINSTALL in self.available_actions:
             headers.append("Uninstall")
