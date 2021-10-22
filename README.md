@@ -1,5 +1,6 @@
 # Argos Translate
-[Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com) | [Video intro](https://youtu.be/yn37-CpRzTc)
+[Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com) | [Video intro](https://youtu.be/yn37-CpRzTc) | [GitHub](https://github.com/argosopentech/argos-translate) | [FSD](https://directory.fsf.org/wiki/Argos_Translate)
+
 
 Open-source offline translation library written in Python. Uses [OpenNMT](https://opennmt.net/) for translations, [SentencePiece](https://github.com/google/sentencepiece) for tokenization, [Stanza](https://github.com/stanfordnlp/stanza) for sentence boundary detection, and [PyQt](https://riverbankcomputing.com/software/pyqt/intro) for GUI. Designed to be used as either a Python library, command-line, or GUI application. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
 
@@ -18,83 +19,34 @@ Arabic, Chinese, Dutch, English, Finnish, French, German, Hindi, Hungarian, Indo
 
 - [Request languages](https://github.com/argosopentech/argos-translate/discussions/91)
 
-## Examples
-### [Python](https://argos-translate.readthedocs.io/en/latest/py-modindex.html)
+### Screenshots
 
-```python
-from argostranslate import package, translate
-package.install_from_path('en_es.argosmodel')
-installed_languages = translate.get_installed_languages()
+GUI
 
->>> [str(lang) for lang in installed_languages]
->>> ['English', 'Spanish']
-
-translation_en_es = installed_languages[0].get_translation(installed_languages[1])
-translation_en_es.translate("Hello World!")
-
->>> '¡Hola Mundo!'
-```
-
-### [Command Line](https://argos-translate.readthedocs.io/en/latest/source/cli.html)
-
-```
-argos-translate --from-lang en --to-lang es "Hello World"
-Hola Mundo
-
-echo "Text to translate" | argos-translate --from-lang en --to-lang es
-Texto para traducir
-```
-
-### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
-![Web App Screenshot](img/WebAppScreenshot.png)
-
-### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) API
-
-```javascript
-const res = await fetch("https://libretranslate.com/translate", {
-	method: "POST",
-	body: JSON.stringify({
-		q: "Hello!",
-		source: "en",
-		target: "es"
-	}),
-	headers: {
-		"Content-Type": "application/json"}
-	});
-
-console.log(await res.json());
-
-{
-    "translatedText": "¡Hola!"
-}
-```
-
-### GUI
 ![Screenshot](/img/Screenshot.png)
 ![Screenshot2](/img/Screenshot2.png)
 
 
-### HTML Translation
-The [translate-html](https://github.com/argosopentech/translate-html) library is built on top of Argos Translate and [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/) and parses and translates HTML. The LibreTranslate API also has support for translating HTML.
-
 ## Installation
 ### Install from PyPI
-Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate/) and can be installed with pip.
+Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate/) and can be easily installed or updated with [pip](https://pip.pypa.io/en/stable/installation/).
+
 ```
-python3 -m pip install --upgrade pip
-python3 -m pip install argostranslate
+python3 -m pip install -U pip
+python3 -m pip install -U argostranslate
 ```
+
 ### [macOS](https://github.com/argosopentech/argos-translate/releases/)
 
 ![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
- 
+
 ### Install from Snap Store
 Argos Translate is available from the Snap Store and auto installs a content snap to support translation between Arabic, Chinese, English, French, Russian, and Spanish. Additional languages can be installed from supplementary content snaps.
 
 With [snapd installed](https://snapcraft.io/docs/installing-snapd):
 ```
 sudo snap install argos-translate
-``` 
+```
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/argos-translate)
 
 Automatically installs and connects to `argos-translate-base-langs` snap to support translations between Arabic, Chinese, English, French, Russian, and Spanish.
@@ -126,6 +78,7 @@ On Ubuntu:
 sudo apt-get update
 sudo apt-get install -y python3
 ```
+
 #### Install
 1. Download a copy of this repo (this requires either installing git or downloading a zip from GitHub):
 ```
@@ -181,13 +134,131 @@ Note, the build won't run with Snapcraft's default build memory of 2GB so you ne
 ```
 sudo snap install --devmode argos-translate_<version information>.snap
 ```
+
 ### Run Argos Translate!
+
+#### GUI
+Run the GUI version of Argos Translate.
+
 ```
-argos-translate
 argos-translate-gui
 ```
 
 When installing with snap a .desktop file should also be installed which will make Argos Translate available from the desktop menu.
+
+Languages are chosen as drop down choices. More languages pairs can be installed.
+
+The left text box translates into the right box.
+
+Example workflow translating from Vietnamese into English:
+
+1. Set the left drop down to `Vietnamese` and the right drop down to `English`.
+1. Replace the default text `Text to translate from` in the left text box with some text in Vietnamese. A quick way to do this is to click in the left text box and press the keyboard shortcut `CTRL+a` to select all and then `CTRL+v` to paste.
+1. Wait patiently.
+1. When text appears in the right text box, read the translation!
+
+If the output looks similar to the input, try changing the origin language as some languages appear similar if you are unfamiliar with them.
+
+### [Command Line](https://argos-translate.readthedocs.io/en/latest/source/cli.html)
+
+Run the command line version of Argos Translate.
+```
+argos-translate
+```
+
+Translate a string from English to Spanish.
+
+Note: If you do not have the language pair that you are calling installed, you will get a `Traceback` error.
+
+```
+argos-translate --from-lang en --to-lang es "Hello World."
+Hola Mundo
+```
+
+Translate longer text piped into `argos-translate`.
+
+```
+echo "Text to translate" | argos-translate --from-lang en --to-lang es
+Texto para traducir
+```
+
+## Adding language pair models
+
+Language pairs are on average 100MB each.
+
+### Installing new pairs through the GUI
+
+1. Open Argos Translate: `argos-translate-gui`
+1. Click on the `Manage Packages` menu item.
+1. Click on the `Download packages` button.
+1. Click on the down arrow beside a language pair that you want to add.
+1. Wait for the hourglass icon to change into a check mark icon.
+1. Repeat the last two steps until you have all of the language pairs that you want.
+1. Click on the `X` in the top right to close the `Download packages` window.
+1. Click on the `X` in the top right to close the `Manage Packages` window.
+
+Note: The `Download packages` screen does not seem to have a scroll bar so you will probably need to follow the next set of instructions to import new pairs through the GUI.
+
+### Importing new pairs through the GUI
+
+1. Download or make new pairs.  Model links can be downloaded from [this page](https://www.argosopentech.com/argospm/index/) or [this JSON file](https://raw.githubusercontent.com/argosopentech/argospm-index/main/index.json).
+1. Open Argos Translate: `argos-translate-gui`
+1. Click on the `Manage Packages` menu item.
+1. Click on the `Install package file` button.
+1. Navigate to where you downloaded the new language pairs, click on the `.argosmodel` file, and click on the `Open` button.
+1. Repeat the last two steps until you have all of the language pairs that you want.
+1. Click on the `X` in the top right to close the `Manage Packages` window.
+
+### Removing a pair
+
+1. Open Argos Translate: `argos-translate-gui`
+1. Click on the `Manage Packages` menu item.
+1. Click on the trash can icon besides the pair you want to remove.
+1. Click on the `X` in the top right to close the `Manage Packages` window.
+
+## Examples
+### [Python](https://argos-translate.readthedocs.io/en/latest/py-modindex.html)
+
+```python
+from argostranslate import package, translate
+package.install_from_path('en_es.argosmodel')
+installed_languages = translate.get_installed_languages()
+
+>>> [str(lang) for lang in installed_languages]
+>>> ['English', 'Spanish']
+
+translation_en_es = installed_languages[0].get_translation(installed_languages[1])
+translation_en_es.translate("Hello World!")
+
+>>> '¡Hola Mundo!'
+```
+
+### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
+![Web App Screenshot](img/WebAppScreenshot.png)
+
+### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) API
+
+```javascript
+const res = await fetch("https://libretranslate.com/translate", {
+	method: "POST",
+	body: JSON.stringify({
+		q: "Hello!",
+		source: "en",
+		target: "es"
+	}),
+	headers: {
+		"Content-Type": "application/json"}
+	});
+
+console.log(await res.json());
+
+{
+    "translatedText": "¡Hola!"
+}
+```
+
+### HTML Translation
+The [translate-html](https://github.com/argosopentech/translate-html) library is built on top of Argos Translate and [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/) and parses and translates HTML. The LibreTranslate API also has support for translating HTML.
 
 ## Uninstall
 
@@ -248,4 +319,3 @@ Paid supporters receive priority support.
 
 ## License
 Dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
-
