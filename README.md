@@ -1,7 +1,6 @@
 # Argos Translate
 [Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com) | [Video intro](https://youtu.be/yn37-CpRzTc) | [GitHub](https://github.com/argosopentech/argos-translate) | [FSD](https://directory.fsf.org/wiki/Argos_Translate)
 
-
 Open-source offline translation library written in Python. Uses [OpenNMT](https://opennmt.net/) for translations, [SentencePiece](https://github.com/google/sentencepiece) for tokenization, [Stanza](https://github.com/stanfordnlp/stanza) for sentence boundary detection, and [PyQt](https://riverbankcomputing.com/software/pyqt/intro) for GUI. Designed to be used as either a Python library, command-line, or GUI application. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
 
 Argos Translate supports installing model files which are a zip archive with an ".argosmodel" extension that contains an OpenNMT [CTranslate2](https://github.com/OpenNMT/CTranslate2) model, a [SentencePiece](https://github.com/google/sentencepiece) tokenization model, a [Stanza](https://github.com/stanfordnlp/stanza) tokenizer model for sentence boundary detection, and metadata about the model. Pretrained models can be downloaded [here](https://www.argosopentech.com/argospm/index/).
@@ -26,6 +25,10 @@ GUI
 ![Screenshot](/img/Screenshot.png)
 ![Screenshot2](/img/Screenshot2.png)
 
+[macOS](https://github.com/argosopentech/argos-translate/releases/)
+
+![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
+
 
 ## Installation
 ### Install from PyPI
@@ -35,10 +38,6 @@ Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate
 python3 -m pip install -U pip
 python3 -m pip install -U argostranslate
 ```
-
-### [macOS](https://github.com/argosopentech/argos-translate/releases/)
-
-![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
 
 ### Install from Snap Store
 Argos Translate is available from the Snap Store and auto installs a content snap to support translation between Arabic, Chinese, English, French, Russian, and Spanish. Additional languages can be installed from supplementary content snaps.
