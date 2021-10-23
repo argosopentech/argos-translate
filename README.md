@@ -211,6 +211,12 @@ Note: The `Download packages` screen does not seem to have a scroll bar so you w
 1. Repeat the last two steps until you have all of the language pairs that you want.
 1. Click on the `X` in the top right to close the `Manage Packages` window.
 
+### Installing new pairs in CLI
+
+1. search new pairs with: `argosmp search`
+2. install new pair with: `argosmp install *lang_pair*`
+
+
 ### Removing a pair
 
 1. Open Argos Translate: `argos-translate-gui`
