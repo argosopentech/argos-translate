@@ -211,18 +211,32 @@ Note: The `Download packages` screen does not seem to have a scroll bar so you w
 1. Repeat the last two steps until you have all of the language pairs that you want.
 1. Click on the `X` in the top right to close the `Manage Packages` window.
 
-### Installing new pairs in CLI
+### Importing new pairs through the CLI
 
-1. search new pairs with: `argosmp search`
-2. install new pair with: `argosmp install *lang_pair*`
+1. Update list of available language pairs: `argospm update`
+1. List all available language pairs: `argospm search`
+1. Install new pair syntax: `argospm install *lang_pair_name*`
 
+For example, install Turkish to English pair: `argospm install translate-tr_en`
 
-### Removing a pair
+Optionally, you could install all language pairs using BASH.
+
+    for i in $(argospm search | sed 's/:.*$//g'); do argospm install $i ; done
+
+### Removing a pair through the GUI
 
 1. Open Argos Translate: `argos-translate-gui`
 1. Click on the `Manage Packages` menu item.
 1. Click on the trash can icon besides the pair you want to remove.
 1. Click on the `X` in the top right to close the `Manage Packages` window.
+
+### Removing a pair through the CLI
+
+1. Remove the Turkish to English pair: `argospm remove translate-tr_en`
+
+Optionally, you could remove all language pairs using BASH if you need to free space fast.
+
+    for i in $(argospm list); do argospm remove $i ; done
 
 ## Examples
 ### [Python](https://argos-translate.readthedocs.io/en/latest/py-modindex.html)
