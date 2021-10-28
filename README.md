@@ -282,6 +282,10 @@ console.log(await res.json());
 ### HTML Translation
 The [translate-html](https://github.com/argosopentech/translate-html) library is built on top of Argos Translate and [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/) and parses and translates HTML. The LibreTranslate API also has support for translating HTML.
 
+
+### Files Translation
+The [argos-translate-files](https://github.com/dingedi/argos-translate-files) library is built on top of Argos Translate and parses and translates files. The LibreTranslate API also has support for translating files.
+
 ## Uninstall
 
 If you want to uninstall Argos Translate, you may choose the applicable method.
