@@ -66,9 +66,6 @@ argos-translate.cli --help
 2. Extract the archive.
 3. Copy the `.app` file to the Applications directory.
 
-### Installation for Windows
-CTranslate2, the inference engine for Argos Translate, [currently only distributes binaries for Linux and MacOS](https://github.com/OpenNMT/CTranslate2/issues/133) so to install Argos Translate on Windows you will need to build CTranslate2 from source.
-
 ### Python source installation
 #### Dependencies
 Requires Python3, pip (which should come with Python3), and optionally virtualenv to keep Argos Translate's dependencies separate from other Python programs you have installed.
