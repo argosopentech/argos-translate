@@ -1,5 +1,0 @@
-[Desktop Entry]
-Name=Argos Translate
-Exec=argos-translate
-Icon=${SNAP}/meta/gui/icon.png
-Type=Application

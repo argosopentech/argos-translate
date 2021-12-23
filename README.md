@@ -89,17 +89,21 @@ sudo apt-get install -y python3
 git clone https://github.com/argosopentech/argos-translate.git
 cd argos-translate
 ```
+
 2. Make a virtual environment to install into (optional):
 ```
-python3 -m pip install --upgrade virtualenv # If virtualenv not already installed
+pip3 install --upgrade virtualenv # If virtualenv not already installed
 virtualenv env
 source env/bin/activate
 ```
 3. Install this package with pip:
 ```
-python3 -m pip install --upgrade pip
-python3 -m pip install .
+pip3 install --upgrade pip
+pip3 install -e .
 ```
+
+#### Graphical user interface
+Note that the [GUI code](https://github.com/argosopentech/argos-translate-gui) is in a separate repo. To install the GUI perform the same steps with the code in GUI repo after installing Argos Translate.
 
 ### GPU Acceleration
 
@@ -114,30 +118,7 @@ The above env variable instructs [CTranslate2](https://github.com/OpenNMT/CTrans
 if you encounter any issues with GPU, please consider reading [CTranslate2 documentation](https://github.com/OpenNMT/CTranslate2#what-hardware-is-supported).
 
 
-### Build and install snap package
-1. Install [snapd](https://snapcraft.io/docs/installing-snapd) if it isn't already installed.
-2. Using snapd install snapcraft and its dependency multipass:
-```
-sudo snap install multipass
-sudo snap install snapcraft
-```
-3. Clone this repo:
-```
-git clone https://github.com/argosopentech/argos-translate.git
-cd argos-translate
-```
-4. From the root directory of this project build the snap package:
-```
-SNAPCRAFT_BUILD_ENVIRONMENT_MEMORY=4G snapcraft
-```
-Any *unzipped* package files in package/ will be automatically included in the snap archive (and won't be able to be deleted by users of the snap).
-
-Note, the build won't run with Snapcraft's default build memory of 2GB so you need to set the SNAPCRAFT_BUILD_ENVIRONMENT environment variable. [More on Snapcraft forum](https://forum.snapcraft.io/t/snapcraft-configuration-of-multipass-vm-arguments/9761).
-
-5. Install the snap package:
-```
-sudo snap install --devmode argos-translate_<version information>.snap
-```
+### [Build and install snap package](https://github.com/argosopentech/argos-translate-gui#build-and-install-snap-package)
 
 ### Run Argos Translate!
 
