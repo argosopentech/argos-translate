@@ -32,8 +32,13 @@ GUI
 Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate/) and can be easily installed or updated with [pip](https://pip.pypa.io/en/stable/installation/).
 
 ```
-python3 -m pip install -U pip
-python3 -m pip install -U argostranslate
+pip3 install argostranslate
+```
+
+Install [GUI](https://github.com/argosopentech/argos-translate-gui):
+```
+pip3 install argostranslategui
+
 ```
 
 ### Install from Snap Store

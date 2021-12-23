@@ -6,11 +6,6 @@ with open("requirements.txt") as f:
 with open("README.md") as f:
     long_description = f.read()
 
-# py2app
-APP = ["bin/argos-translate-gui"]
-DATA_FILES = []
-OPTIONS = {"packages": ["sentencepiece"], "iconfile": "argostranslate/img/icon.icns"}
-
 setup(
     name="argostranslate",
     version="1.5.4",
@@ -24,8 +19,4 @@ setup(
     install_requires=required_packages,
     include_package_data=True,
     scripts=["bin/argos-translate", "bin/argos-translate-gui", "bin/argospm"],
-    app=APP,
-    data_files=DATA_FILES,
-    options={"py2app": OPTIONS},
-    setup_requires=["py2app"],
 )

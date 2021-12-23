@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
 
-from argostranslate import gui
-
-gui.main()
-
+print('argos-translate-gui not installed')
+print('install with `pip install argostranslategui`')

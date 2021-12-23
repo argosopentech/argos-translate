@@ -1,5 +1,7 @@
 1.6:
+- [Argos Translate GUI](https://github.com/argosopentech/argos-translate-gui) to separate repo
 - Bug fixes
+- [File translation](https://github.com/dingedi/argos-translate-files)
 
 1.5:
 - Tag injection
