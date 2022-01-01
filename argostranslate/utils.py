@@ -11,5 +11,3 @@ def info(*argv):
 
 def error(*argv):
     logging.error(str(argv))
-
-
