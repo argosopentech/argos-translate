@@ -1,6 +1,8 @@
-from argostranslate import package
-
 import argparse
+
+from argostranslate import package
+from argostranslate import settings
+
 
 """
 Example usage:
@@ -35,7 +37,7 @@ def install_all_packages():
     for available_package in available_packages:
         download_path = available_package.download()
         package.install_from_path(download_path)
-        print(f"Installed package to path {download_path}")
+        print(f"Installed package to {settings.package_data_dir}")
 
 
 def install_package(args):
@@ -51,8 +53,9 @@ def install_package(args):
             name = package.argospm_package_name(available_package)
             if name == package_name:
                 download_path = available_package.download()
+                print(f"Downloaded package {download_path}")
                 package.install_from_path(download_path)
-                print(f"Installed package to path {download_path}")
+                print(f"Installed package to {settings.package_data_dir}")
                 break
         else:
             print("Package not found")
@@ -117,7 +120,9 @@ def main():
     search_parser.set_defaults(callback=search_packages)
 
     install_parser = subparser.add_parser("install", help="Install package.")
-    install_parser.add_argument("name", help="Package name, use \"translate\" to install all packages")
+    install_parser.add_argument(
+        "name", help='Package name, use "translate" to install all packages'
+    )
     install_parser.set_defaults(callback=install_package)
 
     list_parser = subparser.add_parser("list", help="List installed packages.")
