@@ -36,6 +36,7 @@ def install_all_packages():
 
     for available_package in available_packages:
         download_path = available_package.download()
+        print(f"Downloaded package {download_path}")
         package.install_from_path(download_path)
         print(f"Installed package to {settings.package_data_dir}")
 
