@@ -22,7 +22,7 @@ def get_available_packages():
     """Get available packages and update packages list if it is not done"""
     try:
         available_packages = package.get_available_packages()
-    except FileNotFoundError:
+    except:
         update_index()
         available_packages = package.get_available_packages()
 
@@ -60,6 +60,7 @@ def install_package(args):
                 break
         else:
             print("Package not found")
+            exit(1)
 
 
 def search_packages(args):
@@ -96,6 +97,7 @@ def remove_package(args):
             break
     else:
         print("Package not found")
+        exit(1)
 
 
 def main():
