@@ -317,9 +317,10 @@ Custom models trained on your own data are available for $1000/each (negotiable)
 If you find this software useful donations are appreciated.
 - [GitHub Sponsor](https://github.com/sponsors/argosopentech)
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
-- Ethereum: 0x4E9017d8e275cA54C91E056381DAb9fe6ECC1AF6
-- Bitcoin cash: qzqklgjpgutdqqlhcasmdd2hkqcelw426sxzk5qtne
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
+- Ethereum: 0x4E9017d8e275cA54C91E056381DAb9fe6ECC1AF6
+- Litecoin: MCwu7RRWeCRJdsv2bXGj2nnL1xYxDBvwW5
+- Bitcoin cash: qzqklgjpgutdqqlhcasmdd2hkqcelw426sxzk5qtne
 - Filecoin: f1nrnpmjxn27amidyiqrzq5mxihdo2trh2oijw2sq
 - Basic Attention Token: 0x8a16f26D277f924B04FCA5ECec64b76B5410A06c
 - Cheap Eth: 0x996133E61b81c300a37ACa9b24898685eB872b61
