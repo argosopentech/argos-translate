@@ -424,6 +424,7 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
         max_batch_size=BATCH_SIZE,
         beam_size=max(num_hypotheses, 4),
         num_hypotheses=num_hypotheses,
+        repetition_penalty=2,
         length_penalty=0.2,
         return_scores=True,
     )
