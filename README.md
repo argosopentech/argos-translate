@@ -310,8 +310,10 @@ Contributions are welcome! Available issues are on the [GitHub issues page](http
 ## Support
 For support use [GitHub Issues](https://github.com/argosopentech/argos-translate/issues), [Github Discussions](https://github.com/argosopentech/argos-translate/discussions), or the [LibreTranslate Forum](https://community.libretranslate.com/c/argos-translate/5).
 
-## Custom models
+## Services
 Custom models trained on your own data are available for $1000/each (negotiable).
+
+Managed hosting for $1000/mo.
 
 ## Donations
 If you find this software useful donations are appreciated.
