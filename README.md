@@ -302,6 +302,10 @@ If you installed additional language packs, you might want to remove them as wel
 sudo snap remove argos-translate-de-en
 ```
 
+## Related Projects
+- [Lexicon](https://github.com/dothq/lexicon) - Translation API.
+- [LibreTranslate-py](https://github.com/argosopentech/LibreTranslate-py) - Python bindings for LibreTranslate.
+
 ## Contributing
 [![Awesome Humane Tech](https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true)](https://github.com/humanetech-community/awesome-humane-tech)
 
