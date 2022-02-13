@@ -316,7 +316,9 @@ sudo snap remove argos-translate-de-en
 Contributions are welcome! Available issues are on the [GitHub issues page](https://github.com/argosopentech/argos-translate/issues).
 
 ## Support
-For support use [GitHub Issues](https://github.com/argosopentech/argos-translate/issues), [Github Discussions](https://github.com/argosopentech/argos-translate/discussions), or the [LibreTranslate Forum](https://community.libretranslate.com/c/argos-translate/5).
+For support please use the [LibreTranslate Forum](https://community.libretranslate.com/c/argos-translate/5) or [GitHub Issues](https://github.com/argosopentech/argos-translate/issues).
+
+For questions about [CTranslate2](https://github.com/OpenNMT/CTranslate2), or general machine translation research the [OpenNMT Forum](https://forum.opennmt.net/) is a good resource.
 
 ## Services
 Custom models trained on your own data are available for $1000/each (negotiable).
