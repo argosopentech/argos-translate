@@ -303,12 +303,11 @@ sudo snap remove argos-translate-de-en
 ```
 
 ## Related Projects
-- [Lexicon](https://github.com/dothq/lexicon) - Translation API.
 - [LibreTranslate-py](https://github.com/argosopentech/LibreTranslate-py) - Python bindings for LibreTranslate.
 - [machinetranslation.io](https://www.machinetranslation.io/) - [OpenNMT](https://opennmt.net/) based translation and articles on machine translation.
 - [LibreTranslate-rs](https://github.com/grantshandy/libretranslate-rs) - LibreTranslate Rust bindings.
 - [LibreTranslator](https://gitlab.com/BeowuIf/libretranslator) - LibreTranslate Android app.
-
+- [Lexicon](https://github.com/dothq/lexicon) - Translation API.
 
 ## Contributing
 [![Awesome Humane Tech](https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true)](https://github.com/humanetech-community/awesome-humane-tech)
