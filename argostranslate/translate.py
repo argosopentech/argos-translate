@@ -4,6 +4,8 @@ import ctranslate2
 import sentencepiece as spm
 import stanza
 
+from textparser import parse_paragraphs, reconstruct_paragraphs
+
 from argostranslate import package, settings, models, sbd, apis, fewshot
 from argostranslate.utils import info, error
 
@@ -73,9 +75,11 @@ class ITranslation:
 
         Returns:
             [str]: A list of paragraphs.
+            [str]: A list of indexes of sentences and newlines.
+
 
         """
-        return input_text.split("\n")
+        return parse_paragraphs(input_text)
 
     @staticmethod
     def combine_paragraphs(paragraphs):
@@ -151,7 +155,7 @@ class PackageTranslation(ITranslation):
         if self.translator is None:
             model_path = str(self.pkg.package_path / "model")
             self.translator = ctranslate2.Translator(model_path, device=settings.device)
-        paragraphs = ITranslation.split_into_paragraphs(input_text)
+        paragraphs, breaks = ITranslation.split_into_paragraphs(input_text)
         info("paragraphs:", paragraphs)
         translated_paragraphs = []
         for paragraph in paragraphs:
@@ -161,13 +165,13 @@ class PackageTranslation(ITranslation):
                 )
             )
         info("translated_paragraphs:", translated_paragraphs)
-
+        
         # Construct new hypotheses using all paragraphs
         hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
         for i in range(num_hypotheses):
             for translated_paragraph in translated_paragraphs:
-                value = ITranslation.combine_paragraphs(
-                    [hypotheses_to_return[i].value, translated_paragraph[i].value]
+                value = reconstruct_paragraphs(
+                    [hypotheses_to_return[i].value, translated_paragraph[i].value], breaks
                 )
                 score = hypotheses_to_return[i].score + translated_paragraph[i].score
                 hypotheses_to_return[i] = Hypothesis(value, score)
@@ -261,7 +265,7 @@ class CachedTranslation(ITranslation):
 
     def hypotheses(self, input_text, num_hypotheses=4):
         new_cache = dict()  # 'text': ['t1'...('tN')]
-        paragraphs = ITranslation.split_into_paragraphs(input_text)
+        paragraphs, breaks = ITranslation.split_into_paragraphs(input_text)
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraph = self.cache.get(paragraph)
@@ -282,8 +286,8 @@ class CachedTranslation(ITranslation):
         hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
         for i in range(num_hypotheses):
             for j in range(len(translated_paragraphs)):
-                value = ITranslation.combine_paragraphs(
-                    [hypotheses_to_return[i].value, translated_paragraphs[j][i].value]
+                value = reconstruct_paragraphs(
+                    [hypotheses_to_return[i].value, translated_paragraphs[j][i].value], breaks
                 )
                 score = (
                     hypotheses_to_return[i].score + translated_paragraphs[j][i].score

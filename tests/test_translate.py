@@ -49,7 +49,7 @@ class TestITranslation:
         ]
         for test_case in test_cases:
             assert (
-                translate.ITranslation.split_into_paragraphs(test_case["input"])
+                translate.ITranslation.split_into_paragraphs(test_case["input"])[0]
                 == test_case["output"]
             )
 
