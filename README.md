@@ -42,6 +42,8 @@ pip3 install argostranslategui
 ```
 
 ### Install from Snap Store
+* Snap store install [currently unavailable](https://forum.snapcraft.io/t/omp-permission-error/28425) but snap build and install can still be done manually.
+
 Argos Translate is available from the Snap Store and auto installs a content snap to support translation between Arabic, Chinese, English, French, Russian, and Spanish. Additional languages can be installed from supplementary content snaps.
 
 With [snapd installed](https://snapcraft.io/docs/installing-snapd):
