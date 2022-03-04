@@ -15,6 +15,10 @@ setup(
     author="Argos Open Technologies, LLC",
     author_email="admin@argosopentech.com",
     url="https://www.argosopentech.com",
+    project_urls={
+        "Documentation": "https://argos-translate.readthedocs.io/en/latest/",
+        "Source": "https://github.com/argosopentech/argos-translate",
+    },
     packages=find_packages(),
     install_requires=required_packages,
     include_package_data=True,
