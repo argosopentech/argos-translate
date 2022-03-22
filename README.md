@@ -70,7 +70,7 @@ Hola Mundo
 ```
 
 The above env variable instructs [CTranslate2](https://github.com/OpenNMT/CTranslate2) to use cuda.
-if you encounter any issues with GPU, please consider reading [CTranslate2 documentation](https://github.com/OpenNMT/CTranslate2#what-hardware-is-supported).
+if you encounter any issues with GPU inference please reference the [CTranslate2 documentation](https://github.com/OpenNMT/CTranslate2#what-hardware-is-supported).
 
 
 ### [Install on Linux with Snapcraft](https://github.com/argosopentech/argos-translate-gui/blob/main/README.md#snapcraft)
