@@ -41,32 +41,6 @@ pip3 install argostranslategui
 
 ```
 
-### Install from Snap Store
-* Snap store install [currently unavailable](https://forum.snapcraft.io/t/omp-permission-error/28425) but snap build and install can still be done manually.
-
-Argos Translate is available from the Snap Store and auto installs a content snap to support translation between Arabic, Chinese, English, French, Russian, and Spanish. Additional languages can be installed from supplementary content snaps.
-
-With [snapd installed](https://snapcraft.io/docs/installing-snapd):
-```
-sudo snap install argos-translate
-```
-[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/argos-translate)
-
-Automatically installs and connects to `argos-translate-base-langs` snap to support translations between Arabic, Chinese, English, French, Russian, and Spanish.
-
-Additional languages can be installed from *.argosmodel files or from supplementary content snaps:
-* argos-translate-de-en - German - English
-* argos-translate-en-it - English - Italian
-* argos-translate-en-pt - English - Portuguese
-
-To connect automatically:
-`sudo snap connect argos-translate:argos-packages argos-translate-en-it:argos-packages`
-
-To run command line interface on Snapcraft:
-```
-argos-translate.cli --help
-```
-
 ### Installation for macOS
 
 1. Download the latest [macOS release.](https://github.com/argosopentech/argos-translate/releases/)
@@ -75,37 +49,19 @@ argos-translate.cli --help
 
 ### Python source installation
 #### Dependencies
-Requires Python3, pip (which should come with Python3), and optionally virtualenv to keep Argos Translate's dependencies separate from other Python programs you have installed.
-
-[Python Installation Instructions](https://wiki.python.org/moin/BeginnersGuide/Download)
-
-On Ubuntu:
-```
-sudo apt-get update
-sudo apt-get install -y python3
-```
+- [Python](https://wiki.python.org/moin/BeginnersGuide/Download)
 
 #### Install
-1. Download a copy of this repo (this requires either installing git or downloading a zip from GitHub):
+Download a copy of this repo and install with pip.
+
 ```
 git clone https://github.com/argosopentech/argos-translate.git
 cd argos-translate
-```
-
-2. Make a virtual environment to install into (optional):
-```
-pip3 install --upgrade virtualenv # If virtualenv not already installed
-virtualenv env
-source env/bin/activate
-```
-3. Install this package with pip:
-```
-pip3 install --upgrade pip
-pip3 install -e .
+pip install -e .
 ```
 
 #### Graphical user interface
-Note that the [GUI code](https://github.com/argosopentech/argos-translate-gui) is in a separate repo. To install the GUI perform the same steps with the code in GUI repo after installing Argos Translate.
+The GUI code is in a [separate repository](https://github.com/argosopentech/argos-translate-gui).
 
 ### GPU Acceleration
 
@@ -120,7 +76,7 @@ The above env variable instructs [CTranslate2](https://github.com/OpenNMT/CTrans
 if you encounter any issues with GPU, please consider reading [CTranslate2 documentation](https://github.com/OpenNMT/CTranslate2#what-hardware-is-supported).
 
 
-### [Build and install snap package](https://github.com/argosopentech/argos-translate-gui#build-and-install-snap-package)
+### [Install on Linux with Snapcraft](https://github.com/argosopentech/argos-translate-gui/blob/main/README.md#snapcraft)
 
 ### Run Argos Translate!
 
