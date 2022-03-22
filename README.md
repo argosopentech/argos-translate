@@ -48,10 +48,7 @@ pip3 install argostranslategui
 3. Copy the `.app` file to the Applications directory.
 
 ### Python source installation
-#### Dependencies
-- [Python](https://wiki.python.org/moin/BeginnersGuide/Download)
 
-#### Install
 Download a copy of this repo and install with pip.
 
 ```
