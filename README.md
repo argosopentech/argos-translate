@@ -9,12 +9,6 @@ Argos Translate supports installing model files which are a zip archive with an 
 
 Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct translation between them installed. For example, if you have a es ➔ en and en ➔ fr translation installed you are able to translate from es ➔ fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
 
-## Models
-- [Browse models](https://www.argosopentech.com/argospm/index/)
-- [P2P download (IPFS and BitTorrent)](/p2p/README.md)
-- [Training script](https://github.com/argosopentech/argos-train)
-- [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
-
 ### Supported languages
 Arabic, Azerbaijani, Chinese, Czech, Dutch, English, Esperanto, Finnish, French, German, Greek, Hindi, Hungarian, Indonesian, Irish, Italian, Japanese, Korean, Persian, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Turkish, Ukranian, Vietnamese
 
@@ -28,6 +22,11 @@ GUI
 ![Screenshot2](/img/Screenshot2.png)
 ![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
 
+## Models
+- [Browse models](https://www.argosopentech.com/argospm/index/)
+- [P2P download (IPFS and BitTorrent)](/p2p/README.md)
+- [Training script](https://github.com/argosopentech/argos-train)
+- [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
 
 ## Installation
 ### Install from PyPI
