@@ -12,7 +12,7 @@ Argos Translate also manages automatically pivoting through intermediate languag
 ### Supported languages
 Arabic, Azerbaijani, Chinese, Czech, Dutch, English, Esperanto, Finnish, French, German, Greek, Hindi, Hungarian, Indonesian, Irish, Italian, Japanese, Korean, Persian, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Turkish, Ukranian, Vietnamese
 
-- [Request languages](https://github.com/argosopentech/argos-translate/discussions/91)
+- [Request a language](https://github.com/argosopentech/argos-translate/discussions/91)
 
 ### Screenshots
 
