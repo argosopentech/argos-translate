@@ -1,5 +1,5 @@
 # Argos Translate
-[Docs](https://argos-translate.readthedocs.io) | [Website](https://www.argosopentech.com) | [Demo](https://libretranslate.com) | [Video intro](https://odysee.com/@argosopentech:7/Machine-Translation-in-Argos-Translate-2021:5) | [GitHub](https://github.com/argosopentech/argos-translate)
+[Demo](https://libretranslate.com) | [Website](https://www.argosopentech.com) | [Docs](https://argos-translate.readthedocs.io) |  [Video intro](https://odysee.com/@argosopentech:7/Machine-Translation-in-Argos-Translate-2021:5) | [GitHub](https://github.com/argosopentech/argos-translate)
 
 Open-source offline translation library written in Python
 
