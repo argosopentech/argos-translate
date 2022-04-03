@@ -282,7 +282,7 @@ Custom models trained on your own data are available for $1000/each (negotiable)
 
 Managed hosting for $1000/mo.
 
-## Donations
+## Donate
 If you find this software useful donations are appreciated.
 - [GitHub Sponsor](https://github.com/sponsors/argosopentech)
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
