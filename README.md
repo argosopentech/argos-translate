@@ -143,7 +143,7 @@ translation_en_es.translate("Hello World!")
 # >>> '¡Hola Mundo!'
 ```
 
-### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
+### [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
 ![Web App Screenshot](img/WebAppScreenshot.png)
 
 ### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) API
