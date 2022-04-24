@@ -22,7 +22,7 @@ GUI
 ![Screenshot2](/img/Screenshot2.png)
 ![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
 
-## Models
+## [Models](https://www.argosopentech.com/argospm/index/)
 - [Browse models](https://www.argosopentech.com/argospm/index/)
 - [P2P download (IPFS and BitTorrent)](/p2p/README.md)
 - [Training script](https://github.com/argosopentech/argos-train)
