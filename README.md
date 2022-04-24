@@ -149,7 +149,7 @@ translation_en_es.translate("Hello World!")
 ### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) API
 
 ```javascript
-const res = await fetch("https://libretranslate.com/translate", {
+const res = await fetch("https://translate.argosopentech.com/translate", {
 	method: "POST",
 	body: JSON.stringify({
 		q: "Hello!",
