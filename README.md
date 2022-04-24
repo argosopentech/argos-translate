@@ -131,8 +131,8 @@ from argostranslate import package, translate
 package.install_from_path('en_es.argosmodel')
 installed_languages = translate.get_installed_languages()
 
->>> [str(lang) for lang in installed_languages]
->>> ['English', 'Spanish']
+>>> [lang.code for lang in installed_languages]
+>>> ['en', 'es']
 
 translation_en_es = installed_languages[0].get_translation(installed_languages[1])
 translation_en_es.translate("Hello World!")
