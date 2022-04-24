@@ -128,7 +128,10 @@ Texto para traducir
 
 ```python
 from argostranslate import package, translate
+
+# Install .argosmodel package
 package.install_from_path('en_es.argosmodel')
+
 installed_languages = translate.get_installed_languages()
 
 >>> [lang.code for lang in installed_languages]
