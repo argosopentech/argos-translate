@@ -58,6 +58,50 @@ cd argos-translate
 pip install -e .
 ```
 
+## Examples
+### [Python](https://argos-translate.readthedocs.io/en/latest/py-modindex.html)
+
+```python
+from argostranslate import package, translate
+
+# Install .argosmodel package
+package.install_from_path('en_es.argosmodel')
+
+installed_languages = translate.get_installed_languages()
+
+# >>> [lang.code for lang in installed_languages]
+# >>> ['en', 'es']
+
+translation_en_es = installed_languages[0].get_translation(installed_languages[1])
+translation_en_es.translate("Hello World!")
+
+# >>> '¡Hola Mundo!'
+```
+
+### [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
+![Web App Screenshot](img/WebAppScreenshot.png)
+
+### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) API
+
+```javascript
+const res = await fetch("https://translate.argosopentech.com/translate", {
+	method: "POST",
+	body: JSON.stringify({
+		q: "Hello!",
+		source: "en",
+		target: "es"
+	}),
+	headers: {
+		"Content-Type": "application/json"}
+	});
+
+console.log(await res.json());
+
+{
+    "translatedText": "¡Hola!"
+}
+```
+
 #### Graphical user interface
 The GUI code is in a [separate repository](https://github.com/argosopentech/argos-translate-gui).
 
@@ -121,50 +165,6 @@ Translate longer text piped into `argos-translate`.
 ```
 echo "Text to translate" | argos-translate --from-lang en --to-lang es
 Texto para traducir
-```
-
-## Examples
-### [Python](https://argos-translate.readthedocs.io/en/latest/py-modindex.html)
-
-```python
-from argostranslate import package, translate
-
-# Install .argosmodel package
-package.install_from_path('en_es.argosmodel')
-
-installed_languages = translate.get_installed_languages()
-
-# >>> [lang.code for lang in installed_languages]
-# >>> ['en', 'es']
-
-translation_en_es = installed_languages[0].get_translation(installed_languages[1])
-translation_en_es.translate("Hello World!")
-
-# >>> '¡Hola Mundo!'
-```
-
-### [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
-![Web App Screenshot](img/WebAppScreenshot.png)
-
-### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) API
-
-```javascript
-const res = await fetch("https://translate.argosopentech.com/translate", {
-	method: "POST",
-	body: JSON.stringify({
-		q: "Hello!",
-		source: "en",
-		target: "es"
-	}),
-	headers: {
-		"Content-Type": "application/json"}
-	});
-
-console.log(await res.json());
-
-{
-    "translatedText": "¡Hola!"
-}
 ```
 
 ### HTML Translation
