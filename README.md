@@ -134,13 +134,13 @@ package.install_from_path('en_es.argosmodel')
 
 installed_languages = translate.get_installed_languages()
 
->>> [lang.code for lang in installed_languages]
->>> ['en', 'es']
+# >>> [lang.code for lang in installed_languages]
+# >>> ['en', 'es']
 
 translation_en_es = installed_languages[0].get_translation(installed_languages[1])
 translation_en_es.translate("Hello World!")
 
->>> '¡Hola Mundo!'
+# >>> '¡Hola Mundo!'
 ```
 
 ### [LibreTranslate](https://github.com/uav4geo/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
