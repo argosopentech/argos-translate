@@ -14,14 +14,6 @@ Arabic, Azerbaijani, Chinese, Czech, Dutch, English, Esperanto, Finnish, French,
 
 - [Request a language](https://github.com/argosopentech/argos-translate/discussions/91)
 
-### Screenshots
-
-GUI
-
-![Screenshot](/img/Screenshot.png)
-![Screenshot2](/img/Screenshot2.png)
-![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
-
 ## [Models](https://www.argosopentech.com/argospm/index/)
 - [Browse models](https://www.argosopentech.com/argospm/index/)
 - [P2P download (IPFS and BitTorrent)](/p2p/README.md)
@@ -104,6 +96,10 @@ console.log(await res.json());
 
 #### Graphical user interface
 The GUI code is in a [separate repository](https://github.com/argosopentech/argos-translate-gui).
+
+![Screenshot](/img/Screenshot.png)
+![Screenshot2](/img/Screenshot2.png)
+![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
 
 ### GPU Acceleration
 
