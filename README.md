@@ -56,8 +56,13 @@ pip install -e .
 ```python
 from argostranslate import package, translate
 
-# Install .argosmodel package
-package.install_from_path('en_es.argosmodel')
+# Download and install .argosmodel package
+available_packages = package.get_available_packages()
+available_package_en_es = list(filter(
+	lambda x: x.from_code == "en" and x.to_code == "es",
+	available_packages))[0]
+download_path = available_package_en_es.download()
+package.install_from_path(download_path)
 
 installed_languages = translate.get_installed_languages()
 
