@@ -70,8 +70,9 @@ installed_languages = translate.get_installed_languages()
 # ['en', 'es']
 
 translation_en_es = installed_languages[0].get_translation(installed_languages[1])
-translation_en_es.translate("Hello World!")
+translatedText = translation_en_es.translate("Hello World!")
 
+# >>> print(translatedText)
 # '¡Hola Mundo!'
 ```
 
