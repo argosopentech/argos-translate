@@ -54,25 +54,27 @@ pip install -e .
 ### [Python](https://argos-translate.readthedocs.io/en/latest/py-modindex.html)
 
 ```python
-from argostranslate import package, translate
+import argostranslate.package, argostranslate.translate
 
 # Download and install .argosmodel package
-available_packages = package.get_available_packages()
+available_packages = argostranslate.package.get_available_packages()
 available_package_en_es = list(filter(
 	lambda x: x.from_code == "en" and x.to_code == "es",
 	available_packages))[0]
 download_path = available_package_en_es.download()
-package.install_from_path(download_path)
+argostranslate.package.install_from_path(download_path)
 
-installed_languages = translate.get_installed_languages()
-
-# >>> [lang.code for lang in installed_languages]
-# ['en', 'es']
-
-translation_en_es = installed_languages[0].get_translation(installed_languages[1])
+# Translate English to Spanish with Argos Translate
+installed_languages = argostranslate.translate.get_installed_languages()
+language_en = list(filter(
+	lambda x: x.code == "en",
+	installed_languages))[0]
+language_es = list(filter(
+	lambda x: x.code == "es",
+	installed_languages))[0]
+translation_en_es = language_en.get_translation(language_es)
 translatedText = translation_en_es.translate("Hello World!")
-
-# >>> print(translatedText)
+print(translatedText)
 # '¡Hola Mundo!'
 ```
 
