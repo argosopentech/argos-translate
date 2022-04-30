@@ -14,12 +14,6 @@ Arabic, Azerbaijani, Chinese, Czech, Dutch, English, Esperanto, Finnish, French,
 
 - [Request a language](https://github.com/argosopentech/argos-translate/discussions/91)
 
-## [Models](https://www.argosopentech.com/argospm/index/)
-- [Browse models](https://www.argosopentech.com/argospm/index/)
-- [P2P download (IPFS and BitTorrent)](/p2p/README.md)
-- [Training scripts](https://github.com/argosopentech/argos-train)
-- [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
-
 ## Installation
 ### Install from PyPI
 Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate/) and can be easily installed or updated with [pip](https://pip.pypa.io/en/stable/installation/).
@@ -108,6 +102,14 @@ The GUI code is in a [separate repository](https://github.com/argosopentech/argo
 ![Screenshot](/img/Screenshot.png)
 ![Screenshot2](/img/Screenshot2.png)
 ![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
+
+
+## [Models](https://www.argosopentech.com/argospm/index/)
+- [Browse models](https://www.argosopentech.com/argospm/index/)
+- [P2P download (IPFS and BitTorrent)](/p2p/README.md)
+- [Training scripts](https://github.com/argosopentech/argos-train)
+- [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
+
 
 ### GPU Acceleration
 
