@@ -4,7 +4,7 @@ exit 1
 
 # Make sure to update the version number in setup.py
 
-cd ..
+# Run from root of project
 rm -rf build dist
 python setup.py sdist bdist_wheel
 twine check dist/*
