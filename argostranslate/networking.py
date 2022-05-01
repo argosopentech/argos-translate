@@ -2,6 +2,7 @@ import urllib.request
 
 from argostranslate.utils import info, error
 
+
 def get(url, retry_count=3):
     url = str(url)
     info(f"Downloading {url}")

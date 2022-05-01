@@ -312,5 +312,7 @@ def argospm_package_name(pkg):
 
 def load_available_packages():
     """Deprecated 1.2, use get_available_packages"""
-    info("Using deprecated function load_available_packages, use get_available_packages instead")
+    info(
+        "Using deprecated function load_available_packages, use get_available_packages instead"
+    )
     return get_available_packages()
