@@ -9,6 +9,7 @@ from threading import Lock
 
 from argostranslate import settings
 from argostranslate import utils
+from argostranslate import networking
 from argostranslate.utils import info, error
 
 """
@@ -190,12 +191,7 @@ class AvailablePackage(IPackage):
                     install_from_path(download_path)
 
         filepath = settings.downloads_dir / filename
-        try:
-            response = urllib.request.urlopen(url)
-        except Exception as err:
-            error(err)
-            return
-        data = response.read()
+        data = networking.get(url)
         with open(filepath, "wb") as f:
             f.write(data)
         return filepath
