@@ -123,8 +123,6 @@ Hola Mundo
 The above env variable instructs [CTranslate2](https://github.com/OpenNMT/CTranslate2) to use cuda.
 if you encounter any issues with GPU inference please reference the [CTranslate2 documentation](https://github.com/OpenNMT/CTranslate2#what-hardware-is-supported).
 
-### Run Argos Translate!
-
 ### HTML Translation
 The [translate-html](https://github.com/argosopentech/translate-html) library is built on top of Argos Translate and [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/) and parses and translates HTML. The LibreTranslate API also has support for translating HTML.
 
