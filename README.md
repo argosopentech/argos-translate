@@ -149,20 +149,6 @@ rm -r ~/.local/cache/argos-translate
 rm -r ~/.local/share/argos-translate
 ```
 
-### Uninstall Snap
-
-The following command will uninstall the snap package.
-
-``` shell
-sudo snap remove argos-translate argos-translate-base-langs
-```
-
-If you installed additional language packs, you might want to remove them as well, e.g.
-
-``` shell
-sudo snap remove argos-translate-de-en
-
-```
 
 ## Related Projects
 - [LibreTranslate-py](https://github.com/argosopentech/LibreTranslate-py) - Python bindings for LibreTranslate
