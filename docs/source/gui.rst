@@ -3,7 +3,7 @@ Graphical User Interface
 
 Run the GUI version of Argos Translate.
 
-.. code-block:: shell
+
 argos-translate-gui
 
 
