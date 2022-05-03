@@ -192,6 +192,8 @@ class AvailablePackage(IPackage):
 
         filepath = settings.downloads_dir / filename
         data = networking.get(url)
+        if data is None:
+            raise Exception(f"Download failed for {url}")
         with open(filepath, "wb") as f:
             f.write(data)
         return filepath
