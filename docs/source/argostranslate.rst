@@ -52,6 +52,14 @@ argostranslate.models module
    :undoc-members:
    :show-inheritance:
 
+argostranslate.networking module
+----------------------------
+
+.. automodule:: argostranslate.networking
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 argostranslate.package module
 -----------------------------
 
