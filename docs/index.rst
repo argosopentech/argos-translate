@@ -13,7 +13,8 @@ Argos Translate also manages automatically pivoting through intermediate languag
    :maxdepth: 2
    :caption: Contents:
 
-   source/cli	     
+   source/cli
+   source/gui
 
 
 
