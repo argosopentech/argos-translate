@@ -132,12 +132,6 @@ The [argos-translate-files](https://github.com/dingedi/argos-translate-files) li
 
 ## Uninstall
 
-If you want to uninstall Argos Translate, you may choose the applicable method.
-
-### Uninstall PYPI/pip package
-
-If you installed Argos Translate via `pip` you can uninstall it using
-
 ``` shell
 python3 -m pip uninstall argostranslate
 ```
@@ -148,7 +142,6 @@ You may choose to also delete temporary and cached files:
 rm -r ~/.local/cache/argos-translate
 rm -r ~/.local/share/argos-translate
 ```
-
 
 ## Related Projects
 - [LibreTranslate-py](https://github.com/argosopentech/LibreTranslate-py) - Python bindings for LibreTranslate
