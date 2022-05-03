@@ -22,5 +22,5 @@ setup(
     packages=find_packages(),
     install_requires=required_packages,
     include_package_data=True,
-    scripts=["bin/argos-translate", "bin/argos-translate-gui", "bin/argospm"],
+    scripts=["bin/argos-translate", "bin/argospm"],
 )
