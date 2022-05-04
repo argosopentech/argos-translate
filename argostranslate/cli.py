@@ -5,6 +5,7 @@ from argostranslate import package, translate
 
 
 def main():
+    """Run Argos Translate command line interface"""
     # Parse args
     parser = argparse.ArgumentParser(description="Open-source offline translation.\n")
     parser.add_argument(

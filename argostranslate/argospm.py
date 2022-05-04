@@ -19,7 +19,11 @@ def update_index(args):
 
 
 def get_available_packages():
-    """Get available packages and update packages list if it is not done"""
+    """Get available packages and update packages list if it is not done
+
+    Returns:
+        list(package.AvailablePackage): The list of available packages
+    """
     try:
         available_packages = package.get_available_packages()
     except:
@@ -37,7 +41,7 @@ def install_package_print_path(available_package):
 
 
 def install_all_packages():
-    """Install all packages."""
+    """Install all packages available to Argos Translate."""
     available_packages = get_available_packages()
     for available_package in available_packages:
         install_package_print_path(available_package)
@@ -100,6 +104,7 @@ def remove_package(args):
 
 
 def main():
+    """Run argospm command line program"""
     parser = argparse.ArgumentParser()
     subparser = parser.add_subparsers(help="Available commands.")
 
