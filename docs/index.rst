@@ -20,28 +20,29 @@ Argos Translate also manages automatically pivoting through intermediate languag
 Python Example
 --------------
 .. code-block:: python
-        import argostranslate.package, argostranslate.translate
 
-        # Download and install .argosmodel package
-        available_packages = argostranslate.package.get_available_packages()
-        available_package_en_es = list(filter(
-                lambda x: x.from_code == "en" and x.to_code == "es",
-                available_packages))[0]
-        download_path = available_package_en_es.download()
-        argostranslate.package.install_from_path(download_path)
+    import argostranslate.package, argostranslate.translate
 
-        # Translate English to Spanish with Argos Translate
-        installed_languages = argostranslate.translate.get_installed_languages()
-        language_en = list(filter(
-                lambda x: x.code == "en",
-                installed_languages))[0]
-        language_es = list(filter(
-                lambda x: x.code == "es",
-                installed_languages))[0]
-        translation_en_es = language_en.get_translation(language_es)
-        translatedText = translation_en_es.translate("Hello World!")
-        print(translatedText)
-        # '¡Hola Mundo!'
+    # Download and install .argosmodel package
+    available_packages = argostranslate.package.get_available_packages()
+    available_package_en_es = list(filter(
+            lambda x: x.from_code == "en" and x.to_code == "es",
+            available_packages))[0]
+    download_path = available_package_en_es.download()
+    argostranslate.package.install_from_path(download_path)
+
+    # Translate English to Spanish with Argos Translate
+    installed_languages = argostranslate.translate.get_installed_languages()
+    language_en = list(filter(
+            lambda x: x.code == "en",
+            installed_languages))[0]
+    language_es = list(filter(
+            lambda x: x.code == "es",
+            installed_languages))[0]
+    translation_en_es = language_en.get_translation(language_es)
+    translatedText = translation_en_es.translate("Hello World!")
+    print(translatedText)
+    # '¡Hola Mundo!'
 
 
 .. toctree::
