@@ -12,7 +12,7 @@ def get(url, retry_count=3):
                 If retry_count is 0 the download will only be attempted once.
 
     Returns:
-        bytes: The downloaded data
+        bytes: The downloaded data, None is returned if the download fails
     """
     url = str(url)
     info(f"Downloading {url}")

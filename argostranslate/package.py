@@ -40,20 +40,27 @@ class IPackage:
 
     Attributes:
         package_path (Path): The path to the installed package. None if not installed.
+
         package_version (str): The version of the package.
+        
         argos_version (str): The version of Argos Translate the package is intended for.
+
         from_code (str): The code of the language the package translates from.
+
         from_name (str): Human readable name of the language the package translates from.
+
         to_code (str): The code of the language the package translates to.
+
         to_name (str): Human readable name of the language the package translates to.
+
         links [list(str)]: A list of links to download the package
+
 
     Packages are a zip archive of a directory with metadata.json
     in its root the .argosmodel file extension. By default a
-    OpenNMT CTranslate2 directory named model/ created using
-    ct2-opennmt-tf-converter is expected in the root directory
+    OpenNMT CTranslate2 directory named model/ is expected in the root directory
     along with a sentencepiece model named sentencepiece.model
-    for tokenizing and Stanza for sentence boundary detection.
+    for tokenizing and Stanza data for sentence boundary detection.
     Packages may also optionally have a README.md in the root.
 
     from_code and to_code should be ISO 639 codes if applicable.
@@ -165,7 +172,7 @@ class Package(IPackage):
 
 
 class AvailablePackage(IPackage):
-    """A package available for download"""
+    """A package available for download and installation"""
 
     def __init__(self, metadata):
         """Creates a new AvailablePackage from a metadata object"""
@@ -230,7 +237,7 @@ def uninstall(pkg):
 def get_installed_packages(path=None):
     """Return a list of installed Packages
 
-    Looks for packages in <home>/.argos-translate/packages by
+    Looks for packages in <home>/.argos-translate/local/share/packages by
     default. Will also look in the directory specified
     in the ARGOS_TRANSLATE_PACKAGE_DIR environment variable
     if it is set.
