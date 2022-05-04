@@ -1,5 +1,14 @@
 Argos Translate Documentation
 ===========================================
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+
 Open-source offline translation library written in Python
 
 Argos Translate uses OpenNMT for translations, SentencePiece for tokenization, Stanza for sentence boundary detection, and PyQt for GUI. Argos Translate can be used as either a Python library, command-line, or GUI application. LibreTranslate is an API and web-app built on top of Argos Translate.
@@ -42,11 +51,3 @@ Python Example
    source/cli
    source/gui
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
