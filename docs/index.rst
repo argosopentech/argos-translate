@@ -1,8 +1,6 @@
 Argos Translate Documentation
 ===========================================
 
-Indices and tables
-==================
 
 * :ref:`genindex`
 * :ref:`modindex`
