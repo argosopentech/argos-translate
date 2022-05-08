@@ -27,3 +27,21 @@ def get(url, retry_count=3):
             download_attempts_count += 1
             error(err)
     return None
+
+
+def get_from(urls, retry_count=3):
+    """Downloads data from a list of urls and returns it
+
+    Args:
+        urls (list(str)): The urls to download (http, https)
+        retry_count (int): The number of retries to attempt if the initial download fails.
+                If retry_count is 0 the download will only be attempted once.
+
+    Returns:
+        bytes: The downloaded data, None is returned if the download fails
+    """
+    for url in urls:
+        attempt = get(url, retry_count)
+        if attempt:
+            return attempt
+    return None
