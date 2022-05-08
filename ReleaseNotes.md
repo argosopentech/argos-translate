@@ -1,3 +1,6 @@
+1.7:
+- Retry alternate links on download fail
+
 1.6:
 - [Argos Translate GUI](https://github.com/argosopentech/argos-translate-gui) to separate repo
 - Bug fixes
