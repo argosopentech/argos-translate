@@ -1,4 +1,5 @@
 1.7:
+- Improved examples and documentation
 - Retry alternate links on download fail
 
 1.6:
