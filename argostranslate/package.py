@@ -180,7 +180,6 @@ class AvailablePackage(IPackage):
 
     def download(self):
         """Downloads the AvailablePackage and returns its path"""
-        url = self.links[0]
         filename = argospm_package_name(self) + ".argosmodel"
 
         # Install sbd package if needed
@@ -198,7 +197,7 @@ class AvailablePackage(IPackage):
                     install_from_path(download_path)
 
         filepath = settings.downloads_dir / filename
-        data = networking.get(url)
+        data = networking.get_from(self.links)
         if data is None:
             raise Exception(f"Download failed for {url}")
         with open(filepath, "wb") as f:
