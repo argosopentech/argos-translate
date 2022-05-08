@@ -97,7 +97,7 @@ console.log(await res.json());
 ```
 
 #### Graphical user interface
-The GUI code is in a [separate repository](https://github.com/argosopentech/argos-translate-gui).
+The GUI code is in a [separate repository](https://github.com/argosopentech/argos-translate-gui) and [installed](https://github.com/argosopentech/argos-translate-gui#install) with `pip install argostranslategui`.
 
 ![Screenshot](/img/Screenshot.png)
 ![Screenshot2](/img/Screenshot2.png)
