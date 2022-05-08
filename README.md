@@ -50,24 +50,29 @@ pip install -e .
 ```python
 import argostranslate.package, argostranslate.translate
 
-# Download and install .argosmodel package
+from_code = "es"
+to_code = "en"
+
+# Download and install Argos Translate package
 available_packages = argostranslate.package.get_available_packages()
-available_package_en_es = list(filter(
-	lambda x: x.from_code == "en" and x.to_code == "es",
-	available_packages))[0]
-download_path = available_package_en_es.download()
+available_package = list(
+    filter(
+        lambda x: x.from_code == from_code and x.to_code == to_code, available_packages
+    )
+)[0]
+download_path = available_package.download()
 argostranslate.package.install_from_path(download_path)
 
-# Translate English to Spanish with Argos Translate
+# Translate
 installed_languages = argostranslate.translate.get_installed_languages()
-language_en = list(filter(
-	lambda x: x.code == "en",
+from_lang = list(filter(
+	lambda x: x.code == from_code,
 	installed_languages))[0]
-language_es = list(filter(
-	lambda x: x.code == "es",
+to_lang = list(filter(
+	lambda x: x.code == to_code,
 	installed_languages))[0]
-translation_en_es = language_en.get_translation(language_es)
-translatedText = translation_en_es.translate("Hello World!")
+translation = from_lang.get_translation(to_lang)
+translatedText = translation.translate("Hello World!")
 print(translatedText)
 # '¡Hola Mundo!'
 ```
@@ -97,7 +102,7 @@ console.log(await res.json());
 ```
 
 #### Graphical user interface
-The GUI code is in a [separate repository](https://github.com/argosopentech/argos-translate-gui) and [installed](https://github.com/argosopentech/argos-translate-gui#install) with `pip install argostranslategui`.
+The GUI code is in a [separate repository](https://github.com/argosopentech/argos-translate-gui).
 
 ![Screenshot](/img/Screenshot.png)
 ![Screenshot2](/img/Screenshot2.png)
