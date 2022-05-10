@@ -1,3 +1,3 @@
-ctranslate2==2.16.0
+ctranslate2==2.17.0
 sentencepiece==0.1.96
 stanza==1.1.1
