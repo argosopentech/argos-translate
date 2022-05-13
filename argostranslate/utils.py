@@ -2,14 +2,14 @@ import logging
 
 from argostranslate import settings
 
-logging.basicConfig(level=logging.DEBUG if settings.debug else logging.INFO)
-
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG if settings.debug else logging.INFO)
 
 def info(*argv):
     """Info level log"""
-    logging.debug(str(argv))
+    logger.debug(str(argv))
 
 
 def error(*argv):
     """Error level log"""
-    logging.error(str(argv))
+    logger.error(str(argv))
