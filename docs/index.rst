@@ -18,6 +18,7 @@ Argos Translate also manages automatically pivoting through intermediate languag
 Python Example
 --------------
 .. code-block:: python
+
         import argostranslate.package, argostranslate.translate
 
         from_code = "en"
