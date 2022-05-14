@@ -187,4 +187,4 @@ Paid supporters receive priority support.
 You can also support the project by purchasing [DigitalOcean](https://www.digitalocean.com/) hosting with the [Argos Open Tech referral link](https://m.do.co/c/a1af57be6e3f) which helps to offset [CDN hosting costs](https://community.libretranslate.com/t/estimating-libretranslate-usage-from-cdn-traffic/78/7).
 
 ## License
-Dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
+Dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
