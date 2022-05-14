@@ -171,6 +171,20 @@ class Package(IPackage):
         return self.get_readme()
 
 
+def install_from_path(path):
+    """Install a package file (zip archive ending in .argosmodel).
+
+    Args:
+        path (pathlib): The path to the .argosmodel file to install.
+
+    """
+    with package_lock:
+        if not zipfile.is_zipfile(path):
+            raise Exception("Not a valid Argos Model (must be a zip archive)")
+        with zipfile.ZipFile(path, "r") as zip:
+            zip.extractall(path=settings.package_data_dir)
+
+
 class AvailablePackage(IPackage):
     """A package available for download and installation"""
 
@@ -197,29 +211,20 @@ class AvailablePackage(IPackage):
                     install_from_path(download_path)
 
         filepath = settings.downloads_dir / filename
-        data = networking.get_from(self.links)
-        if data is None:
-            raise Exception(f"Download failed for {url}")
-        with open(filepath, "wb") as f:
-            f.write(data)
+        if not filepath.exists():
+            data = networking.get_from(self.links)
+            if data is None:
+                raise Exception(f"Download failed for {url}")
+            with open(filepath, "wb") as f:
+                f.write(data)
         return filepath
+
+    def install(self):
+        download_path = self.download()
+        install_from_path(download_path)
 
     def get_description(self):
         return "{} → {}".format(self.from_name, self.to_name)
-
-
-def install_from_path(path):
-    """Install a package file (zip archive ending in .argosmodel).
-
-    Args:
-        path (pathlib): The path to the .argosmodel file to install.
-
-    """
-    with package_lock:
-        if not zipfile.is_zipfile(path):
-            raise Exception("Not a valid Argos Model (must be a zip archive)")
-        with zipfile.ZipFile(path, "r") as zip:
-            zip.extractall(path=settings.package_data_dir)
 
 
 def uninstall(pkg):
