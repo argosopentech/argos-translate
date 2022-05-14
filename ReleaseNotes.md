@@ -1,6 +1,6 @@
 1.7:
 - Improved examples and documentation
-- Retry alternate links on download fail
+- Use multiple links for redundancy and load balancing
 
 1.6:
 - [Argos Translate GUI](https://github.com/argosopentech/argos-translate-gui) to separate repo
