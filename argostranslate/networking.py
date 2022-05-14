@@ -1,6 +1,28 @@
 import urllib.request
+import random
 
 from argostranslate.utils import info, error
+
+
+def get_protocol(url):
+    """Gets the protocol of a URL string
+
+    For example if url is "https://www.argosopentech.com" "https" is returned.
+    If the protocol can't be determined None is returned
+
+    Args:
+        url (str): The URL to get the protocol of
+
+    Returns:
+        str: The string representation of the protocol or None
+    """
+    protocol_end_index = url.find(":")
+    if protocol_end_index > 0:
+        return url[:protocol_end_index]
+    return None
+
+
+supported_protocols = set(["http", "https"])
 
 
 def get(url, retry_count=3):
@@ -14,7 +36,8 @@ def get(url, retry_count=3):
     Returns:
         bytes: The downloaded data, None is returned if the download fails
     """
-    url = str(url)
+    if get_protocol(url) not in supported_protocols:
+        return None
     info(f"Downloading {url}")
     download_attempts_count = 0
     while download_attempts_count <= retry_count:
@@ -40,8 +63,8 @@ def get_from(urls, retry_count=3):
     Returns:
         bytes: The downloaded data, None is returned if the download fails
     """
-    for url in urls:
+    for url in random.sample(urls, len(urls)):
         attempt = get(url, retry_count)
-        if attempt:
+        if attempt is not None:
             return attempt
     return None
