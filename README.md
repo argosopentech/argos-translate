@@ -50,8 +50,8 @@ pip install -e .
 ```python
 import argostranslate.package, argostranslate.translate
 
-from_code = "es"
-to_code = "en"
+from_code = "en"
+to_code = "es"
 
 # Download and install Argos Translate package
 available_packages = argostranslate.package.get_available_packages()
