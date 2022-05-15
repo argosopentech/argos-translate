@@ -1,6 +1,8 @@
 1.7:
 - Improved examples and documentation
 - Use multiple links for redundancy and load balancing
+- Add logger namespace
+- CTranslate2 updates
 
 1.6:
 - [Argos Translate GUI](https://github.com/argosopentech/argos-translate-gui) to separate repo
