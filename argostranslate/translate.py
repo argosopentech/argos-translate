@@ -554,19 +554,19 @@ def get_installed_languages():
 
     return languages
 
-def get_package_by_iso_code(iso_code):
-    wanted_package = list(filter(
+def get_language_by_iso_code(iso_code):
+    wanted_language = list(filter(
         lambda x: x.code == iso_code,
         get_installed_languages()))
 
-    if len(wanted_package) and isinstance(wanted_package[0], Language):
-        return wanted_package[0]
+    if len(wanted_language) and isinstance(wanted_language[0], Language):
+        return wanted_language[0]
 
     return False
 
 def get_translation_by_iso_codes(from_iso_code, to_iso_code):
-    from_lang = get_package_by_iso_code(from_iso_code)
-    to_lang = get_package_by_iso_code(to_iso_code)
+    from_lang = get_language_by_iso_code(from_iso_code)
+    to_lang = get_language_by_iso_code(to_iso_code)
 
     if from_lang == False or to_lang == False:
         return False
