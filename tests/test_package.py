@@ -78,14 +78,14 @@ class TestPackage:
 
 
 class TestGetPackage:
-    def test_get_package_by_iso_code(self):
-        pck = argostranslate.translate.get_package_by_iso_code("fr")
+    def test_get_language_by_iso_code(self):
+        pck = argostranslate.translate.get_language_by_iso_code("fr")
 
         assert isinstance(pck, argostranslate.translate.Language)
         assert str(pck) == "French"
 
-    def test_get_package_by_iso_code_with_bad_iso_code(self):
-        pck = argostranslate.translate.get_package_by_iso_code("aa")
+    def test_get_language_by_iso_code_with_bad_iso_code(self):
+        pck = argostranslate.translate.get_language_by_iso_code("aa")
 
         assert pck == False
 
