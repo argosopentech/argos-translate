@@ -554,6 +554,24 @@ def get_installed_languages():
 
     return languages
 
+def get_package_by_iso_code(iso_code):
+    wanted_package = list(filter(
+        lambda x: x.code == iso_code,
+        get_installed_languages()))
+
+    if len(wanted_package) and isinstance(wanted_package[0], Language):
+        return wanted_package[0]
+
+    return False
+
+def get_translation_by_iso_codes(from_iso_code, to_iso_code):
+    from_lang = get_package_by_iso_code(from_iso_code)
+    to_lang = get_package_by_iso_code(to_iso_code)
+
+    if from_lang == False or to_lang == False:
+        return False
+
+    return from_lang.get_translation(to_lang)
 
 def load_installed_languages():
     """Deprecated 1.2, use get_installed_languages"""
