@@ -562,13 +562,13 @@ def load_installed_languages():
     return get_installed_languages()
 
 def get_language_from_code(code):
-    """Gets a language object from an ISO 639 code
+    """Gets a language object from a code
 
     An exception will be thrown if an installed language with this
     code can not be found.
 
     Args:
-        code (str): The code of the language
+        code (str): The ISO 639 code of the language
 
     Returns:
         translate.Language: The language object
@@ -578,14 +578,14 @@ def get_language_from_code(code):
         get_installed_languages()))[0]
 
 def get_translation_from_codes(from_code, to_code):
-    """Gets a translation object from ISO 639 codes for from and to languages
+    """Gets a translation object from codes for from and to languages
 
     An exception will be thrown if an installed translation between the from lang
     and to lang can not be found.
 
     Args:
-        from_code (str): The code of the source language
-        to_code (str): The code of the target language
+        from_code (str): The ISO 639 code of the source language
+        to_code (str): The ISO 639 code of the target language
 
     Returns:
         translate.ITranslation: The translation object
@@ -593,3 +593,17 @@ def get_translation_from_codes(from_code, to_code):
     from_lang = get_language_by_iso_code(from_code)
     to_lang = get_language_by_iso_code(to_code)
     return from_lang.get_translation(to_lang)
+
+def translate(q, from_code, to_code):
+    """Translate a string of text
+
+    Args:
+        q (str): The text to translate
+        from_code (str): The ISO 639 code of the source language
+        to_code (str): The ISO 639 code of the target language
+
+    Returns:
+        str: The translated text
+    """
+    translation = get_translation_from_codes(from_code, to_code)
+    return translation.translate(q)
