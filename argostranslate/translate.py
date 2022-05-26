@@ -554,17 +554,39 @@ def get_installed_languages():
 
     return languages
 
-def get_language_by_iso_code(iso_code):
-    return list(filter(
-        lambda x: x.code == iso_code,
-        get_installed_languages()))[0]
-
-def get_translation_by_iso_codes(from_iso_code, to_iso_code):
-    from_lang = get_language_by_iso_code(from_iso_code)
-    to_lang = get_language_by_iso_code(to_iso_code)
-
-    return from_lang.get_translation(to_lang)
-
 def load_installed_languages():
     """Deprecated 1.2, use get_installed_languages"""
     return get_installed_languages()
+
+def get_language_from_code(code):
+    """Gets a language object from an ISO 639 code
+
+    An exception will be thrown if an installed language with this
+    code can not be found.
+
+    Args:
+        code (str): The code of the language
+
+    Returns:
+        translate.Language: The language object
+    """
+    return list(filter(
+        lambda x: x.code == code,
+        get_installed_languages()))[0]
+
+def get_translation_from_codes(from_code, to_code):
+    """Gets a translation object from ISO 639 codes for from and to languages
+
+    An exception will be thrown if an installed translation between the from lang
+    and to lang can not be found.
+
+    Args:
+        from_code (str): The code of the source language
+        to_code (str): The code of the target language
+
+    Returns:
+        translate.ITranslation: The translation object
+    """
+    from_lang = get_language_by_iso_code(from_code)
+    to_lang = get_language_by_iso_code(to_code)
+    return from_lang.get_translation(to_lang)
