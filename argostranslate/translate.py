@@ -139,7 +139,7 @@ class Language:
 
 
 class PackageTranslation(ITranslation):
-    """Translation from a package"""
+    """A Translation that is installed with a package"""
 
     def __init__(self, from_lang, to_lang, pkg):
         self.from_lang = from_lang
@@ -293,7 +293,8 @@ class CachedTranslation(ITranslation):
         return hypotheses_to_return
 
 
-class LibreTranslateTranslation(ITranslation):
+class RemoteTranslation(ITranslation):
+    """A translation provided by a remote LibreTranslate server"""
     def __init__(self, from_lang, to_lang, api):
         self.from_lang = from_lang
         self.to_lang = to_lang
@@ -307,9 +308,11 @@ class LibreTranslateTranslation(ITranslation):
         result = self.api.translate(input_text, self.from_lang.code, self.to_lang.code)
         return [Hypothesis(result, 0)] * num_hypotheses
 
+# Backwards compatibility, renamed in 1.8
+LibreTranslateTranslation = RemoteTranslation
 
 class FewShotTranslation(ITranslation):
-    # TODO: Document and handle detect language
+    """A translation performed with a few shot language model"""
     def __init__(self, from_lang, to_lang, language_model):
         self.from_lang = from_lang
         self.to_lang = to_lang
