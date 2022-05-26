@@ -75,26 +75,3 @@ class TestPackage:
 
     def test_get_description(self):
         self.package.get_description() == self.readme
-
-
-class TestGetPackage:
-    def test_get_language_by_iso_code(self):
-        pck = argostranslate.translate.get_language_by_iso_code("en")
-
-        assert isinstance(pck, argostranslate.translate.Language)
-
-    def test_get_language_by_iso_code_with_bad_iso_code(self):
-        pck = argostranslate.translate.get_language_by_iso_code("aa")
-
-        assert pck == False
-
-class TestGetTranslation:
-    def test_get_translation_by_iso_codes(self):
-        translation = argostranslate.translate.get_translation_by_iso_codes("en", "es")
-
-        assert isinstance(translation, argostranslate.translate.ITranslation)
-
-    def test_get_translation_by_iso_codes_with_bad_iso_codes(self):
-        translation = argostranslate.translate.get_translation_by_iso_codes("fr", "bb")
-
-        assert translation == False
