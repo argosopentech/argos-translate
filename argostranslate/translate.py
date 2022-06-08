@@ -139,7 +139,7 @@ class Language:
 
 
 class PackageTranslation(ITranslation):
-    """Translation from a package"""
+    """A Translation that is installed with a package"""
 
     def __init__(self, from_lang, to_lang, pkg):
         self.from_lang = from_lang
@@ -293,7 +293,8 @@ class CachedTranslation(ITranslation):
         return hypotheses_to_return
 
 
-class LibreTranslateTranslation(ITranslation):
+class RemoteTranslation(ITranslation):
+    """A translation provided by a remote LibreTranslate server"""
     def __init__(self, from_lang, to_lang, api):
         self.from_lang = from_lang
         self.to_lang = to_lang
@@ -307,9 +308,11 @@ class LibreTranslateTranslation(ITranslation):
         result = self.api.translate(input_text, self.from_lang.code, self.to_lang.code)
         return [Hypothesis(result, 0)] * num_hypotheses
 
+# Backwards compatibility, renamed in 1.8
+LibreTranslateTranslation = RemoteTranslation
 
 class FewShotTranslation(ITranslation):
-    # TODO: Document and handle detect language
+    """A translation performed with a few shot language model"""
     def __init__(self, from_lang, to_lang, language_model):
         self.from_lang = from_lang
         self.to_lang = to_lang
@@ -554,17 +557,53 @@ def get_installed_languages():
 
     return languages
 
-def get_language_by_iso_code(iso_code):
-    return list(filter(
-        lambda x: x.code == iso_code,
-        get_installed_languages()))[0]
-
-def get_translation_by_iso_codes(from_iso_code, to_iso_code):
-    from_lang = get_language_by_iso_code(from_iso_code)
-    to_lang = get_language_by_iso_code(to_iso_code)
-
-    return from_lang.get_translation(to_lang)
-
 def load_installed_languages():
     """Deprecated 1.2, use get_installed_languages"""
     return get_installed_languages()
+
+def get_language_from_code(code):
+    """Gets a language object from a code
+
+    An exception will be thrown if an installed language with this
+    code can not be found.
+
+    Args:
+        code (str): The ISO 639 code of the language
+
+    Returns:
+        translate.Language: The language object
+    """
+    return list(filter(
+        lambda x: x.code == code,
+        get_installed_languages()))[0]
+
+def get_translation_from_codes(from_code, to_code):
+    """Gets a translation object from codes for from and to languages
+
+    An exception will be thrown if an installed translation between the from lang
+    and to lang can not be found.
+
+    Args:
+        from_code (str): The ISO 639 code of the source language
+        to_code (str): The ISO 639 code of the target language
+
+    Returns:
+        translate.ITranslation: The translation object
+    """
+    from_lang = get_language_by_iso_code(from_code)
+    to_lang = get_language_by_iso_code(to_code)
+    return from_lang.get_translation(to_lang)
+
+def translate(q, from_code, to_code):
+    """Translate a string of text
+
+    Args:
+        q (str): The text to translate
+        from_code (str): The ISO 639 code of the source language
+        to_code (str): The ISO 639 code of the target language
+
+    Returns:
+        str: The translated text
+    """
+    translation = get_translation_from_codes(from_code, to_code)
+    return translation.translate(q)
