@@ -1,0 +1,14 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Argos Translate
+message: >-
+  Open-source offline translation library written in
+  Python
+type: software
+authors:
+  - given-names: P.J.
+    family-names: Finlay
+    email: admin@argosopentech.com
+    affiliation: Argos Open Tech
