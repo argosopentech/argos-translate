@@ -8,7 +8,7 @@ message: >-
   Python
 type: software
 authors:
-  - given-names: PJ
+  - given-names: P.J.
     family-names: Finlay
     email: admin@argosopentech.com
     affiliation: Argos Open Tech
