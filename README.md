@@ -179,7 +179,6 @@ If you find this software useful donations are appreciated.
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
 - Ethereum: argosopentech.eth
 - Litecoin: MCwu7RRWeCRJdsv2bXGj2nnL1xYxDBvwW5
-- Bitcoin cash: qzqklgjpgutdqqlhcasmdd2hkqcelw426sxzk5qtne
 - Filecoin: f1nrnpmjxn27amidyiqrzq5mxihdo2trh2oijw2sq
 - Basic Attention Token: 0x8a16f26D277f924B04FCA5ECec64b76B5410A06c
 
