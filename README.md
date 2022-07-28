@@ -3,7 +3,7 @@
 
 Open-source offline translation library written in Python
 
-Argos Translate uses [OpenNMT](https://opennmt.net/) for translations, [SentencePiece](https://github.com/google/sentencepiece) for tokenization, [Stanza](https://github.com/stanfordnlp/stanza) for sentence boundary detection, and [PyQt](https://riverbankcomputing.com/software/pyqt/intro) for GUI. Argos Translate can be used as either a Python library, command-line, or GUI application. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
+Argos Translate can be used as either a Python library, command-line, or GUI application. Argos Translate uses [OpenNMT](https://opennmt.net/) for translations, [SentencePiece](https://github.com/google/sentencepiece) for tokenization, [Stanza](https://github.com/stanfordnlp/stanza) for sentence boundary detection, and [PyQt](https://riverbankcomputing.com/software/pyqt/intro) for GUI. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
 
 Argos Translate supports installing language model packages which are zip archives with a ".argosmodel" extension with the data needed for translation.
 
@@ -170,7 +170,7 @@ For questions about [CTranslate2](https://github.com/OpenNMT/CTranslate2) or gen
 ## Services
 Custom models trained on your own data are available for $1000/each (negotiable).
 
-Managed LibreTranslate hosting is available for $1000/mo.
+Managed LibreTranslate hosting is available for $500/mo.
 
 ## Donate
 If you find this software useful donations are appreciated.
@@ -179,7 +179,6 @@ If you find this software useful donations are appreciated.
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
 - Ethereum: argosopentech.eth
 - Litecoin: MCwu7RRWeCRJdsv2bXGj2nnL1xYxDBvwW5
-- Bitcoin cash: qzqklgjpgutdqqlhcasmdd2hkqcelw426sxzk5qtne
 - Filecoin: f1nrnpmjxn27amidyiqrzq5mxihdo2trh2oijw2sq
 - Basic Attention Token: 0x8a16f26D277f924B04FCA5ECec64b76B5410A06c
 
