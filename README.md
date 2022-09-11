@@ -158,8 +158,6 @@ rm -r ~/.local/share/argos-translate
 - [Lexicon](https://github.com/dothq/lexicon) - Translation API.
 
 ## Contributing
-[![Awesome Humane Tech](https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true)](https://github.com/humanetech-community/awesome-humane-tech)
-
 Contributions are welcome! Available issues are on the [GitHub issues page](https://github.com/argosopentech/argos-translate/issues). Contributions of code, data, and pre-trained models can all be accepted.
 
 ## Support
