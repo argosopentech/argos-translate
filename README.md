@@ -25,7 +25,6 @@ pip install argostranslate
 Install [GUI](https://github.com/argosopentech/argos-translate-gui):
 ```
 pip install argostranslategui
-
 ```
 
 ### Installation for macOS
