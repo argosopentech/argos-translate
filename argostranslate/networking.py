@@ -44,7 +44,7 @@ def get(url, retry_count=3):
         try:
             req = urllib.request.Request(
                 url,
-                headers={"User-Agent": "ArgosTranslate/1.7"},
+                headers={"User-Agent": "ArgosTranslate"},
             )
             response = urllib.request.urlopen(req)
             data = response.read()
