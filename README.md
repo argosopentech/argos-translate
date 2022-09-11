@@ -1,7 +1,7 @@
 # Argos Translate
 [Demo](https://libretranslate.com) | [Website](https://www.argosopentech.com) | [Docs](https://argos-translate.readthedocs.io) |  [Forum](https://community.libretranslate.com/c/argos-translate/5) | [Video intro](https://odysee.com/@argosopentech:7/Machine-Translation-in-Argos-Translate-2021:5) | [GitHub](https://github.com/argosopentech/argos-translate)
 
-Open-source offline translation library written in Python
+**Open-source offline translation library written in Python**
 
 Argos Translate can be used as either a Python library, command-line, or GUI application. Argos Translate uses [OpenNMT](https://opennmt.net/) for translations, [SentencePiece](https://github.com/google/sentencepiece) for tokenization, [Stanza](https://github.com/stanfordnlp/stanza) for sentence boundary detection, and [PyQt](https://riverbankcomputing.com/software/pyqt/intro) for GUI. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
 
