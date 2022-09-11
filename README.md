@@ -13,7 +13,7 @@ Arabic, Azerbaijani, Chinese, Czech, Danish, Dutch, English, Esperanto, Finnish,
 - [Request a language](https://github.com/argosopentech/argos-translate/discussions/91)
 
 ## Installation
-### Install from PyPI
+### Install with Python 
 Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate/) and can be easily installed or updated with [pip](https://pip.pypa.io/en/stable/installation/).
 
 ```
