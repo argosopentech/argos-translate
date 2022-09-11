@@ -137,7 +137,7 @@ The [argos-translate-files](https://github.com/dingedi/argos-translate-files) li
 ## Uninstall
 
 ``` shell
-python3 -m pip uninstall argostranslate
+pip uninstall argostranslate
 ```
 
 You may choose to also delete temporary and cached files:
