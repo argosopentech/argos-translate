@@ -23,4 +23,9 @@ setup(
     install_requires=required_packages,
     include_package_data=True,
     scripts=["bin/argos-translate", "bin/argospm"],
+    classifiers=[
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+        "Development Status :: 5 - Production/Stable"
+    ]
 )
