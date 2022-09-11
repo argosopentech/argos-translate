@@ -19,12 +19,12 @@ Arabic, Azerbaijani, Chinese, Czech, Danish, Dutch, English, Esperanto, Finnish,
 Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate/) and can be easily installed or updated with [pip](https://pip.pypa.io/en/stable/installation/).
 
 ```
-pip3 install argostranslate
+pip install argostranslate
 ```
 
 Install [GUI](https://github.com/argosopentech/argos-translate-gui):
 ```
-pip3 install argostranslategui
+pip install argostranslategui
 
 ```
 
