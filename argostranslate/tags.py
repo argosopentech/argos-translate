@@ -53,7 +53,7 @@ class Tag(ITag):
 def depth(tag):
     """Returns the depth of an ITag or str.
 
-    A str has depth 0, ITag([]) has depth 0, ITag(['str']) has depth 1. 
+    A str has depth 0, ITag([]) has depth 0, ITag(['str']) has depth 1.
 
     Args:
         tag (ITag or str): The ITag or string to get the depth of.
@@ -94,7 +94,7 @@ def inject_tags_inference(underlying_translation, tag):
     Args:
         underlying_translation(translate.ITranslation): The translation to apply to the tags.
         tag (ITag): A depth=2 tag tree to attempt injection on.
- 
+
     Returns:
         ITag: A translated version of tag, None if not possible to tag inject
     """

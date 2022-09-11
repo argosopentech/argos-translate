@@ -42,7 +42,7 @@ class IPackage:
         package_path (Path): The path to the installed package. None if not installed.
 
         package_version (str): The version of the package.
-        
+
         argos_version (str): The version of Argos Translate the package is intended for.
 
         from_code (str): The code of the language the package translates from.
