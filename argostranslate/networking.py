@@ -38,11 +38,15 @@ def get(url, retry_count=3):
     """
     if get_protocol(url) not in supported_protocols:
         return None
-    info(f"Downloading {url}")
+    info(f"Get {url}")
     download_attempts_count = 0
     while download_attempts_count <= retry_count:
         try:
-            response = urllib.request.urlopen(url)
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": "ArgosTranslate"},
+            )
+            response = urllib.request.urlopen(req)
             data = response.read()
             info(f"Got {url}")
             return data

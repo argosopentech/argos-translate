@@ -1,31 +1,28 @@
 # Argos Translate
-[Demo](https://libretranslate.com) | [Website](https://www.argosopentech.com) | [Docs](https://argos-translate.readthedocs.io) |  [Forum](https://community.libretranslate.com/c/argos-translate/5) | [Video intro](https://odysee.com/@argosopentech:7/Machine-Translation-in-Argos-Translate-2021:5) | [GitHub](https://github.com/argosopentech/argos-translate)
+[Demo](https://libretranslate.com) | [Website](https://www.argosopentech.com) | [Docs](https://argos-translate.readthedocs.io) |  [Forum](https://community.libretranslate.com/c/argos-translate/5) | [Video intro](https://odysee.com/@argosopentech:7/Machine-Translation-in-Argos-Translate-2021:5) | [GitHub](https://github.com/argosopentech/argos-translate) | [Wiki](https://github.com/argosopentech/argos-translate/wiki)
 
-Open-source offline translation library written in Python
+**Open-source offline translation library written in Python**
 
-Argos Translate can be used as either a Python library, command-line, or GUI application. Argos Translate uses [OpenNMT](https://opennmt.net/) for translations, [SentencePiece](https://github.com/google/sentencepiece) for tokenization, [Stanza](https://github.com/stanfordnlp/stanza) for sentence boundary detection, and [PyQt](https://riverbankcomputing.com/software/pyqt/intro) for GUI. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
-
-Argos Translate supports installing language model packages which are zip archives with a ".argosmodel" extension with the data needed for translation.
+Argos Translate uses [OpenNMT](https://opennmt.net/) for translations and can be used as either a Python library, command-line, or GUI application. Argos Translate supports installing language model packages which are zip archives with a ".argosmodel" extension containing the data needed for translation. [LibreTranslate](https://libretranslate.com) is an API and web-app built on top of Argos Translate.
 
 Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct translation between them installed. For example, if you have a es → en and en → fr translation installed you are able to translate from es → fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
 
 ### Supported languages
 Arabic, Azerbaijani, Chinese, Czech, Danish, Dutch, English, Esperanto, Finnish, French, German, Greek, Hebrew, Hindi, Hungarian, Indonesian, Irish, Italian, Japanese, Korean, Persian, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian
 
-- [Request a language](https://github.com/argosopentech/argos-translate/discussions/91)
+[Request a language](https://github.com/argosopentech/argos-translate/discussions/91)
 
 ## Installation
-### Install from PyPI
+### Install with Python 
 Argos Translate is available from [PyPI](https://pypi.org/project/argostranslate/) and can be easily installed or updated with [pip](https://pip.pypa.io/en/stable/installation/).
 
 ```
-pip3 install argostranslate
+pip install argostranslate
 ```
 
 Install [GUI](https://github.com/argosopentech/argos-translate-gui):
 ```
-pip3 install argostranslategui
-
+pip install argostranslategui
 ```
 
 ### Installation for macOS
@@ -125,8 +122,7 @@ $ ARGOS_DEVICE_TYPE=cuda argos-translate --from-lang en --to-lang es "Hello Worl
 Hola Mundo
 ```
 
-The above env variable instructs [CTranslate2](https://github.com/OpenNMT/CTranslate2) to use cuda.
-if you encounter any issues with GPU inference please reference the [CTranslate2 documentation](https://github.com/OpenNMT/CTranslate2#what-hardware-is-supported).
+The above env variable passes the device type to [CTranslate2](https://github.com/OpenNMT/CTranslate2).
 
 ### HTML Translation
 The [translate-html](https://github.com/argosopentech/translate-html) library is built on top of Argos Translate and [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/) and parses and translates HTML. The LibreTranslate API also has support for translating HTML.
@@ -138,7 +134,7 @@ The [argos-translate-files](https://github.com/dingedi/argos-translate-files) li
 ## Uninstall
 
 ``` shell
-python3 -m pip uninstall argostranslate
+pip uninstall argostranslate
 ```
 
 You may choose to also delete temporary and cached files:
@@ -155,11 +151,10 @@ rm -r ~/.local/share/argos-translate
 - [LibreTranslate-rs](https://github.com/grantshandy/libretranslate-rs) - LibreTranslate Rust bindings
 - [LibreTranslate Go](https://github.com/SnakeSel/libretranslate) - LibreTranslate Golang bindings
 - [LibreTranslator](https://gitlab.com/BeowuIf/libretranslator) - LibreTranslate Android app
-- [Lexicon](https://github.com/dothq/lexicon) - Translation API.
+- [Lexicon](https://github.com/dothq/lexicon) - Translation API
+- [LiTranslate](https://community.libretranslate.com/t/litranslate-ios-app/333) - iOS LibreTranslate client
 
 ## Contributing
-[![Awesome Humane Tech](https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true)](https://github.com/humanetech-community/awesome-humane-tech)
-
 Contributions are welcome! Available issues are on the [GitHub issues page](https://github.com/argosopentech/argos-translate/issues). Contributions of code, data, and pre-trained models can all be accepted.
 
 ## Support
@@ -178,7 +173,6 @@ If you find this software useful donations are appreciated.
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
 - Ethereum: argosopentech.eth
-- Litecoin: MCwu7RRWeCRJdsv2bXGj2nnL1xYxDBvwW5
 - Filecoin: f1nrnpmjxn27amidyiqrzq5mxihdo2trh2oijw2sq
 - Basic Attention Token: 0x8a16f26D277f924B04FCA5ECec64b76B5410A06c
 
@@ -187,4 +181,4 @@ Paid supporters receive priority support.
 You can also support the project by purchasing [DigitalOcean](https://www.digitalocean.com/) hosting with the [Argos Open Tech referral link](https://m.do.co/c/a1af57be6e3f) which helps to offset CDN hosting costs.
 
 ## License
-Dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
+Argos Translate is dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).

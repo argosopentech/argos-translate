@@ -7,9 +7,7 @@ from enum import Enum
 
 TRUE_VALUES = ["1", "TRUE", "True", "true"]
 
-debug = False
-if "DEBUG" in os.environ:
-    debug = os.environ["DEBUG"] in TRUE_VALUES
+debug = os.getenv("ARGOS_DEBUG") in TRUE_VALUES
 
 dev_mode = os.getenv("ARGOS_DEV_MODE") in TRUE_VALUES
 

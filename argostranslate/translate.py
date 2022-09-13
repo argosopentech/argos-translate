@@ -295,6 +295,7 @@ class CachedTranslation(ITranslation):
 
 class RemoteTranslation(ITranslation):
     """A translation provided by a remote LibreTranslate server"""
+
     def __init__(self, from_lang, to_lang, api):
         self.from_lang = from_lang
         self.to_lang = to_lang
@@ -308,11 +309,14 @@ class RemoteTranslation(ITranslation):
         result = self.api.translate(input_text, self.from_lang.code, self.to_lang.code)
         return [Hypothesis(result, 0)] * num_hypotheses
 
+
 # Backwards compatibility, renamed in 1.8
 LibreTranslateTranslation = RemoteTranslation
 
+
 class FewShotTranslation(ITranslation):
     """A translation performed with a few shot language model"""
+
     def __init__(self, from_lang, to_lang, language_model):
         self.from_lang = from_lang
         self.to_lang = to_lang
@@ -557,9 +561,11 @@ def get_installed_languages():
 
     return languages
 
+
 def load_installed_languages():
     """Deprecated 1.2, use get_installed_languages"""
     return get_installed_languages()
+
 
 def get_language_from_code(code):
     """Gets a language object from a code
@@ -573,9 +579,8 @@ def get_language_from_code(code):
     Returns:
         translate.Language: The language object
     """
-    return list(filter(
-        lambda x: x.code == code,
-        get_installed_languages()))[0]
+    return list(filter(lambda x: x.code == code, get_installed_languages()))[0]
+
 
 def get_translation_from_codes(from_code, to_code):
     """Gets a translation object from codes for from and to languages
@@ -593,6 +598,7 @@ def get_translation_from_codes(from_code, to_code):
     from_lang = get_language_by_iso_code(from_code)
     to_lang = get_language_by_iso_code(to_code)
     return from_lang.get_translation(to_lang)
+
 
 def translate(q, from_code, to_code):
     """Translate a string of text
