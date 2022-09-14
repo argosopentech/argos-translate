@@ -37,7 +37,7 @@ os.makedirs(cache_dir, exist_ok=True)
 if not dev_mode:
     remote_repo = os.getenv(
         "ARGOS_PACKAGE_INDEX",
-        default="https://raw.githubusercontent.com/argosopentech/argospm-index/main",
+        default="https://www.argosopentech.com/argospm/index/",
     )
 else:
     remote_repo = os.getenv(
