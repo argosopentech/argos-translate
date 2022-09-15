@@ -561,12 +561,6 @@ def get_installed_languages():
 
     return languages
 
-
-def load_installed_languages():
-    """Deprecated 1.2, use get_installed_languages"""
-    return get_installed_languages()
-
-
 def get_language_from_code(code):
     """Gets a language object from a code
 
