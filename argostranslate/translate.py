@@ -310,10 +310,6 @@ class RemoteTranslation(ITranslation):
         return [Hypothesis(result, 0)] * num_hypotheses
 
 
-# Backwards compatibility, renamed in 1.8
-LibreTranslateTranslation = RemoteTranslation
-
-
 class FewShotTranslation(ITranslation):
     """A translation performed with a few shot language model"""
 
