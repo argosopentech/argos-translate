@@ -46,7 +46,7 @@ pip install -e .
 
 ```python
 import argostranslate.package
-from argostranslate.translate import translate as atranslate
+import argostranslate.translate
 
 from_code = "en"
 to_code = "es"
@@ -61,7 +61,7 @@ package_to_install = list(
 argostranslate.package.install_from_path(package_to_install.download())
 
 # Translate
-translatedText = atranslate("Hello World", "en", "es")
+translatedText = argostranslate.translate.translate("Hello World", "en", "es")
 print(translatedText)
 # '¡Hola Mundo!'
 ```
