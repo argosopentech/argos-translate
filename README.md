@@ -58,7 +58,7 @@ package_to_install = list(
         lambda x: x.from_code == from_code and x.to_code == to_code, available_packages
     )
 )[0]
-package_to_install.install()
+argostranslate.package.install_from_path(package_to_install.download())
 
 # Translate
 translatedText = atranslate("Hello World", "en", "es")
