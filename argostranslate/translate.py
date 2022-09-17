@@ -586,8 +586,8 @@ def get_translation_from_codes(from_code, to_code):
     Returns:
         translate.ITranslation: The translation object
     """
-    from_lang = get_language_by_iso_code(from_code)
-    to_lang = get_language_by_iso_code(to_code)
+    from_lang = get_language_from_code(from_code)
+    to_lang = get_language_from_code(to_code)
     return from_lang.get_translation(to_lang)
 
 
