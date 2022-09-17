@@ -61,7 +61,7 @@ package_to_install = list(
 argostranslate.package.install_from_path(package_to_install.download())
 
 # Translate
-translatedText = argostranslate.translate.translate("Hello World", "en", "es")
+translatedText = argostranslate.translate.translate("Hello World", from_code, to_code)
 print(translatedText)
 # '¡Hola Mundo!'
 ```
