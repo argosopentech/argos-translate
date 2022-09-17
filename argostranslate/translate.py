@@ -310,10 +310,6 @@ class RemoteTranslation(ITranslation):
         return [Hypothesis(result, 0)] * num_hypotheses
 
 
-# Backwards compatibility, renamed in 1.8
-LibreTranslateTranslation = RemoteTranslation
-
-
 class FewShotTranslation(ITranslation):
     """A translation performed with a few shot language model"""
 
@@ -560,7 +556,8 @@ def get_installed_languages():
         languages = [english] + languages
 
     return languages
-
+    
+    
 def get_language_from_code(code):
     """Gets a language object from a code
 
@@ -589,8 +586,8 @@ def get_translation_from_codes(from_code, to_code):
     Returns:
         translate.ITranslation: The translation object
     """
-    from_lang = get_language_by_iso_code(from_code)
-    to_lang = get_language_by_iso_code(to_code)
+    from_lang = get_language_from_code(from_code)
+    to_lang = get_language_from_code(to_code)
     return from_lang.get_translation(to_lang)
 
 
