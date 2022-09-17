@@ -556,8 +556,8 @@ def get_installed_languages():
         languages = [english] + languages
 
     return languages
-    
-    
+
+
 def get_language_from_code(code):
     """Gets a language object from a code
 
