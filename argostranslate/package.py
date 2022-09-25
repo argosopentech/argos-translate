@@ -211,20 +211,6 @@ class AvailablePackage(IPackage):
         package_slug = self.code if self.code is not None else uuid.uuid4()
         filename = package_slug + ".argosmodel"
 
-        # Install sbd package if needed
-        if self.type == "translate" and not settings.stanza_available:
-            if (
-                len(list(filter(lambda x: x.type == "sbd", get_installed_packages())))
-                == 0
-            ):
-                # No sbd packages are installed, download all available
-                sbd_packages = filter(
-                    lambda x: x.type == "sbd", get_available_packages()
-                )
-                for sbd_package in sbd_packages:
-                    download_path = sbd_package.download()
-                    install_from_path(download_path)
-
         filepath = settings.downloads_dir / filename
         if not filepath.exists():
             data = networking.get_from(self.links)
@@ -299,22 +285,6 @@ def get_available_packages():
             for metadata in index:
                 package = AvailablePackage(metadata)
                 packages.append(package)
-
-            # If stanza not available filter for sbd available
-            if not settings.stanza_available:
-                installed_and_available_packages = packages + get_installed_packages()
-                sbd_packages = list(
-                    filter(lambda x: x.type == "sbd", installed_and_available_packages)
-                )
-                sbd_available_codes = set()
-                for sbd_package in sbd_packages:
-                    sbd_available_codes = sbd_available_codes.union(
-                        sbd_package.from_codes
-                    )
-                packages = list(
-                    filter(lambda x: x.from_code in sbd_available_codes, packages)
-                )
-                return packages + sbd_packages
 
             return packages
     except FileNotFoundError:

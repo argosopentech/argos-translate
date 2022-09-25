@@ -4,7 +4,7 @@ import ctranslate2
 import sentencepiece as spm
 import stanza
 
-from argostranslate import package, settings, models, sbd, apis, fewshot
+from argostranslate import package, settings, models, apis, fewshot, chunk
 from argostranslate.utils import info, error
 
 
@@ -319,28 +319,8 @@ class FewShotTranslation(ITranslation):
         self.language_model = language_model
 
     def hypotheses(self, input_text, num_hypotheses=1):
-        # Split into sentences
-        DEFAULT_SENTENCE_LENGTH = 250
-        sentences = []
-        start_index = 0
-        while start_index < len(input_text) - 1:
-            prompt = sbd.generate_fewshot_sbd_prompt(input_text[start_index:])
-            response = sbd.parse_fewshot_response(self.language_model.infer(prompt))
-            detected_sentence_index = sbd.process_seq2seq_sbd(
-                input_text[start_index:], response
-            )
-            if detected_sentence_index == -1:
-                # Couldn't find sentence boundary
-                sbd_index = start_index + DEFAULT_SENTENCE_LENGTH
-            else:
-                sbd_index = start_index + detected_sentence_index
-            sentences.append(input_text[start_index:sbd_index])
-            info("start_index", start_index)
-            info("sbd_index", sbd_index)
-            info(input_text[start_index:sbd_index])
-            start_index = sbd_index
+        sentences = chunk.chunk(input_text)
 
-        to_return = ""
         for sentence in sentences:
             prompt = fewshot.generate_prompt(
                 sentence,
@@ -374,43 +354,8 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
 
     info("apply_packaged_translation", input_text)
 
-    # Sentence boundary detection
-    if pkg.type == "sbd":
-        sentences = [input_text]
-    elif settings.stanza_available:
-        stanza_pipeline = stanza.Pipeline(
-            lang=pkg.from_code,
-            dir=str(pkg.package_path / "stanza"),
-            processors="tokenize",
-            use_gpu=settings.device == "cuda",
-            logging_level="WARNING",
-        )
-        stanza_sbd = stanza_pipeline(input_text)
-        sentences = [sentence.text for sentence in stanza_sbd.sentences]
-    else:
-        DEFAULT_SENTENCE_LENGTH = 250
-        sentences = []
-        start_index = 0
-
-        # Get sbd translation
-        sbd_package = sbd.get_sbd_package()
-        assert sbd_package is not None
-        sbd_translation = PackageTranslation(None, None, sbd_package)
-
-        while start_index < len(input_text) - 1:
-            detected_sentence_index = sbd.detect_sentence(
-                input_text[start_index:], sbd_translation
-            )
-            if detected_sentence_index == -1:
-                # Couldn't find sentence boundary
-                sbd_index = start_index + DEFAULT_SENTENCE_LENGTH
-            else:
-                sbd_index = start_index + detected_sentence_index
-            sentences.append(input_text[start_index:sbd_index])
-            info("start_index", start_index)
-            info("sbd_index", sbd_index)
-            info(input_text[start_index:sbd_index])
-            start_index = sbd_index
+    # Sentence boundary detection chunking
+    sentences = chunk.chunk(input_text)
     info("sentences", sentences)
 
     # Tokenization
@@ -460,16 +405,6 @@ def get_installed_languages():
 
     if settings.model_provider == settings.ModelProvider.OPENNMT:
         packages = package.get_installed_packages()
-
-        # If stanza not available filter for sbd available
-        if not settings.stanza_available:
-            sbd_packages = list(filter(lambda x: x.type == "sbd", packages))
-            sbd_available_codes = set()
-            for sbd_package in sbd_packages:
-                sbd_available_codes = sbd_available_codes.union(sbd_package.from_codes)
-            packages = list(
-                filter(lambda x: x.from_code in sbd_available_codes, packages)
-            )
 
         # Filter for translate packages
         packages = list(filter(lambda x: x.type == "translate", packages))
