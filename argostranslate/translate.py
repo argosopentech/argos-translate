@@ -64,32 +64,6 @@ class ITranslation:
         """
         raise NotImplementedError()
 
-    @staticmethod
-    def split_into_paragraphs(input_text):
-        """Splits input_text into paragraphs and returns a list of paragraphs.
-
-        Args:
-            input_text (str): The text to be split.
-
-        Returns:
-            [str]: A list of paragraphs.
-
-        """
-        return input_text.split("\n")
-
-    @staticmethod
-    def combine_paragraphs(paragraphs):
-        """Combines a list of paragraphs together.
-
-        Args:
-            paragraphs ([str]): A list of paragraphs.
-
-        Returns:
-            [str]: list of n paragraphs combined into one string.
-
-        """
-        return "\n".join(paragraphs)
-
     def __repr__(self):
         return str(self.from_lang) + " -> " + str(self.to_lang)
 
@@ -151,29 +125,9 @@ class PackageTranslation(ITranslation):
         if self.translator is None:
             model_path = str(self.pkg.package_path / "model")
             self.translator = ctranslate2.Translator(model_path, device=settings.device)
-        paragraphs = ITranslation.split_into_paragraphs(input_text)
-        info("paragraphs:", paragraphs)
-        translated_paragraphs = []
-        for paragraph in paragraphs:
-            translated_paragraphs.append(
-                apply_packaged_translation(
-                    self.pkg, paragraph, self.translator, num_hypotheses
-                )
-            )
-        info("translated_paragraphs:", translated_paragraphs)
-
-        # Construct new hypotheses using all paragraphs
-        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
-        for i in range(num_hypotheses):
-            for translated_paragraph in translated_paragraphs:
-                value = ITranslation.combine_paragraphs(
-                    [hypotheses_to_return[i].value, translated_paragraph[i].value]
-                )
-                score = hypotheses_to_return[i].score + translated_paragraph[i].score
-                hypotheses_to_return[i] = Hypothesis(value, score)
-            hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip("\n")
-        info("hypotheses_to_return:", hypotheses_to_return)
-        return hypotheses_to_return
+        return apply_packaged_translation(
+            self.pkg, input_text, self.translator, num_hypotheses
+        )
 
 
 class IdentityTranslation(ITranslation):
@@ -234,65 +188,6 @@ class CompositeTranslation(ITranslation):
         return to_return[0:num_hypotheses]
 
 
-class CachedTranslation(ITranslation):
-    """Caches a translation to improve performance.
-
-    This is done by splitting up the text passed for translation
-    into paragraphs and translating each paragraph individually.
-    A hash of the paragraphs and their corresponding translations
-    are saved from the previous translation and used to improve
-    performance on the next one. This is especially useful if you
-    are repeatedly translating nearly identical text with a small
-    change at the end of it.
-
-    """
-
-    def __init__(self, underlying):
-        """Creates a CachedTranslation.
-
-        Args:
-            underlying (ITranslation): The underlying translation to cache.
-
-        """
-        self.underlying = underlying
-        self.from_lang = underlying.from_lang
-        self.to_lang = underlying.to_lang
-        self.cache = dict()
-
-    def hypotheses(self, input_text, num_hypotheses=4):
-        new_cache = dict()  # 'text': ['t1'...('tN')]
-        paragraphs = ITranslation.split_into_paragraphs(input_text)
-        translated_paragraphs = []
-        for paragraph in paragraphs:
-            translated_paragraph = self.cache.get(paragraph)
-            # If len() of our cached items are different than `num_hypotheses` it means that
-            # the search parameter is changed by caller, so we can't re-use cache, and should update it.
-            if (
-                translated_paragraph is None
-                or len(translated_paragraph) != num_hypotheses
-            ):
-                translated_paragraph = self.underlying.hypotheses(
-                    paragraph, num_hypotheses
-                )
-            new_cache[paragraph] = translated_paragraph
-            translated_paragraphs.append(translated_paragraph)
-        self.cache = new_cache
-
-        # Construct hypotheses
-        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
-        for i in range(num_hypotheses):
-            for j in range(len(translated_paragraphs)):
-                value = ITranslation.combine_paragraphs(
-                    [hypotheses_to_return[i].value, translated_paragraphs[j][i].value]
-                )
-                score = (
-                    hypotheses_to_return[i].score + translated_paragraphs[j][i].score
-                )
-                hypotheses_to_return[i] = Hypothesis(value, score)
-            hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip("\n")
-        return hypotheses_to_return
-
-
 class RemoteTranslation(ITranslation):
     """A translation provided by a remote LibreTranslate server"""
 
@@ -348,7 +243,7 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
         num_hypotheses (int): The number of hypotheses to generate
 
     Returns:
-        [Hypothesis]: A list of Hypothesis's for translating input_text
+        [Hypothesis]: A list of Hypotheses for translating input_text
 
     """
 
@@ -418,9 +313,8 @@ def get_installed_languages():
                 language_of_code[pkg.to_code] = Language(pkg.to_code, pkg.to_name)
             from_lang = language_of_code[pkg.from_code]
             to_lang = language_of_code[pkg.to_code]
-            translation_to_add = CachedTranslation(
-                PackageTranslation(from_lang, to_lang, pkg)
-            )
+            translation_to_add = PackageTranslation(from_lang, to_lang, pkg)
+
             from_lang.translations_from.append(translation_to_add)
             to_lang.translations_to.append(translation_to_add)
 
