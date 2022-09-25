@@ -13,6 +13,9 @@ from argostranslate import utils
 from argostranslate import networking
 from argostranslate.utils import info, error
 
+# TODO: Handle dependencies
+# TODO: Upgrade packages
+
 """
 ## `package` module example usage
 ```
@@ -87,6 +90,7 @@ class IPackage:
 
         """
         self.code = metadata.get("code")
+        self.name = metadata.get("name")
         self.package_version = metadata.get("package_version", "")
         self.argos_version = metadata.get("argos_version", "")
         self.from_code = metadata.get("from_code")
@@ -137,11 +141,19 @@ class IPackage:
     def __eq__(self, other):
         return self.code == other.code
 
-    def __repr__(self):
-        return self.code
-
     def __str__(self):
-        return self.name
+        if self.name is not None:
+            return self.name
+        if self.code is not None:
+            return self.code
+        if self.type is not None:
+            return self.type
+        return "Argos Translate Package"
+
+    def __repr__(self):
+        if self.code is not None:
+            return self.code
+        return str(self)
 
 
 class Package(IPackage):
@@ -282,13 +294,12 @@ def get_available_packages():
     try:
         with open(settings.local_package_index) as index_file:
             index = json.load(index_file)
-            packages = []
+            packages = list()
             for metadata in index:
                 package = AvailablePackage(metadata)
                 packages.append(package)
 
             return packages
     except FileNotFoundError:
-        raise Exception(
-            "Local package index not found, use package.update_package_index() to load it"
-        )
+        update_package_index()
+        return get_available_packages()
