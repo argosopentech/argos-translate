@@ -6,6 +6,7 @@ import shutil
 import urllib.request
 from pathlib import Path
 from threading import Lock
+import uuid
 
 from argostranslate import settings
 from argostranslate import utils
@@ -133,24 +134,13 @@ class IPackage:
         raise NotImplementedError()
 
     def __eq__(self, other):
-        return (
-            self.package_version == other.package_version
-            and self.argos_version == other.argos_version
-            and self.from_code == other.from_code
-            and self.from_name == other.from_name
-            and self.to_code == other.to_code
-            and self.to_name == other.to_name
-        )
+        return self.code == other.code
 
     def __repr__(self):
-        if len(self.from_name) > 0 and len(self.to_name) > 0:
-            return "{} -> {}".format(self.from_name, self.to_name)
-        elif self.type:
-            return self.type
-        return ""
+        return self.code
 
     def __str__(self):
-        return repr(self).replace("->", "→")
+        return self.name
 
 
 class Package(IPackage):
@@ -217,7 +207,9 @@ class AvailablePackage(IPackage):
 
     def download(self):
         """Downloads the AvailablePackage and returns its path"""
-        filename = argospm_package_name(self) + ".argosmodel"
+
+        package_slug = self.code if self.code is not None else uuid.uuid4()
+        filename = package_slug + ".argosmodel"
 
         # Install sbd package if needed
         if self.type == "translate" and not settings.stanza_available:
@@ -247,7 +239,7 @@ class AvailablePackage(IPackage):
         install_from_path(download_path)
 
     def get_description(self):
-        return "{} → {}".format(self.from_name, self.to_name)
+        return self.name
 
 
 def uninstall(pkg):
@@ -329,19 +321,3 @@ def get_available_packages():
         raise Exception(
             "Local package index not found, use package.update_package_index() to load it"
         )
-
-
-def argospm_package_name(pkg):
-    """Gets argospm name of an IPackage.
-
-    Args:
-        pkg (IPackage): The package to get the name of.
-
-    Returns:
-        str: Package name for argospm
-    """
-    to_return = pkg.type
-    if pkg.from_code and pkg.to_code:
-        to_return += "-" + pkg.from_code + "_" + pkg.to_code
-    return to_return
-
