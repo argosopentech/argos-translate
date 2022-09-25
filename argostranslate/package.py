@@ -97,6 +97,7 @@ class IPackage:
         self.links = metadata.get("links", list())
         self.type = metadata.get("type", "translate")
         self.languages = metadata.get("languages", list())
+        self.dependencies = metadata.get("dependencies", list())
         self.source_languages = metadata.get("source_languages", list())
         self.target_languages = metadata.get("target_languages", list())
 
