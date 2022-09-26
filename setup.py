@@ -9,16 +9,19 @@ with open("README.md") as f:
 setup(
     name="argostranslate",
     version="1.7.0",
-    description="Offline neural machine translation library and GUI.",
+    description="Open-source neural machine translation library based on OpenNMT's CTranslate2",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Argos Open Technologies, LLC",
     author_email="admin@argosopentech.com",
     url="https://www.argosopentech.com",
     project_urls={
+        "Website": "https://www.argosopentech.com",
         "Documentation": "https://argos-translate.readthedocs.io/en/latest/",
-        "Source": "https://github.com/argosopentech/argos-translate",
+        "GitHub": "https://github.com/argosopentech/argos-translate",
+        "Forum": "https://community.libretranslate.com/c/argos-translate/5",
     },
+    python_requires=">=3.5",
     packages=find_packages(),
     install_requires=required_packages,
     include_package_data=True,
@@ -26,6 +29,6 @@ setup(
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Development Status :: 5 - Production/Stable"
+        "Development Status :: 5 - Production/Stable",
     ]
 )

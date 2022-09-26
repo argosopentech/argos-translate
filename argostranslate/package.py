@@ -1,5 +1,5 @@
 import logging
-
+import copy
 import zipfile
 import json
 import shutil
@@ -85,6 +85,7 @@ class IPackage:
             metadata: A json object from json.load
 
         """
+        self.code = metadata.get("code")
         self.package_version = metadata.get("package_version", "")
         self.argos_version = metadata.get("argos_version", "")
         self.from_code = metadata.get("from_code")
@@ -95,6 +96,29 @@ class IPackage:
         self.to_name = metadata.get("to_name", "")
         self.links = metadata.get("links", list())
         self.type = metadata.get("type", "translate")
+        self.languages = metadata.get("languages", list())
+        self.dependencies = metadata.get("dependencies", list())
+        self.source_languages = metadata.get("source_languages", list())
+        self.target_languages = metadata.get("target_languages", list())
+
+        # Add all package source and target languages to
+        # source_languages and target_languages
+        if self.from_code is not None or self.from_name is not None:
+            from_lang = dict()
+            if self.from_code is not None:
+                from_lang["code"] = self.from_code
+            if self.from_name is not None:
+                from_lang["name"] = self.from_name
+            self.source_languages.append(from_lang)
+        if self.to_code is not None or self.to_name is not None:
+            to_lang = dict()
+            if self.to_code is not None:
+                to_lang["code"] = self.to_code
+            if self.to_name is not None:
+                to_lang["name"] = self.to_name
+            self.source_languages.append(to_lang)
+        self.source_languages += copy.deepcopy(self.languages)
+        self.target_languages += copy.deepcopy(self.languages)
 
     def get_readme(self):
         """Returns the text of the README.md in this package.
@@ -214,7 +238,7 @@ class AvailablePackage(IPackage):
         if not filepath.exists():
             data = networking.get_from(self.links)
             if data is None:
-                raise Exception(f"Download failed for {url}")
+                raise Exception(f"Download failed for {str(self)}")
             with open(filepath, "wb") as f:
                 f.write(data)
         return filepath
