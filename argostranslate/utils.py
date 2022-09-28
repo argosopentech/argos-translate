@@ -14,9 +14,9 @@ if settings.debug:
 
 def info(*argv):
     """Info level log"""
-    logger.debug(str(argv))
+    logger.debug(list(argv))
 
 
 def error(*argv):
     """Error level log"""
-    logger.error(str(argv))
+    logger.error(list(argv))
