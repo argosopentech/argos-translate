@@ -125,6 +125,14 @@ class IPackage:
         self.source_languages += copy.deepcopy(self.languages)
         self.target_languages += copy.deepcopy(self.languages)
 
+        # Filter out languages that don't have a code
+        self.source_languages = list(
+            filter(lambda lang: lang.get("code") is not None, self.source_languages)
+        )
+        self.target_languages = list(
+            filter(lambda lang: lang.get("code") is not None, self.target_languages)
+        )
+
     def get_readme(self):
         """Returns the text of the README.md in this package.
 

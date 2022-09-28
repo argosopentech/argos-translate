@@ -87,11 +87,14 @@ class Language:
     def __init__(self, code, name):
         self.code = code
         self.name = name
-        self.translations_from = []
-        self.translations_to = []
+        self.translators_from = list()
+        self.translators_to = list()
 
     def __str__(self):
         return self.name
+
+    def __eq__(self, other):
+        return self.code == other.code
 
     def get_translation(self, to):
         """Gets a translation from this Language to another Language.
@@ -104,30 +107,40 @@ class Language:
                 else None.
 
         """
-        valid_translations = list(
-            filter(lambda x: x.to_lang.code == to.code, self.translations_from)
-        )
-        if len(valid_translations) > 0:
-            return valid_translations[0]
+        for translator_from in self.translators_from:
+            translation = translator_from.get_translation(self, to)
+            if translation is not None:
+                return translation
         return None
 
+        # Pivot through intermediate languages to add translations
+        # that don't already exist
+        """
+        for language in languages:
+            keep_adding_translations = True
+            while keep_adding_translations:
+                keep_adding_translations = False
+                for translation in language.translations_from:
+                    for translation_2 in translation.to_lang.translations_from:
+                        if language.get_translation(translation_2.to_lang) is None:
+                            # The language currently doesn't have a way to translate
+                            # to this language
+                            keep_adding_translations = True
+                            composite_translation = CompositeTranslation(
+                                translation, translation_2
+                            )
+                            language.translations_from.append(composite_translation)
+                            translation_2.to_lang.translations_to.append(
+                                composite_translation
+                            )
 
-class PackageTranslation(ITranslation):
-    """A Translation that is installed with a package"""
+        # Add identity translations so everything can translate to itself
+        for language in languages:
+            identity_translation = IdentityTranslation(language)
+            language.translations_from.append(identity_translation)
+            language.translations_to.append(identity_translation)
 
-    def __init__(self, from_lang, to_lang, pkg):
-        self.from_lang = from_lang
-        self.to_lang = to_lang
-        self.pkg = pkg
-        self.translator = None
-
-    def hypotheses(self, input_text, num_hypotheses):
-        if self.translator is None:
-            model_path = str(self.pkg.package_path / "model")
-            self.translator = ctranslate2.Translator(model_path, device=settings.device)
-        return apply_packaged_translation(
-            self.pkg, input_text, self.translator, num_hypotheses
-        )
+        """
 
 
 class IdentityTranslation(ITranslation):
@@ -249,48 +262,130 @@ def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
 
     info("apply_packaged_translation", input_text)
 
-    # Sentence boundary detection chunking
-    sentences = chunk.chunk(input_text)
-    info("sentences", sentences)
-
-    # Tokenization
-    sp_model_path = str(pkg.package_path / "sentencepiece.model")
-    sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
-    tokenized = [sp_processor.encode(sentence, out_type=str) for sentence in sentences]
-    info("tokenized", tokenized)
-
     # Translation
-    BATCH_SIZE = 32
-    translated_batches = translator.translate_batch(
-        tokenized,
-        replace_unknowns=True,
-        max_batch_size=BATCH_SIZE,
-        beam_size=max(num_hypotheses, 4),
-        num_hypotheses=num_hypotheses,
-        length_penalty=0.2,
-        return_scores=True,
-    )
     info("translated_batches", translated_batches)
 
-    # Build hypotheses
-    value_hypotheses = []
-    for i in range(num_hypotheses):
-        translated_tokens = []
-        cumulative_score = 0
-        for translated_batch in translated_batches:
-            translated_tokens += translated_batch[i]["tokens"]
-            cumulative_score += translated_batch[i]["score"]
-        detokenized = "".join(translated_tokens)
-        detokenized = detokenized.replace("▁", " ")
-        value = detokenized
-        if len(value) > 0 and value[0] == " ":
-            # Remove space at the beginning of the translation added
-            # by the tokenizer.
-            value = value[1:]
-        hypothesis = Hypothesis(value, cumulative_score)
-        value_hypotheses.append(hypothesis)
-    info("value_hypotheses:", value_hypotheses)
-    return value_hypotheses
+
+# TODO: Rename "LocalTranslation"?
+class PackageTranslation(ITranslation):
+    """A Translation that is installed with a package"""
+
+    def __init__(self, pkg):
+        self.pkg = pkg
+        self.translator = None
+
+    def hypotheses(self, input_text, num_hypotheses):
+        if self.translator is None:
+            model_path = str(self.pkg.package_path / "model")
+            self.translator = ctranslate2.Translator(model_path, device=settings.device)
+        return apply_packaged_translation(
+            self.pkg, input_text, self.translator, num_hypotheses
+        )
+
+
+class LocalTranslation(ITranslation):
+    def __init__(self, translator, from_lang, to_lang):
+        self.translator = translator
+        self.from_lang = from_lang
+        self.to_lang = to_lang
+
+    def hypotheses(self, input_text, num_hypotheses=4):
+        return self.translator.translate(
+            input_text, self.from_lang.code, self.to_lang.code, num_hypotheses
+        )
+
+
+class Translator:
+    def __init__(self, pkg):
+        self.pkg = pkg
+        self.source_languages = [
+            Language(language["code"], language["name"])
+            for language in self.pkg.source_languages
+        ]
+        self.target_languages = [
+            Language(language["code"], language["name"])
+            for language in self.pkg.target_languages
+        ]
+        model_path = str(self.pkg.package_path / "model")
+        self.translator = ctranslate2.Translator(model_path, device=settings.device)
+        sp_model_path = str(self.pkg.package_path / "sentencepiece.model")
+        self.sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
+
+    def chunk(self, input_text):
+        # Sentence boundary detection chunking
+        sentences = chunk.chunk(input_text, lambda x: x)
+        info("sentences", sentences)
+        return sentences
+
+    def tokenize(self, input_text):
+        tokenized = self.sp_processor.encode(input_text, out_type=str)
+        info("tokenized", tokenized)
+        return tokenized
+
+    def detokenize(self, tokens):
+        return self.sp_processor.decode(tokens)
+
+    def add_source_prefix(self, tokenized_sentence, from_code):
+        source_code_token = f"__{from_code}__"
+        return [source_code_token] + tokenized_sentence
+
+    def remove_target_prefix(self, translated_tokens, target_code_token):
+        if translated_tokens[0] == target_code_token:
+            return translated_tokens[1:]
+        else:
+            return translated_tokens
+
+    def translate(self, input_text, from_code, to_code, num_hypotheses):
+        # Split sentences
+        sentences = self.chunk(input_text)
+
+        # Tokenize
+        tokenized_sentences = [self.tokenize(sentence) for sentence in sentences]
+
+        # Add source prefix
+        target_code_token = f"__{to_code}__"
+        tokenized_sentences = [
+            self.add_source_prefix(tokenized_sentence, from_code)
+            for tokenized_sentence in tokenized_sentences
+        ]
+
+        # Translate
+        translation_results = self.translator.translate_batch(
+            tokenized_sentences,
+            target_prefix=[[target_code_token]] * len(tokenized_sentences),
+            replace_unknowns=True,
+            max_batch_size=2024,
+            beam_size=max(num_hypotheses, 4),
+            num_hypotheses=num_hypotheses,
+            length_penalty=0.2,
+            return_scores=True,
+        )
+        info("translation_results", translation_results)
+
+        # Build hypotheses
+        hypotheses = list()
+        for i in range(num_hypotheses):
+            translated_tokens = list()
+            cumulative_score = 0
+            for translation_result in translation_results:
+                translated_tokens += translation_result.hypotheses[i]
+                translated_tokens = self.remove_target_prefix(
+                    translated_tokens, target_code_token
+                )
+                cumulative_score += translation_result.scores[i]
+            hypothesis_value = self.detokenize(translated_tokens)
+            hypothesis_score = cumulative_score / len(translation_results)
+            hypothesis = Hypothesis(hypothesis_value, hypothesis_score)
+            hypotheses.append(hypothesis)
+        info("hypotheses", hypotheses)
+        return hypotheses
+
+    def get_translation(self, from_lang, to_lang):
+        if from_lang not in self.source_languages:
+            return None
+        if to_lang not in self.target_languages:
+            return None
+        return LocalTranslation(self, from_lang, to_lang)
 
 
 def get_installed_languages():
@@ -307,44 +402,25 @@ def get_installed_languages():
         # Load languages and translations from packages
         language_of_code = dict()
         for pkg in packages:
-            if pkg.from_code not in language_of_code:
-                language_of_code[pkg.from_code] = Language(pkg.from_code, pkg.from_name)
-            if pkg.to_code not in language_of_code:
-                language_of_code[pkg.to_code] = Language(pkg.to_code, pkg.to_name)
-            from_lang = language_of_code[pkg.from_code]
-            to_lang = language_of_code[pkg.to_code]
-            translation_to_add = PackageTranslation(from_lang, to_lang, pkg)
-
-            from_lang.translations_from.append(translation_to_add)
-            to_lang.translations_to.append(translation_to_add)
+            translator = Translator(pkg)
+            for source_language in pkg.source_languages:
+                if source_language["code"] not in language_of_code:
+                    language_of_code[source_language["code"]] = Language(
+                        source_language["code"], source_language["name"]
+                    )
+                    language_of_code[source_language["code"]].translators_from.append(
+                        translator
+                    )
+            for target_language in pkg.target_languages:
+                if target_language["code"] not in language_of_code:
+                    language_of_code[target_language["code"]] = Language(
+                        target_language["code"], target_language["name"]
+                    )
+                    language_of_code[target_language["code"]].translators_to.append(
+                        translator
+                    )
 
         languages = list(language_of_code.values())
-
-        # Add translations so everything can translate to itself
-        for language in languages:
-            identity_translation = IdentityTranslation(language)
-            language.translations_from.append(identity_translation)
-            language.translations_to.append(identity_translation)
-
-        # Pivot through intermediate languages to add translations
-        # that don't already exist
-        for language in languages:
-            keep_adding_translations = True
-            while keep_adding_translations:
-                keep_adding_translations = False
-                for translation in language.translations_from:
-                    for translation_2 in translation.to_lang.translations_from:
-                        if language.get_translation(translation_2.to_lang) is None:
-                            # The language currently doesn't have a way to translate
-                            # to this language
-                            keep_adding_translations = True
-                            composite_translation = CompositeTranslation(
-                                translation, translation_2
-                            )
-                            language.translations_from.append(composite_translation)
-                            translation_2.to_lang.translations_to.append(
-                                composite_translation
-                            )
 
     elif settings.model_provider == settings.ModelProvider.LIBRETRANSLATE:
         # TODO: Add API key and custom URL support
@@ -433,3 +509,6 @@ def translate(q, from_code, to_code):
     """
     translation = get_translation_from_codes(from_code, to_code)
     return translation.translate(q)
+
+
+# TODO: Add translate_json function
