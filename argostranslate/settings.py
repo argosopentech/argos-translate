@@ -3,6 +3,29 @@ import os
 from enum import Enum
 import json
 
+"""
+Argos Translate can be configured using either environment variables or json file
+
+### Environment variables
+```
+export ARGOS_DEBUG="0"
+export ARGOS_PACKAGE_DIR="~/.local/share/packages/"
+export ARGOS_PACKAGES_INDEX="https://www.argosopentech.com/argospm/index/"
+export ARGOS_DEVICE_TYPE="cpu"
+
+```
+
+### JSON ~/.config/argos-translate/settings.json
+```
+{
+    "ARGOS_DEBUG": "0",
+    "ARGOS_PACKAGE_DIR": "~/.local/share/packages/",
+    "ARGOS_PACKAGES_INDEX": "https://www.argosopentech.com/argospm/index/",
+    "ARGOS_DEVICE_TYPE": "cpu"
+}
+```
+"""
+
 home_dir = Path.home()
 
 data_dir = (
@@ -21,12 +44,6 @@ cache_dir = (
     / "argos-translate"
 )
 os.makedirs(cache_dir, exist_ok=True)
-
-package_data_dir = Path(os.getenv("ARGOS_PACKAGES_DIR", default=data_dir / "packages"))
-os.makedirs(package_data_dir, exist_ok=True)
-
-downloads_dir = cache_dir / "downloads"
-os.makedirs(downloads_dir, exist_ok=True)
 
 settings_file = config_dir / "settings.json"
 
@@ -51,6 +68,15 @@ def get_setting(key, default=None):
 TRUE_VALUES = ["1", "TRUE", "True", "true"]
 
 debug = get_setting("ARGOS_DEBUG") in TRUE_VALUES
+
+package_data_dir = Path(
+    get_setting("ARGOS_PACKAGES_DIR", default=data_dir / "packages")
+)
+os.makedirs(package_data_dir, exist_ok=True)
+
+downloads_dir = cache_dir / "downloads"
+os.makedirs(downloads_dir, exist_ok=True)
+
 
 package_index = get_setting(
     "ARGOS_PACKAGE_INDEX",
