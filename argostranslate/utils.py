@@ -1,5 +1,6 @@
 import logging
 import sys
+import json
 
 from argostranslate import settings
 
@@ -14,9 +15,9 @@ if settings.debug:
 
 def info(*argv):
     """Info level log"""
-    logger.debug(list(argv))
+    logger.debug(json.dumps([str(arg) for arg in argv]))
 
 
 def error(*argv):
     """Error level log"""
-    logger.error(list(argv))
+    logger.error(json.dumps([str(arg) for arg in argv]))
