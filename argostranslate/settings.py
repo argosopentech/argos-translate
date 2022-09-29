@@ -9,8 +9,8 @@ Argos Translate can be configured using either environment variables or json fil
 ### Environment variables
 ```
 export ARGOS_DEBUG="0"
-export ARGOS_PACKAGE_DIR="~/.local/share/packages/"
 export ARGOS_PACKAGES_INDEX="https://www.argosopentech.com/argospm/index/"
+export ARGOS_PACKAGE_DIR="~/.local/share/packages/"
 export ARGOS_DEVICE_TYPE="cpu"
 
 ```
@@ -19,8 +19,8 @@ export ARGOS_DEVICE_TYPE="cpu"
 ```
 {
     "ARGOS_DEBUG": "0",
-    "ARGOS_PACKAGE_DIR": "~/.local/share/packages/",
     "ARGOS_PACKAGES_INDEX": "https://www.argosopentech.com/argospm/index/",
+    "ARGOS_PACKAGE_DIR": "~/.local/share/packages/",
     "ARGOS_DEVICE_TYPE": "cpu"
 }
 ```
@@ -69,6 +69,11 @@ TRUE_VALUES = ["1", "TRUE", "True", "true"]
 
 debug = get_setting("ARGOS_DEBUG") in TRUE_VALUES
 
+package_index = get_setting(
+    "ARGOS_PACKAGE_INDEX",
+    default="https://www.argosopentech.com/argospm/index/",
+)
+
 package_data_dir = Path(
     get_setting("ARGOS_PACKAGES_DIR", default=data_dir / "packages")
 )
@@ -77,11 +82,6 @@ os.makedirs(package_data_dir, exist_ok=True)
 downloads_dir = cache_dir / "downloads"
 os.makedirs(downloads_dir, exist_ok=True)
 
-
-package_index = get_setting(
-    "ARGOS_PACKAGE_INDEX",
-    default="https://www.argosopentech.com/argospm/index/",
-)
 
 
 remote_package_index = package_index + "index.json"
