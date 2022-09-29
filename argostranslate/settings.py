@@ -1,10 +1,7 @@
 from pathlib import Path
 import os
 from enum import Enum
-
-TRUE_VALUES = ["1", "TRUE", "True", "true"]
-
-debug = os.getenv("ARGOS_DEBUG") in TRUE_VALUES
+import json
 
 home_dir = Path.home()
 
@@ -31,14 +28,42 @@ os.makedirs(package_data_dir, exist_ok=True)
 downloads_dir = cache_dir / "downloads"
 os.makedirs(downloads_dir, exist_ok=True)
 
-package_index = os.getenv(
+settings_file = config_dir / "settings.json"
+
+
+settings_object = dict()
+if settings_file.exists():
+    with open(settings_file) as settings_file_data:
+        settings_object = json.load(open(settings_file))
+
+
+def get_setting(key, default=None):
+    value_from_environment = os.getenv(key)
+    value_from_file = settings_object.get(key)
+    if value_from_environment is not None:
+        return value_from_environment
+    else:
+        if value_from_file is not None:
+            return value_from_file
+        return default
+
+
+TRUE_VALUES = ["1", "TRUE", "True", "true"]
+
+debug = get_setting("ARGOS_DEBUG") in TRUE_VALUES
+
+package_index = get_setting(
     "ARGOS_PACKAGE_INDEX",
     default="https://www.argosopentech.com/argospm/index/",
 )
 
+
 remote_package_index = package_index + "index.json"
 
-local_package_index = cache_dir / "index.json"
+local_package_index = data_dir / "index.json"
+
+# Supported values: "cpu" and "cuda"
+device = get_setting("ARGOS_DEVICE_TYPE", "cpu")
 
 
 class ModelProvider(Enum):
@@ -52,15 +77,15 @@ model_mapping = {
     "LIBRETRANSLATE": ModelProvider.LIBRETRANSLATE,
     "OPENAI": ModelProvider.OPENAI,
 }
-model_provider = model_mapping[os.getenv("ARGOS_MODEL_PROVIDER", default="OPENNMT")]
+model_provider = model_mapping[get_setting("ARGOS_MODEL_PROVIDER", default="OPENNMT")]
 
-libretranslate_api_key = os.getenv("LIBRETRANSLATE_API_KEY", None)
-openai_api_key = os.getenv("OPENAI_API_KEY", None)
+libretranslate_api_key = get_setting("LIBRETRANSLATE_API_KEY", None)
+openai_api_key = get_setting("OPENAI_API_KEY", None)
 
 
 package_dirs = [package_data_dir]
 
-about_text = (
+argos_translate_about_text = (
     "Argos Translate is an open source neural machine "
     + "translation application created by Argos Open "
     + "Technologies, LLC (www.argosopentech.com). "
@@ -69,6 +94,3 @@ about_text = (
 # Fix Intel bug
 # https://github.com/argosopentech/argos-translate/issues/40
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
-
-# Supported values: cpu and cuda
-device = os.environ.get("ARGOS_DEVICE_TYPE", "cpu")
