@@ -93,6 +93,9 @@ class Language:
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return self.code
+
     def __eq__(self, other):
         return self.code == other.code
 
@@ -391,8 +394,6 @@ class Translator:
 def get_installed_languages():
     """Returns a list of Languages installed from packages"""
 
-    info("get_installed_languages")
-
     if settings.model_provider == settings.ModelProvider.OPENNMT:
         packages = package.get_installed_packages()
 
@@ -457,6 +458,8 @@ def get_installed_languages():
     languages.sort(key=lambda x: x.name)
     if english is not None:
         languages = [english] + languages
+
+    info("languages", languages)
 
     return languages
 
