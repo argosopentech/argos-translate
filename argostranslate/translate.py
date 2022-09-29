@@ -431,9 +431,7 @@ def get_installed_languages():
         languages = [Language(l["code"], l["name"]) for l in supported_languages]
         for from_lang in languages:
             for to_lang in languages:
-                translation = LibreTranslateTranslation(
-                    from_lang, to_lang, libretranslate_api
-                )
+                translation = REMOTE(from_lang, to_lang, libretranslate_api)
                 from_lang.translations_from.append(translation)
                 to_lang.translations_to.append(translation)
 
