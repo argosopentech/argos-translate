@@ -1,3 +1,7 @@
+2.0
+- Load configuration settings from file or environment variable
+- Improved logging
+
 1.7:
 - Improved examples and documentation
 - Use multiple links for redundancy and load balancing
