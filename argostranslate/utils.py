@@ -5,10 +5,10 @@ import json
 from argostranslate import settings
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG if settings.debug else logging.INFO)
+logger.setLevel(logging.DEBUG if settings.is_debug else logging.INFO)
 
 # Print to standard output if in debug mode
-if settings.debug:
+if settings.is_debug:
     std_out_stream_handler = logging.StreamHandler(sys.stdout)
     logger.addHandler(std_out_stream_handler)
 

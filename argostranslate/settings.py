@@ -15,7 +15,9 @@ export ARGOS_DEVICE_TYPE="cpu"
 
 ```
 
-### JSON ~/.config/argos-translate/settings.json
+### JSON 
+
+# ~/.config/argos-translate/settings.json
 ```
 {
     "ARGOS_DEBUG": "0",
@@ -65,7 +67,7 @@ def get_setting(key, default=None):
         return default
 
 
-debug = get_setting("ARGOS_DEBUG") in ["1", "TRUE", "True", "true", 1, True]
+is_debug = get_setting("ARGOS_DEBUG") in ["1", "TRUE", "True", "true", 1, True]
 
 package_index = get_setting(
     "ARGOS_PACKAGE_INDEX",
