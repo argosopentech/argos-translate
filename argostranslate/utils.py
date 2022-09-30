@@ -14,6 +14,8 @@ if settings.debug:
 
 
 def get_json_string(argv):
+    if len(argv) == 1:
+        return json.dumps(str(argv[0]))
     return json.dumps([str(arg) for arg in argv])
 
 
@@ -35,3 +37,6 @@ def error(*argv):
 def critical(*argv):
     """Critical level log"""
     logger.critical(get_json_string(argv))
+
+
+critical("HI")
