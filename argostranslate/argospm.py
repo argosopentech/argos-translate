@@ -67,7 +67,7 @@ def list_packages(args):
     """List installed packages."""
     installed_packages = package.get_installed_packages()
     for installed_package in installed_packages:
-        print(str(installed_package))
+        print(f"{repr(installed_package)} : {str(installed_package)}")
 
 
 def remove_package(args):
