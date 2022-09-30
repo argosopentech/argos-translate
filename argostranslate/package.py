@@ -11,7 +11,7 @@ import uuid
 from argostranslate import settings
 from argostranslate import utils
 from argostranslate import networking
-from argostranslate.utils import info
+from argostranslate.utils import info, error
 
 # TODO: Handle dependencies
 # TODO: Upgrade packages
