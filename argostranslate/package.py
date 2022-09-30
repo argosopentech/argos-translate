@@ -11,7 +11,7 @@ import uuid
 from argostranslate import settings
 from argostranslate import utils
 from argostranslate import networking
-from argostranslate.utils import info, error
+from argostranslate.utils import info
 
 # TODO: Handle dependencies
 # TODO: Upgrade packages
@@ -89,6 +89,8 @@ class IPackage:
             metadata: A json object from json.load
 
         """
+        info("Load metadata from package json", metadata)
+
         self.code = metadata.get("code")
         self.name = metadata.get("name")
         self.package_version = metadata.get("package_version", "")
@@ -217,6 +219,7 @@ def install_from_path(path):
             raise Exception("Not a valid Argos Model (must be a zip archive)")
         with zipfile.ZipFile(path, "r") as zip:
             zip.extractall(path=settings.package_data_dir)
+            info("Installed package from path", path)
 
 
 class AvailablePackage(IPackage):
@@ -257,6 +260,7 @@ def uninstall(pkg):
 
     """
     with package_lock:
+        info("Uninstalled package", pkg)
         shutil.rmtree(pkg.package_path)
 
 
@@ -274,13 +278,14 @@ def get_installed_packages(path=None):
 
     """
     with package_lock:
-        to_return = []
+        installed_packages = []
         packages_path = settings.package_dirs if path is None else path
         for directory in packages_path:
             for path in directory.iterdir():
                 if path.is_dir():
-                    to_return.append(Package(path))
-        return to_return
+                    installed_packages.append(Package(path))
+        info("get_installed_packages", installed_packages)
+        return installed_packages
 
 
 def update_package_index():
@@ -302,12 +307,13 @@ def get_available_packages():
     try:
         with open(settings.local_package_index) as index_file:
             index = json.load(index_file)
-            packages = list()
+            available_packages = list()
             for metadata in index:
                 package = AvailablePackage(metadata)
-                packages.append(package)
+                available_packages.append(package)
 
-            return packages
+            info("get_available_packages", available_packages)
+            return available_packages
     except FileNotFoundError:
         update_package_index()
         return get_available_packages()

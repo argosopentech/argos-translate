@@ -1,7 +1,7 @@
 import urllib.request
 import random
 
-from argostranslate.utils import info, error
+from argostranslate.utils import info
 
 
 def get_protocol(url):

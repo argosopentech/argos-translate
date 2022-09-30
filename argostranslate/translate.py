@@ -49,7 +49,9 @@ class ITranslation:
             str: input_text translated.
 
         """
-        return self.hypotheses(input_text, num_hypotheses=1)[0].value
+        translation_result = self.hypotheses(input_text, num_hypotheses=1)[0].value
+        info("translation_result", translation_result)
+        return translation_result
 
     def hypotheses(self, input_text, num_hypotheses=4):
         """Translates a string from self.from_lang to self.to_lang
