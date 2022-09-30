@@ -18,6 +18,16 @@ def info(*argv):
     logger.debug(json.dumps([str(arg) for arg in argv]))
 
 
+def warning(*argv):
+    """Warning level log"""
+    logger.debug(json.dumps([str(arg) for arg in argv]))
+
+
 def error(*argv):
     """Error level log"""
     logger.error(json.dumps([str(arg) for arg in argv]))
+
+
+def critical(*argv):
+    """Critical level log"""
+    logger.critical(json.dumps([str(arg) for arg in argv]))
