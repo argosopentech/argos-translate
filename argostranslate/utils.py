@@ -19,14 +19,19 @@ def get_json_string(argv):
     return json.dumps([str(arg) for arg in argv])
 
 
+def debug(*argv):
+    """Debug level log"""
+    logger.debug(get_json_string(argv))
+
+
 def info(*argv):
     """Info level log"""
-    logger.debug(get_json_string(argv))
+    logger.info(get_json_string(argv))
 
 
 def warning(*argv):
     """Warning level log"""
-    logger.debug(get_json_string(argv))
+    logger.warning(get_json_string(argv))
 
 
 def error(*argv):
@@ -37,6 +42,3 @@ def error(*argv):
 def critical(*argv):
     """Critical level log"""
     logger.critical(get_json_string(argv))
-
-
-critical("HI")
