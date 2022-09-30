@@ -13,21 +13,25 @@ if settings.debug:
     logger.addHandler(std_out_stream_handler)
 
 
+def get_json_string(argv):
+    return json.dumps([str(arg) for arg in argv])
+
+
 def info(*argv):
     """Info level log"""
-    logger.debug(json.dumps([str(arg) for arg in argv]))
+    logger.debug(get_json_string(argv))
 
 
 def warning(*argv):
     """Warning level log"""
-    logger.debug(json.dumps([str(arg) for arg in argv]))
+    logger.debug(get_json_string(argv))
 
 
 def error(*argv):
     """Error level log"""
-    logger.error(json.dumps([str(arg) for arg in argv]))
+    logger.error(get_json_string(argv))
 
 
 def critical(*argv):
     """Critical level log"""
-    logger.critical(json.dumps([str(arg) for arg in argv]))
+    logger.critical(get_json_string(argv))
