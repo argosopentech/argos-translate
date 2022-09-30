@@ -65,7 +65,7 @@ def get_setting(key, default=None):
         return default
 
 
-debug = get_setting("ARGOS_DEBUG") in ["1", "TRUE", "True", "true"]
+debug = get_setting("ARGOS_DEBUG") in ["1", "TRUE", "True", "true", 1, True]
 
 package_index = get_setting(
     "ARGOS_PACKAGE_INDEX",
