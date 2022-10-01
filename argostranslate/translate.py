@@ -1,11 +1,12 @@
-import logging
+import functools
 
 import ctranslate2
 import sentencepiece as spm
 import stanza
 
-from argostranslate import package, settings, models, apis, fewshot, chunk
-from argostranslate.utils import info, error
+from argostranslate import settings, models, apis, fewshot, chunk
+import argostranslate.package
+from argostranslate.utils import info, warning
 
 
 class Hypothesis:
@@ -251,43 +252,6 @@ class FewShotTranslation(ITranslation):
         return [Hypothesis(to_return, 0)] * num_hypotheses
 
 
-def apply_packaged_translation(pkg, input_text, translator, num_hypotheses=4):
-    """Applies the translation in pkg to translate input_text.
-
-    Args:
-        pkg (Package): The package that provides the translation.
-        input_text (str): The text to be translated.
-        translator (ctranslate2.Translator): The CTranslate2 Translator
-        num_hypotheses (int): The number of hypotheses to generate
-
-    Returns:
-        [Hypothesis]: A list of Hypotheses for translating input_text
-
-    """
-
-    info("apply_packaged_translation", input_text)
-
-    # Translation
-    info("translated_batches", translated_batches)
-
-
-# TODO: Rename "LocalTranslation"?
-class PackageTranslation(ITranslation):
-    """A Translation that is installed with a package"""
-
-    def __init__(self, pkg):
-        self.pkg = pkg
-        self.translator = None
-
-    def hypotheses(self, input_text, num_hypotheses):
-        if self.translator is None:
-            model_path = str(self.pkg.package_path / "model")
-            self.translator = ctranslate2.Translator(model_path, device=settings.device)
-        return apply_packaged_translation(
-            self.pkg, input_text, self.translator, num_hypotheses
-        )
-
-
 class LocalTranslation(ITranslation):
     def __init__(self, translator, from_lang, to_lang):
         self.translator = translator
@@ -298,6 +262,21 @@ class LocalTranslation(ITranslation):
         return self.translator.translate(
             input_text, self.from_lang.code, self.to_lang.code, num_hypotheses
         )
+
+
+def get_chunk_package(from_code):
+    packages = argostranslate.package.get_installed_packages()
+    CHUNK_LANG_CODE = "chunk"
+    AUTO_LANG_CODE = "auto"
+    for package in packages:
+        for package_target_language in package.target_languages:
+            if package_target_language["code"] == CHUNK_LANG_CODE:
+                for package_source_language in package.source_languages:
+                    if package_source_language["code"] in [from_code, AUTO_LANG_CODE]:
+                        info("get_chunk_package", from_code, package)
+                        return package
+    info("get_chunk_package", from_code, None)
+    return None
 
 
 class Translator:
@@ -315,10 +294,41 @@ class Translator:
         self.translator = ctranslate2.Translator(model_path, device=settings.device)
         sp_model_path = str(self.pkg.package_path / "sentencepiece.model")
         self.sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
+        self.map_code_to_chunk_translation = dict()
 
-    def chunk(self, input_text):
-        # Sentence boundary detection chunking
-        sentences = chunk.chunk(input_text, lambda x: x)
+    def chunk(self, input_text, from_code):
+        chunk_package = get_chunk_package(from_code)
+        if chunk_package is None:
+            warning("Could not find chunk package", from_code)
+            return [input_text]
+
+        model_path = str(chunk_package.package_path / "model")
+        ctranslate2_translator = ctranslate2.Translator(
+            model_path, device=settings.device
+        )
+        sp_model_path = str(chunk_package.package_path / "sentencepiece.model")
+        sp_processor = spm.SentencePieceProcessor(
+            model_file=sp_model_path, out_type=str
+        )
+
+        def apply_chunk_translation(input_text, ctranslate2_translator, sp_processor):
+            MAX_CHUNK_LENGTH = 300
+            input_text = input_text[:MAX_CHUNK_LENGTH]
+
+            tokenized = sp_processor.encode(input_text)
+            translation_results = ctranslate2_translator.translate_batch(
+                [tokenized],
+            )
+            translated_tokens = translation_results[0].hypotheses[0]
+            return sp_processor.decode(translated_tokens)
+
+        chunk_translation = functools.partial(
+            apply_chunk_translation,
+            ctranslate2_translator=ctranslate2_translator,
+            sp_processor=sp_processor,
+        )
+
+        sentences = chunk.chunk(input_text, chunk_translation)
         info("sentences", sentences)
         return sentences
 
@@ -342,7 +352,7 @@ class Translator:
 
     def translate(self, input_text, from_code, to_code, num_hypotheses):
         # Split sentences
-        sentences = self.chunk(input_text)
+        sentences = self.chunk(input_text, from_code)
 
         # Tokenize
         tokenized_sentences = [self.tokenize(sentence) for sentence in sentences]
@@ -397,7 +407,7 @@ def get_installed_languages():
     """Returns a list of Languages installed from packages"""
 
     if settings.model_provider == settings.ModelProvider.OPENNMT:
-        packages = package.get_installed_packages()
+        packages = argostranslate.package.get_installed_packages()
 
         # Filter for translate packages
         packages = list(filter(lambda x: x.type == "translate", packages))

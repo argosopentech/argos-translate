@@ -1,10 +1,8 @@
-from typing import Callable
+from argostranslate.utils import info
 
 
-from typing import List, Callable
-
-
-def chunk(q: str, chunk_translation: Callable[str, str]) -> List[str]:
+def chunk(q: str, chunk_translation):
+    info("applied_chunk_translation", chunk_translation(q))
     to_return = list()
     to_return.append(q)
     return to_return
