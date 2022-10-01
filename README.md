@@ -175,6 +175,7 @@ The Argos Translate CDN runs on servers rented from DigitalOcean and Time4VPS an
 
 - [DigitalOcean](https://m.do.co/c/a1af57be6e3f)
 - [Time4VPS](https://www.time4vps.com/?affid=6929)
+- [Sharktech](https://portal.sharktech.net/aff.php?aff=1181)
 
 ## License
 Argos Translate is dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
