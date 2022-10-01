@@ -312,6 +312,7 @@ class Translator:
         )
 
         def apply_chunk_translation(input_text, ctranslate2_translator, sp_processor):
+            # TODO: Make "chunk" it's own package type and include this in the package metadata
             MAX_CHUNK_LENGTH = 300
             input_text = input_text[:MAX_CHUNK_LENGTH]
 
@@ -383,9 +384,8 @@ class Translator:
             translated_tokens = list()
             cumulative_score = 0
             for translation_result in translation_results:
-                translated_tokens += translation_result.hypotheses[i]
-                translated_tokens = self.remove_target_prefix(
-                    translated_tokens, target_code_token
+                translated_tokens += self.remove_target_prefix(
+                    translation_result.hypotheses[i], target_code_token
                 )
                 cumulative_score += translation_result.scores[i]
             hypothesis_value = self.detokenize(translated_tokens)
