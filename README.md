@@ -171,7 +171,7 @@ If you find this software useful donations are appreciated.
 Paid supporters receive priority support.
 
 #### Hosting referral links
-The Argos Translate CDN runs on servers rented from DigitalOcean and Time4VPS and provides >15 TB/month in free and open source model downloads. You can help offset our hosting costs by buying hosting through our referral links.
+The Argos Translate CDN provides >15 TB/month in free and open source model downloads and runs on cload rentals from DigitalOcean, Sharktech, and Time4VPS. You can help offset our hosting costs by purchasing hosting through our referral links.
 
 - [DigitalOcean](https://m.do.co/c/a1af57be6e3f)
 - [Time4VPS](https://www.time4vps.com/?affid=6929)
