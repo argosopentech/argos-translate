@@ -3,6 +3,7 @@ import copy
 import zipfile
 import json
 import shutil
+import uuid
 import urllib.request
 from pathlib import Path
 from threading import Lock
@@ -226,7 +227,7 @@ class AvailablePackage(IPackage):
         """Downloads the AvailablePackage and returns its path"""
         if len(self.links) == 0:
             return None
-        filename = self.code + ".argosmodel"
+        filename = f"{self.code}-{str(uuid.uuid4())}.argosmodel"
         filepath = settings.downloads_dir / filename
         data = networking.get_from(self.links)
         if data is None:
