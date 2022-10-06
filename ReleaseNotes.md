@@ -1,4 +1,5 @@
 # 2.0
+- Include dependencies in packages
 - Load configuration settings from file or environment variable
 - Improved logging
 
