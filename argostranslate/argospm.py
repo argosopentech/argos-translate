@@ -18,13 +18,6 @@ def update_index(args):
     package.update_package_index()
 
 
-def install_package_and_print_path(available_package):
-    download_path = available_package.download()
-    print(f"Downloaded package {download_path}")
-    package.install_from_path(download_path)
-    print(f"Installed package {available_package.code} to {settings.package_data_dir}")
-
-
 def install_package(args):
     """Install package."""
     available_packages = package.get_available_packages()
@@ -37,7 +30,8 @@ def install_package(args):
         None,
     )
     if package_to_install:
-        install_package_and_print_path(package_to_install)
+        package_to_install.install()
+        print(str(package_to_install))
     else:
         print("Package not found")
         exit(1)

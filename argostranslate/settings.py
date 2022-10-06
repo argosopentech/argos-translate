@@ -9,8 +9,8 @@ Argos Translate can be configured using either environment variables or json fil
 ### Environment variables
 ```
 export ARGOS_DEBUG="0"
-export ARGOS_PACKAGES_INDEX="https://www.argosopentech.com/argospm/index/"
-export ARGOS_PACKAGE_DIR="~/.local/share/packages/"
+export ARGOS_PACKAGE_INDEX="https://www.argosopentech.com/argospm/index/"
+export ARGOS_PACKAGES_DIR="~/.local/share/packages/"
 export ARGOS_DEVICE_TYPE="cpu"
 
 ```

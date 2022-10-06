@@ -6,14 +6,11 @@ import shutil
 import urllib.request
 from pathlib import Path
 from threading import Lock
-import uuid
 
 from argostranslate import settings
-from argostranslate import utils
 from argostranslate import networking
 from argostranslate.utils import info, error
 
-# TODO: Handle dependencies
 # TODO: Upgrade packages
 
 """
@@ -164,6 +161,92 @@ class IPackage:
         return str(self)
 
 
+def update_package_index():
+    """Downloads remote package index"""
+    with package_lock:
+        try:
+            response = urllib.request.urlopen(settings.remote_package_index)
+        except Exception as err:
+            error(err)
+            return
+        data = response.read()
+        with open(settings.local_package_index, "wb") as f:
+            f.write(data)
+
+
+def get_available_packages():
+    """Returns a list of AvailablePackages from the package index."""
+
+    try:
+        with open(settings.local_package_index) as index_file:
+            index = json.load(index_file)
+            available_packages = list()
+            for metadata in index:
+                package = AvailablePackage(metadata)
+                available_packages.append(package)
+
+            info("get_available_packages", available_packages)
+            return available_packages
+    except FileNotFoundError:
+        update_package_index()
+        return get_available_packages()
+
+
+def install_from_path(path):
+    """Install a package file (zip archive ending in .argosmodel).
+
+    Args:
+        path (pathlib): The path to the .argosmodel file to install.
+
+    """
+    with package_lock:
+        if not zipfile.is_zipfile(path):
+            raise Exception("Not a valid Argos Model (must be a zip archive)")
+        with zipfile.ZipFile(path, "r") as zip:
+            zip.extractall(path=settings.package_data_dir)
+            info("Installed package from path", path)
+
+
+class AvailablePackage(IPackage):
+    """A package available for download and installation"""
+
+    def __init__(self, metadata):
+        """Creates a new AvailablePackage from a metadata object"""
+        self.load_metadata_from_json(metadata)
+
+    def get_dependencies(self):
+        return list(
+            filter(
+                lambda available_package: available_package.code in self.dependencies,
+                get_available_packages(),
+            )
+        )
+
+    def download(self):
+        """Downloads the AvailablePackage and returns its path"""
+        if len(self.links) == 0:
+            return None
+        filename = self.code + ".argosmodel"
+        filepath = settings.downloads_dir / filename
+        data = networking.get_from(self.links)
+        if data is None:
+            raise Exception(f"Download failed for {str(self)}")
+        with open(filepath, "wb") as f:
+            f.write(data)
+        return filepath
+
+    def install(self):
+        for dependency in self.get_dependencies():
+            dependency.install()
+        download_path = self.download()
+        if download_path is not None:
+            install_from_path(download_path)
+            download_path.unlink()
+
+    def get_description(self):
+        return self.name
+
+
 class Package(IPackage):
     """An installed package"""
 
@@ -205,63 +288,6 @@ class Package(IPackage):
         return self.get_readme()
 
 
-def install_from_path(path):
-    """Install a package file (zip archive ending in .argosmodel).
-
-    Args:
-        path (pathlib): The path to the .argosmodel file to install.
-
-    """
-    with package_lock:
-        if not zipfile.is_zipfile(path):
-            raise Exception("Not a valid Argos Model (must be a zip archive)")
-        with zipfile.ZipFile(path, "r") as zip:
-            zip.extractall(path=settings.package_data_dir)
-            info("Installed package from path", path)
-
-
-class AvailablePackage(IPackage):
-    """A package available for download and installation"""
-
-    def __init__(self, metadata):
-        """Creates a new AvailablePackage from a metadata object"""
-        self.load_metadata_from_json(metadata)
-
-    def download(self):
-        """Downloads the AvailablePackage and returns its path"""
-
-        package_slug = self.code if self.code is not None else uuid.uuid4()
-        filename = package_slug + ".argosmodel"
-
-        filepath = settings.downloads_dir / filename
-        if not filepath.exists():
-            data = networking.get_from(self.links)
-            if data is None:
-                raise Exception(f"Download failed for {str(self)}")
-            with open(filepath, "wb") as f:
-                f.write(data)
-        return filepath
-
-    def install(self):
-        download_path = self.download()
-        install_from_path(download_path)
-
-    def get_description(self):
-        return self.name
-
-
-def uninstall(pkg):
-    """Uninstalls a package.
-
-    Args:
-        pkg (Package): The package to uninstall
-
-    """
-    with package_lock:
-        info("Uninstalled package", pkg)
-        shutil.rmtree(pkg.package_path)
-
-
 def get_installed_packages(path=None):
     """Return a list of installed Packages
 
@@ -286,32 +312,13 @@ def get_installed_packages(path=None):
         return installed_packages
 
 
-def update_package_index():
-    """Downloads remote package index"""
+def uninstall(pkg):
+    """Uninstalls a package.
+
+    Args:
+        pkg (Package): The package to uninstall
+
+    """
     with package_lock:
-        try:
-            response = urllib.request.urlopen(settings.remote_package_index)
-        except Exception as err:
-            error(err)
-            return
-        data = response.read()
-        with open(settings.local_package_index, "wb") as f:
-            f.write(data)
-
-
-def get_available_packages():
-    """Returns a list of AvailablePackages from the package index."""
-
-    try:
-        with open(settings.local_package_index) as index_file:
-            index = json.load(index_file)
-            available_packages = list()
-            for metadata in index:
-                package = AvailablePackage(metadata)
-                available_packages.append(package)
-
-            info("get_available_packages", available_packages)
-            return available_packages
-    except FileNotFoundError:
-        update_package_index()
-        return get_available_packages()
+        info("Uninstalled package", pkg)
+        shutil.rmtree(pkg.package_path)
