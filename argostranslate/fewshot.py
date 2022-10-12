@@ -16,7 +16,7 @@ Der Gewöhnliche Strandhafer (Ammophila arenaria (L.) Link; Syn: Calamagrostis a
 """
 
 
-def generate_prompt(text, from_name, from_code, to_name, to_code):
+def generate_prompt(text: str, from_name: str, from_code: str, to_name: str, to_code: str) -> str:
     # TODO: document
     to_return = prompt
     to_return += "Translate to "
@@ -35,7 +35,7 @@ def generate_prompt(text, from_name, from_code, to_name, to_code):
     return to_return
 
 
-def parse_inference(output):
+def parse_inference(output: str) -> str:
     end_index = output.find("=" * 10)
     if end_index != -1:
         return output[end_index]
