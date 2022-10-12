@@ -1,5 +1,4 @@
 import argparse
-from typing import List
 
 from argostranslate import package
 from argostranslate import settings
@@ -19,7 +18,7 @@ def update_index(args):
     package.update_package_index()
 
 
-def get_available_packages() -> List[AvailablePackage]:
+def get_available_packages() -> list[AvailablePackage]:
     """Get available packages and update packages list if it is not done
 
     Returns:
