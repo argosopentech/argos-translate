@@ -5,6 +5,7 @@ class ILanguageModel:
         Args:
             x: Prompt to run inference on
 
-        Returns: Output of inference
+        Returns:
+            Output of inference
         """
         raise NotImplementedError()
