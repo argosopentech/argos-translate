@@ -1,8 +1,9 @@
 import argparse
+from typing import List
 
 from argostranslate import package
 from argostranslate import settings
-
+from argostranslate.package import AvailablePackage
 
 """
 Example usage:
@@ -18,11 +19,11 @@ def update_index(args):
     package.update_package_index()
 
 
-def get_available_packages():
+def get_available_packages() -> List[AvailablePackage]:
     """Get available packages and update packages list if it is not done
 
     Returns:
-        list(package.AvailablePackage): The list of available packages
+        The list of available packages
     """
     try:
         available_packages = package.get_available_packages()
@@ -33,7 +34,7 @@ def get_available_packages():
     return available_packages
 
 
-def install_package_print_path(available_package):
+def install_package_print_path(available_package: AvailablePackage):
     download_path = available_package.download()
     print(f"Downloaded package {download_path}")
     package.install_from_path(download_path)
