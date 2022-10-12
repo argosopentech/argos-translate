@@ -120,20 +120,19 @@ class LibreTranslateAPI:
 
 
 class OpenAIAPI(ILanguageModel):
-    def __init__(self, api_key):
+    def __init__(self, api_key: str):
         """Create an API connection.
 
         Args:
-            api_key (str): The API key for the OpenAI API
+            api_key: The API key for the OpenAI API
         """
         self.api_key = api_key
 
-    def infer(self, prompt):
+    def infer(self, prompt: str) -> str:
         """Connect to OpenAI API
 
         Args:
-            prompt (str): The prompt to run inference on.
-            api_key (str): OpenAI API key
+            prompt: The prompt to run inference on.
 
         Returns: The generated text
         """
