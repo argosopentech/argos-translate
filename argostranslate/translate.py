@@ -3,7 +3,6 @@ import functools
 
 import ctranslate2
 import sentencepiece as spm
-import stanza
 from ctranslate2 import Translator
 
 import argostranslate
