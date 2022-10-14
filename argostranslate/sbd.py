@@ -30,7 +30,9 @@ def get_sbd_package() -> Package | None:
     return None
 
 
-def generate_fewshot_sbd_prompt(input_text: str, sentence_guess_length: int = 150) -> str:
+def generate_fewshot_sbd_prompt(
+    input_text: str, sentence_guess_length: int = 150
+) -> str:
     sentence_guess = input_text[:sentence_guess_length]
     to_return = fewshot_prompt + "<detect-sentence-boundaries> " + sentence_guess
     info("generate_fewshot_sbd_prompt", to_return)
@@ -68,7 +70,9 @@ def process_seq2seq_sbd(input_text: str, sbd_translated_guess: str) -> int:
         return -1
 
 
-def detect_sentence(input_text: str, sbd_translation, sentence_guess_length: int = 150) -> int:
+def detect_sentence(
+    input_text: str, sbd_translation, sentence_guess_length: int = 150
+) -> int:
     """Given input text, return the index after the end of the first sentence.
 
     Args:

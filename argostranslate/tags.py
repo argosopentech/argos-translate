@@ -69,7 +69,9 @@ def depth(tag: ITag | str) -> int:
     return max([depth(t) for t in tag.children])
 
 
-def translate_preserve_formatting(underlying_translation: ITranslation, input_text: str) -> str:
+def translate_preserve_formatting(
+    underlying_translation: ITranslation, input_text: str
+) -> str:
     """Translates but preserves a space if it exists on either end of translation.
     Args:
         underlying_translation : The translation to apply
@@ -80,17 +82,19 @@ def translate_preserve_formatting(underlying_translation: ITranslation, input_te
     translated_text = underlying_translation.translate(input_text)
     if len(input_text) > 0:
         if input_text[0] == " " and not (
-                len(translated_text) > 0 and translated_text[0] == " "
+            len(translated_text) > 0 and translated_text[0] == " "
         ):
             translated_text = " " + translated_text
         if input_text[-1] == " " and not (
-                len(translated_text) > 0 and translated_text[-1] == " "
+            len(translated_text) > 0 and translated_text[-1] == " "
         ):
             translated_text = translated_text + " "
     return translated_text
 
 
-def inject_tags_inference(underlying_translation: ITranslation, tag: ITag) -> ITag | None:
+def inject_tags_inference(
+    underlying_translation: ITranslation, tag: ITag
+) -> ITag | None:
     """Returns translated tag tree with injection tags, None if not possible
 
     tag is only modified in place if tag injection is successful.
@@ -155,8 +159,8 @@ def inject_tags_inference(underlying_translation: ITranslation, tag: ITag) -> IT
         injection_tag = injection_tags[i]
         next_injection_tag = injection_tags[i + 1]
         if (
-                injection_tag.injection_index + len(injection_tag.text)
-                >= next_injection_tag.injection_index
+            injection_tag.injection_index + len(injection_tag.text)
+            >= next_injection_tag.injection_index
         ):
             info(
                 "inject_tags_inference",
@@ -170,7 +174,7 @@ def inject_tags_inference(underlying_translation: ITranslation, tag: ITag) -> IT
     i = 0
     for injection_tag in injection_tags:
         if i < injection_tag.injection_index:
-            to_return.append(translated_text[i: injection_tag.injection_index])
+            to_return.append(translated_text[i : injection_tag.injection_index])
         to_return.append(injection_tag.tag)
         i = injection_tag.injection_index + len(injection_tag.text)
     if i < len(translated_text):

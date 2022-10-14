@@ -18,7 +18,9 @@ Der Gewöhnliche Strandhafer (Ammophila arenaria (L.) Link; Syn: Calamagrostis a
 """
 
 
-def generate_prompt(text: str, from_name: str, from_code: str, to_name: str, to_code: str) -> str:
+def generate_prompt(
+    text: str, from_name: str, from_code: str, to_name: str, to_code: str
+) -> str:
     # TODO: document
     to_return = prompt
     to_return += "Translate to "

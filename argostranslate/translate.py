@@ -288,8 +288,8 @@ class CachedTranslation(ITranslation):
             # If len() of our cached items are different than `num_hypotheses` it means that
             # the search parameter is changed by caller, so we can't re-use cache, and should update it.
             if (
-                    translated_paragraph is None
-                    or len(translated_paragraph) != num_hypotheses
+                translated_paragraph is None
+                or len(translated_paragraph) != num_hypotheses
             ):
                 translated_paragraph = self.underlying.hypotheses(
                     paragraph, num_hypotheses
@@ -306,7 +306,7 @@ class CachedTranslation(ITranslation):
                     [hypotheses_to_return[i].value, translated_paragraphs[j][i].value]
                 )
                 score = (
-                        hypotheses_to_return[i].score + translated_paragraphs[j][i].score
+                    hypotheses_to_return[i].score + translated_paragraphs[j][i].score
                 )
                 hypotheses_to_return[i] = Hypothesis(value, score)
             hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip("\n")
@@ -344,7 +344,9 @@ class FewShotTranslation(ITranslation):
     to_lang: Language
     language_model: ILanguageModel
 
-    def __init__(self, from_lang: Language, to_lang: Language, language_model: ILanguageModel):
+    def __init__(
+        self, from_lang: Language, to_lang: Language, language_model: ILanguageModel
+    ):
         self.from_lang = from_lang
         self.to_lang = to_lang
         self.language_model = language_model
@@ -389,8 +391,9 @@ class FewShotTranslation(ITranslation):
         return [Hypothesis(to_return, 0)] * num_hypotheses
 
 
-def apply_packaged_translation(pkg: Package, input_text: str, translator: Translator, num_hypotheses: int = 4) -> list[
-    Hypothesis]:
+def apply_packaged_translation(
+    pkg: Package, input_text: str, translator: Translator, num_hypotheses: int = 4
+) -> list[Hypothesis]:
     """Applies the translation in pkg to translate input_text.
 
     Args:
@@ -595,7 +598,7 @@ def load_installed_languages() -> list[Language]:
     return get_installed_languages()
 
 
-def get_language_from_code(code: str) -> Language:
+def get_language_from_code(code: str) -> Language | None:
     """Gets a language object from a code
 
     An exception will be thrown if an installed language with this
