@@ -24,11 +24,11 @@ def get_protocol(url: str) -> str | None:
     return None
 
 
-supported_protocols = set(["http", "https"])
+supported_protocols = {"http", "https"}
 
 
 def get(url: str, retry_count: int = 3) -> bytes | None:
-    """Downoads data from a url and returns it
+    """Downloads data from a url and returns it
 
     Args:
         url: The url to download (http, https)
