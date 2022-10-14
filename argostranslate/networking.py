@@ -58,7 +58,7 @@ def get(url: str, retry_count: int = 3) -> bytes | None:
     return None
 
 
-def get_from(urls: list[str], retry_count: str = 3) -> bytes | None:
+def get_from(urls: list[str], retry_count: int = 3) -> bytes | None:
     """Downloads data from a list of urls and returns it
 
     Args:
