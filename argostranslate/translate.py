@@ -52,10 +52,10 @@ class ITranslation:
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
-            input_text (str): The text to be translated.
+            input_text: The text to be translated.
 
         Returns:
-            str: input_text translated.
+            input_text translated.
 
         """
         return self.hypotheses(input_text, num_hypotheses=1)[0].value
@@ -78,10 +78,10 @@ class ITranslation:
         """Splits input_text into paragraphs and returns a list of paragraphs.
 
         Args:
-            input_text (str): The text to be split.
+            input_text: The text to be split.
 
         Returns:
-            [str]: A list of paragraphs.
+            A list of paragraphs.
 
         """
         return input_text.split("\n")
