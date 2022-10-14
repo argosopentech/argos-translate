@@ -289,6 +289,73 @@ class Package(IPackage):
         return self.get_readme()
 
 
+def install_from_path(path):
+    """Install a package file (zip archive ending in .argosmodel).
+
+    Args:
+        path (pathlib): The path to the .argosmodel file to install.
+
+    """
+    with package_lock:
+        if not zipfile.is_zipfile(path):
+            raise Exception("Not a valid Argos Model (must be a zip archive)")
+        with zipfile.ZipFile(path, "r") as zip:
+            zip.extractall(path=settings.package_data_dir)
+
+
+class AvailablePackage(IPackage):
+    """A package available for download and installation"""
+
+    def __init__(self, metadata):
+        """Creates a new AvailablePackage from a metadata object"""
+        self.load_metadata_from_json(metadata)
+
+    def download(self):
+        """Downloads the AvailablePackage and returns its path"""
+        filename = argospm_package_name(self) + ".argosmodel"
+
+        # Install sbd package if needed
+        if self.type == "translate" and not settings.stanza_available:
+            if (
+                len(list(filter(lambda x: x.type == "sbd", get_installed_packages())))
+                == 0
+            ):
+                # No sbd packages are installed, download all available
+                sbd_packages = filter(
+                    lambda x: x.type == "sbd", get_available_packages()
+                )
+                for sbd_package in sbd_packages:
+                    download_path = sbd_package.download()
+                    install_from_path(download_path)
+
+        filepath = settings.downloads_dir / filename
+        if not filepath.exists():
+            data = networking.get_from(self.links)
+            if data is None:
+                raise Exception(f"Download failed for {str(self)}")
+            with open(filepath, "wb") as f:
+                f.write(data)
+        return filepath
+
+    def install(self):
+        download_path = self.download()
+        install_from_path(download_path)
+
+    def get_description(self):
+        return "{} → {}".format(self.from_name, self.to_name)
+
+
+def uninstall(pkg):
+    """Uninstalls a package.
+
+    Args:
+        pkg (Package): The package to uninstall
+
+    """
+    with package_lock:
+        shutil.rmtree(pkg.package_path)
+
+
 def get_installed_packages(path=None):
     """Return a list of installed Packages
 
