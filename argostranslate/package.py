@@ -120,11 +120,11 @@ class IPackage:
         self.source_languages += copy.deepcopy(self.languages)
         self.target_languages += copy.deepcopy(self.languages)
 
-    def get_readme(self):
+    def get_readme(self) -> str:
         """Returns the text of the README.md in this package.
 
         Returns:
-            (str): The text of the package README.md, None
+            The text of the package README.md, None
                 if README.md can't be read
 
         """
@@ -157,11 +157,11 @@ class IPackage:
 class Package(IPackage):
     """An installed package"""
 
-    def __init__(self, package_path):
+    def __init__(self, package_path: Path):
         """Create a new Package from path.
 
         Args:
-            package_path (pathlib.Path): Path to installed package directory.
+            package_path: Path to installed package directory.
 
         """
         if type(package_path) == str:
@@ -177,11 +177,11 @@ class Package(IPackage):
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
 
-    def get_readme(self):
+    def get_readme(self) -> str | None:
         """Returns the text of the README.md in this package.
 
         Returns:
-            (str): The text of the package README.md, None
+            The text of the package README.md, None
                 if README.md can't be read
 
         """
@@ -195,11 +195,11 @@ class Package(IPackage):
         return self.get_readme()
 
 
-def install_from_path(path):
+def install_from_path(path: Path):
     """Install a package file (zip archive ending in .argosmodel).
 
     Args:
-        path (pathlib): The path to the .argosmodel file to install.
+        path: The path to the .argosmodel file to install.
 
     """
     with package_lock:
@@ -216,7 +216,7 @@ class AvailablePackage(IPackage):
         """Creates a new AvailablePackage from a metadata object"""
         self.load_metadata_from_json(metadata)
 
-    def download(self):
+    def download(self) -> Path:
         """Downloads the AvailablePackage and returns its path"""
         filename = argospm_package_name(self) + ".argosmodel"
 
@@ -251,18 +251,18 @@ class AvailablePackage(IPackage):
         return "{} → {}".format(self.from_name, self.to_name)
 
 
-def uninstall(pkg):
+def uninstall(pkg: Package):
     """Uninstalls a package.
 
     Args:
-        pkg (Package): The package to uninstall
+        pkg: The package to uninstall
 
     """
     with package_lock:
         shutil.rmtree(pkg.package_path)
 
 
-def get_installed_packages(path=None):
+def get_installed_packages(path: Path = None) -> list[Package]:
     """Return a list of installed Packages
 
     Looks for packages in <home>/.argos-translate/local/share/packages by
@@ -271,7 +271,7 @@ def get_installed_packages(path=None):
     if it is set.
 
     Args:
-        path (pathlib.Path): Path to look for installed package directories in.
+        path: Path to look for installed package directories in.
             Defaults to the path in settings module.
 
     """
@@ -298,7 +298,7 @@ def update_package_index():
             f.write(data)
 
 
-def get_available_packages():
+def get_available_packages() -> list[Package]:
     """Returns a list of AvailablePackages from the package index."""
 
     try:
@@ -332,11 +332,11 @@ def get_available_packages():
         )
 
 
-def argospm_package_name(pkg):
+def argospm_package_name(pkg: IPackage) -> str:
     """Gets argospm name of an IPackage.
 
     Args:
-        pkg (IPackage): The package to get the name of.
+        pkg: The package to get the name of.
 
     Returns:
         str: Package name for argospm
@@ -347,7 +347,7 @@ def argospm_package_name(pkg):
     return to_return
 
 
-def load_available_packages():
+def load_available_packages() -> list[Package]:
     """Deprecated 1.2, use get_available_packages"""
     info(
         "Using deprecated function load_available_packages, use get_available_packages instead"
