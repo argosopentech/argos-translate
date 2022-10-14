@@ -29,6 +29,8 @@ class ITag:
                 should not be translated
     """
 
+    translateable: bool
+
     def text(self) -> str:
         """The combined text of all of the children
 
