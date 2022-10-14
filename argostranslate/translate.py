@@ -1,23 +1,31 @@
+from __future__ import annotations
 import functools
 
 import ctranslate2
 import sentencepiece as spm
 import stanza
+from ctranslate2 import Translator
 
-from argostranslate import settings, models, apis, fewshot, chunk
+import argostranslate
 import argostranslate.package
+from argostranslate import settings, fewshot, chunk
 from argostranslate.utils import info, warning
+from argostranslate.models import ILanguageModel
+from argostranslate.utils import info
 
 
 class Hypothesis:
     """Represents a translation hypothesis
 
     Attributes:
-        value (str): The hypothetical translation value
-        score (float): The score representing the quality of the translation
+        value: The hypothetical translation value
+        score: The score representing the quality of the translation
     """
 
-    def __init__(self, value, score):
+    value: str
+    score: float
+
+    def __init__(self, value: str, score: float):
         self.value = value
         self.score = score
 
@@ -32,37 +40,40 @@ class Hypothesis:
 
 
 class ITranslation:
-    """Respresents a translation between two Languages
+    """Represents a translation between two Languages
 
     Attributes:
-        from_lang (Language): The Language this Translation translates from.
-        to_lang (Language): The Language this Translation translates to.
+        from_lang: The Language this Translation translates from.
+        to_lang: The Language this Translation translates to.
 
     """
 
-    def translate(self, input_text):
+    from_lang: Language
+    to_lang: Language
+
+    def translate(self, input_text: str) -> str:
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
-            input_text (str): The text to be translated.
+            input_text: The text to be translated.
 
         Returns:
-            str: input_text translated.
+            input_text translated.
 
         """
         translation_result = self.hypotheses(input_text, num_hypotheses=1)[0].value
         info("translation_result", translation_result)
         return translation_result
 
-    def hypotheses(self, input_text, num_hypotheses=4):
+    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
-            input_text (str): The text to be translated.
-            num_hypotheses (int): Number of hypothetic results expected
+            input_text: The text to be translated.
+            num_hypotheses: Number of hypothetic results expected
 
         Returns:
-            [Hypothesis]: List of translation hypotheses
+            List of translation hypotheses
 
         """
         raise NotImplementedError()
@@ -78,16 +89,19 @@ class Language:
     """Represents a language that can be translated from/to.
 
     Attributes:
-        code (str): The code representing the language.
-        name (str): The human readable name of the language.
-        translations_from ([ITranslation]): A list of the translations
+        code: The code representing the language.
+        name: The human readable name of the language.
+        translations_from: A list of the translations
             that translate from this language.
-        translations_to ([ITranslation]): A list of the translations
+        translations_to: A list of the translations
             that translate to this language
 
     """
 
-    def __init__(self, code, name):
+    translations_from: list[ITranslation] = []
+    translations_to: list[ITranslation] = []
+
+    def __init__(self, code: str, name: str):
         self.code = code
         self.name = name
         self.translators_from = list()
@@ -102,14 +116,14 @@ class Language:
     def __eq__(self, other):
         return self.code == other.code
 
-    def get_translation(self, to):
+    def get_translation(self, to: Language) -> ITranslation | None:
         """Gets a translation from this Language to another Language.
 
         Args:
-            to (Language): The Language to look for a Translation to.
+            to: The Language to look for a Translation to.
 
         Returns:
-            ITranslation: A valid Translation if there is one in translations_from
+            A valid Translation if there is one in translations_from
                 else None.
 
         """
@@ -152,18 +166,18 @@ class Language:
 class IdentityTranslation(ITranslation):
     """A Translation that doesn't modify input_text."""
 
-    def __init__(self, lang):
+    def __init__(self, lang: Language):
         """Creates an IdentityTranslation.
 
         Args:
-            lang (Language): The Language this Translation translates
+            lang: The Language this Translation translates
                 from and to.
 
         """
         self.from_lang = lang
         self.to_lang = lang
 
-    def hypotheses(self, input_text, num_hypotheses):
+    def hypotheses(self, input_text: str, num_hypotheses: int = 4):
         return [Hypothesis(input_text, 0) for i in range(num_hypotheses)]
 
 
@@ -171,25 +185,29 @@ class CompositeTranslation(ITranslation):
     """A ITranslation that is performed by chaining two Translations
 
     Attributes:
-        t1 (ITranslation): The first Translation to apply.
-        t2 (ITranslation): The second Translation to apply.
+        t1: The first Translation to apply.
+        t2: The second Translation to apply.
 
     """
 
-    def __init__(self, t1, t2):
+    t1: ITranslation
+    t2: ITranslation
+    from_lang: Language
+    to_lang: Language
+
+    def __init__(self, t1: ITranslation, t2: ITranslation):
         """Creates a CompositeTranslation.
 
         Args:
-            t1 (ITranslation): The first Translation to apply.
-            t2 (ITranslation): The second Translation to apply.
-
+            t1: The first Translation to apply.
+            t2: The second Translation to apply.
         """
         self.t1 = t1
         self.t2 = t2
         self.from_lang = t1.from_lang
         self.to_lang = t2.to_lang
 
-    def hypotheses(self, input_text, num_hypotheses):
+    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         t1_hypotheses = self.t1.hypotheses(input_text, num_hypotheses)
 
         # Combine hypotheses
@@ -210,12 +228,15 @@ class CompositeTranslation(ITranslation):
 class RemoteTranslation(ITranslation):
     """A translation provided by a remote LibreTranslate server"""
 
-    def __init__(self, from_lang, to_lang, api):
+    from_lang: Language
+    to_lang: Language
+
+    def __init__(self, from_lang: Language, to_lang: Language, api):
         self.from_lang = from_lang
         self.to_lang = to_lang
         self.api = api
 
-    def hypotheses(self, input_text, num_hypotheses=1):
+    def hypotheses(self, input_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
         """LibreTranslate only supports single hypotheses.
 
         A list of length num_hypotheses will be returned with identical hypotheses.
@@ -227,12 +248,18 @@ class RemoteTranslation(ITranslation):
 class FewShotTranslation(ITranslation):
     """A translation performed with a few shot language model"""
 
-    def __init__(self, from_lang, to_lang, language_model):
+    from_lang: Language
+    to_lang: Language
+    language_model: ILanguageModel
+
+    def __init__(
+        self, from_lang: Language, to_lang: Language, language_model: ILanguageModel
+    ):
         self.from_lang = from_lang
         self.to_lang = to_lang
         self.language_model = language_model
 
-    def hypotheses(self, input_text, num_hypotheses=1):
+    def hypotheses(self, input_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
         sentences = chunk.chunk(input_text)
 
         for sentence in sentences:
@@ -403,7 +430,7 @@ class Translator:
         return LocalTranslation(self, from_lang, to_lang)
 
 
-def get_installed_languages():
+def get_installed_languages() -> list[Language]:
     """Returns a list of Languages installed from packages"""
 
     if settings.model_provider == settings.ModelProvider.OPENNMT:
@@ -476,49 +503,49 @@ def get_installed_languages():
     return languages
 
 
-def get_language_from_code(code):
+def get_language_from_code(code: str) -> Language:
     """Gets a language object from a code
 
     An exception will be thrown if an installed language with this
     code can not be found.
 
     Args:
-        code (str): The ISO 639 code of the language
+        code: The ISO 639 code of the language
 
     Returns:
-        translate.Language: The language object
+        The language object
     """
     return list(filter(lambda x: x.code == code, get_installed_languages()))[0]
 
 
-def get_translation_from_codes(from_code, to_code):
+def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation:
     """Gets a translation object from codes for from and to languages
 
     An exception will be thrown if an installed translation between the from lang
     and to lang can not be found.
 
     Args:
-        from_code (str): The ISO 639 code of the source language
-        to_code (str): The ISO 639 code of the target language
+        from_code: The ISO 639 code of the source language
+        to_code: The ISO 639 code of the target language
 
     Returns:
-        translate.ITranslation: The translation object
+        The translation object
     """
     from_lang = get_language_from_code(from_code)
     to_lang = get_language_from_code(to_code)
     return from_lang.get_translation(to_lang)
 
 
-def translate(q, from_code, to_code):
+def translate(q: str, from_code: str, to_code: str) -> str:
     """Translate a string of text
 
     Args:
-        q (str): The text to translate
-        from_code (str): The ISO 639 code of the source language
-        to_code (str): The ISO 639 code of the target language
+        q: The text to translate
+        from_code: The ISO 639 code of the source language
+        to_code: The ISO 639 code of the target language
 
     Returns:
-        str: The translated text
+        The translated text
     """
     translation = get_translation_from_codes(from_code, to_code)
     return translation.translate(q)

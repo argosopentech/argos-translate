@@ -170,7 +170,12 @@ If you find this software useful donations are appreciated.
 
 Paid supporters receive priority support.
 
-You can also support the project by purchasing [DigitalOcean](https://www.digitalocean.com/) hosting with the [Argos Open Tech referral link](https://m.do.co/c/a1af57be6e3f) which helps to offset CDN hosting costs.
+#### Hosting affiliate links
+The Argos Translate CDN provides >15 TB/month in free and open source model downloads and runs on cload rentals from DigitalOcean, Sharktech, and Time4VPS. You can help offset our hosting costs by purchasing hosting through our referral links.
+
+- [DigitalOcean](https://m.do.co/c/a1af57be6e3f)
+- [Time4VPS](https://www.time4vps.com/?affid=6929)
+- [Sharktech](https://portal.sharktech.net/aff.php?aff=1181)
 
 ## License
 Argos Translate is dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).

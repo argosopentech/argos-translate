@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import argparse
 
 from argostranslate import package
 from argostranslate import settings
-
+from argostranslate.package import AvailablePackage
 
 """
 Example usage:

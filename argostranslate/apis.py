@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import sys
 from urllib import request, parse
@@ -18,12 +20,12 @@ class LibreTranslateAPI:
 
     DEFAULT_URL = "https://translate.argosopentech.com/"
 
-    def __init__(self, url=None, api_key=None):
+    def __init__(self, url: str = None, api_key: str = None):
         """Create a LibreTranslate API connection.
 
         Args:
-            url (str): The url of the LibreTranslate endpoint.
-            api_key (str): The API key.
+            url: The url of the LibreTranslate endpoint.
+            api_key: The API key.
         """
 
         self.url = self.DEFAULT_URL if url is None else url
@@ -34,13 +36,13 @@ class LibreTranslateAPI:
         if self.url[-1] != "/":
             self.url += "/"
 
-    def translate(self, q, source="en", target="es"):
+    def translate(self, q: str, source: str = "en", target: str = "es") -> str:
         """Translate string
 
         Args:
-            q (str): The text to translate
-            source (str): The source language code (ISO 639)
-            target (str): The target language code (ISO 639)
+            q: The text to translate
+            source: The source language code (ISO 639)
+            target: The target language code (ISO 639)
 
         Returns: The translated text
         """
@@ -85,11 +87,11 @@ class LibreTranslateAPI:
 
         return json.loads(response_str)
 
-    def detect(self, q):
+    def detect(self, q: str):
         """Detect the language of a single text.
 
         Args:
-            q (str): Text to detect
+            q: Text to detect
 
         Returns: The detected languages ex. [{"confidence": 0.6, "language": "en"}]
         """
@@ -120,20 +122,19 @@ class LibreTranslateAPI:
 
 
 class OpenAIAPI(ILanguageModel):
-    def __init__(self, api_key):
+    def __init__(self, api_key: str):
         """Create an API connection.
 
         Args:
-            api_key (str): The API key for the OpenAI API
+            api_key: The API key for the OpenAI API
         """
         self.api_key = api_key
 
-    def infer(self, prompt):
+    def infer(self, prompt: str) -> str | None:
         """Connect to OpenAI API
 
         Args:
-            prompt (str): The prompt to run inference on.
-            api_key (str): OpenAI API key
+            prompt: The prompt to run inference on.
 
         Returns: The generated text
         """

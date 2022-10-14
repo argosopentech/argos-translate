@@ -1,15 +1,16 @@
-import logging
+from __future__ import annotations
+
 import copy
-import zipfile
 import json
 import shutil
 import uuid
 import urllib.request
+import zipfile
 from pathlib import Path
 from threading import Lock
 
-from argostranslate import settings
 from argostranslate import networking
+from argostranslate import settings
 from argostranslate.utils import info, error
 
 # TODO: Upgrade packages
@@ -41,21 +42,21 @@ class IPackage:
     """A package, can be either installed locally or available from a remote package index.
 
     Attributes:
-        package_path (Path): The path to the installed package. None if not installed.
+        package_path: The path to the installed package. None if not installed.
 
-        package_version (str): The version of the package.
+        package_version: The version of the package.
 
-        argos_version (str): The version of Argos Translate the package is intended for.
+        argos_version: The version of Argos Translate the package is intended for.
 
-        from_code (str): The code of the language the package translates from.
+        from_code: The code of the language the package translates from.
 
-        from_name (str): Human readable name of the language the package translates from.
+        from_name: Human readable name of the language the package translates from.
 
-        to_code (str): The code of the language the package translates to.
+        to_code: The code of the language the package translates to.
 
-        to_name (str): Human readable name of the language the package translates to.
+        to_name: Human readable name of the language the package translates to.
 
-        links [list(str)]: A list of links to download the package
+        links: A list of links to download the package
 
 
     Packages are a zip archive of a directory with metadata.json
@@ -77,8 +78,25 @@ class IPackage:
         "to_name": "Spanish",
         "links": ["https://example.com/en_es.argosmodel"]
     }
-
     """
+
+    code: str
+    package_path: Path
+    package_version: str
+    argos_version: str
+    from_code: str
+    from_name: str
+    from_codes: list
+    to_code: str
+    to_codes: list
+    to_name: str
+    links: list
+    type: str
+    languages: list
+    dependencies: list
+    source_languages: list
+    target_languages: list
+    links: list[str]
 
     def load_metadata_from_json(self, metadata):
         """Loads package metadata from a JSON object.
@@ -135,7 +153,7 @@ class IPackage:
         """Returns the text of the README.md in this package.
 
         Returns:
-            (str): The text of the package README.md, None
+            The text of the package README.md, None
                 if README.md can't be read
 
         """
@@ -251,11 +269,11 @@ class AvailablePackage(IPackage):
 class Package(IPackage):
     """An installed package"""
 
-    def __init__(self, package_path):
+    def __init__(self, package_path: Path):
         """Create a new Package from path.
 
         Args:
-            package_path (pathlib.Path): Path to installed package directory.
+            package_path: Path to installed package directory.
 
         """
         if type(package_path) == str:
@@ -271,11 +289,11 @@ class Package(IPackage):
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
 
-    def get_readme(self):
+    def get_readme(self) -> str | None:
         """Returns the text of the README.md in this package.
 
         Returns:
-            (str): The text of the package README.md, None
+            The text of the package README.md, None
                 if README.md can't be read
 
         """
@@ -289,18 +307,18 @@ class Package(IPackage):
         return self.get_readme()
 
 
-def install_from_path(path):
+def install_from_path(path: Path):
     """Install a package file (zip archive ending in .argosmodel).
 
     Args:
-        path (pathlib): The path to the .argosmodel file to install.
+        path: The path to the .argosmodel file to install.
 
     """
     with package_lock:
         if not zipfile.is_zipfile(path):
             raise Exception("Not a valid Argos Model (must be a zip archive)")
-        with zipfile.ZipFile(path, "r") as zip:
-            zip.extractall(path=settings.package_data_dir)
+        with zipfile.ZipFile(path, "r") as zipf:
+            zipf.extractall(path=settings.package_data_dir)
 
 
 class AvailablePackage(IPackage):
@@ -310,7 +328,7 @@ class AvailablePackage(IPackage):
         """Creates a new AvailablePackage from a metadata object"""
         self.load_metadata_from_json(metadata)
 
-    def download(self):
+    def download(self) -> Path:
         """Downloads the AvailablePackage and returns its path"""
         filename = argospm_package_name(self) + ".argosmodel"
 
@@ -345,18 +363,18 @@ class AvailablePackage(IPackage):
         return "{} → {}".format(self.from_name, self.to_name)
 
 
-def uninstall(pkg):
+def uninstall(pkg: Package):
     """Uninstalls a package.
 
     Args:
-        pkg (Package): The package to uninstall
+        pkg: The package to uninstall
 
     """
     with package_lock:
         shutil.rmtree(pkg.package_path)
 
 
-def get_installed_packages(path=None):
+def get_installed_packages(path: Path = None) -> list[Package]:
     """Return a list of installed Packages
 
     Looks for packages in <home>/.argos-translate/local/share/packages by
@@ -365,7 +383,7 @@ def get_installed_packages(path=None):
     if it is set.
 
     Args:
-        path (pathlib.Path): Path to look for installed package directories in.
+        path: Path to look for installed package directories in.
             Defaults to the path in settings module.
 
     """

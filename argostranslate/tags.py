@@ -1,4 +1,7 @@
-from argostranslate.utils import info, error
+from __future__ import annotations
+
+from argostranslate.translate import ITranslation
+from argostranslate.utils import info
 
 """
 import argostranslate
@@ -20,43 +23,44 @@ class ITag:
     """Represents a tag tree
 
     Attributes:
-        children (ITag or str): List of ITags and strs representing
+        children: List of ITags and strs representing
                 the children of the tag (empty list if no children)
-        translateable (bool): If translateable is False then a tag and its children
+        translateable: If translateable is False then a tag and its children
                 should not be translated
     """
 
-    def text(self):
+    translateable: bool
 
+    def text(self) -> str:
         """The combined text of all of the children
 
         Returns:
-            str: Combined text
+            Combined text
         """
         raise NotImplementedError()
 
-    def __str__(self):
-        return f'{ str(type(self)) } "{ str(self.children) }"'
+    def __str__(self) -> str:
+        return f'{str(type(self))} "{str(self.children)}"'
 
 
 class Tag(ITag):
-    def __init__(self, children, translateable=True):
+    def __init__(self, children: ITag | str, translateable: bool = True):
         self.children = children
         self.translateable = translateable
 
-    def text(self):
+    def text(self) -> str:
         return "".join(
             [(child.text() if type(child) != str else child) for child in self.children]
         )
 
 
-def depth(tag):
+def depth(tag: ITag | str) -> int:
     """Returns the depth of an ITag or str.
 
     A str has depth 0, ITag([]) has depth 0, ITag(['str']) has depth 1.
 
     Args:
-        tag (ITag or str): The ITag or string to get the depth of.
+        tag: The ITag or string to get the depth of.
     """
     if type(tag) is str:
         return 0
@@ -65,13 +69,15 @@ def depth(tag):
     return max([depth(t) for t in tag.children])
 
 
-def translate_preserve_formatting(underlying_translation, input_text):
+def translate_preserve_formatting(
+    underlying_translation: ITranslation, input_text: str
+) -> str:
     """Translates but preserves a space if it exists on either end of translation.
     Args:
-        underlying_translation (translate.ITranslation): The translation to apply
-        input_text (str): The text to translate
+        underlying_translation : The translation to apply
+        input_text: The text to translate
     Returns:
-        str: The translated text
+        The translated text
     """
     translated_text = underlying_translation.translate(input_text)
     if len(input_text) > 0:
@@ -86,17 +92,19 @@ def translate_preserve_formatting(underlying_translation, input_text):
     return translated_text
 
 
-def inject_tags_inference(underlying_translation, tag):
+def inject_tags_inference(
+    underlying_translation: ITranslation, tag: ITag
+) -> ITag | None:
     """Returns translated tag tree with injection tags, None if not possible
 
     tag is only modified in place if tag injection is successful.
 
     Args:
-        underlying_translation(translate.ITranslation): The translation to apply to the tags.
-        tag (ITag): A depth=2 tag tree to attempt injection on.
+        underlying_translation: The translation to apply to the tags.
+        tag: A depth=2 tag tree to attempt injection on.
 
     Returns:
-        ITag: A translated version of tag, None if not possible to tag inject
+        A translated version of tag, None if not possible to tag inject
     """
     MAX_SEQUENCE_LENGTH = 200
 
@@ -110,13 +118,13 @@ def inject_tags_inference(underlying_translation, tag):
         """
 
         Attributes:
-            text (str): The text of the tag
-            tag (ITag): The depth 1 ITag it represents
+            text: The text of the tag
+            tag: The depth 1 ITag it represents
             injection_index: The index in the outer translated string that
                     this tag can be injected into.
         """
 
-        def __init__(self, text, tag):
+        def __init__(self, text: str, tag: ITag):
             self.text = text
             self.tag = tag
             self.injection_index = None
@@ -177,17 +185,17 @@ def inject_tags_inference(underlying_translation, tag):
     return tag
 
 
-def translate_tags(underlying_translation, tag):
+def translate_tags(underlying_translation: ITranslation, tag: ITag | str) -> ITag | str:
     """Translate an ITag or str
 
     Recursively takes either an ITag or a str, modifies it in place, and returns the translated tag tree
 
     Args:
-        underlying_translation (translate.ITranslation): The translation to apply
-        tag (ITag or str): The tag tree to translate
+        underlying_translation: The translation to apply
+        tag: The tag tree to translate
 
     Returns:
-        ITag or str: The translated tag tree
+        The translated tag tree
     """
     if type(tag) is str:
         return translate_preserve_formatting(underlying_translation, tag)
