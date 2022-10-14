@@ -60,12 +60,12 @@ class ITranslation:
         """
         return self.hypotheses(input_text, num_hypotheses=1)[0].value
 
-    def hypotheses(self, input_text, num_hypotheses=4):
+    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
-            input_text (str): The text to be translated.
-            num_hypotheses (int): Number of hypothetic results expected
+            input_text: The text to be translated.
+            num_hypotheses: Number of hypothetic results expected
 
         Returns:
             [Hypothesis]: List of translation hypotheses
@@ -74,7 +74,7 @@ class ITranslation:
         raise NotImplementedError()
 
     @staticmethod
-    def split_into_paragraphs(input_text):
+    def split_into_paragraphs(input_text: str) -> list[str]:
         """Splits input_text into paragraphs and returns a list of paragraphs.
 
         Args:
@@ -87,14 +87,14 @@ class ITranslation:
         return input_text.split("\n")
 
     @staticmethod
-    def combine_paragraphs(paragraphs):
+    def combine_paragraphs(paragraphs: list[str]) -> str:
         """Combines a list of paragraphs together.
 
         Args:
-            paragraphs ([str]): A list of paragraphs.
+            paragraphs: A list of paragraphs.
 
         Returns:
-            [str]: list of n paragraphs combined into one string.
+            list of n paragraphs combined into one string.
 
         """
         return "\n".join(paragraphs)
@@ -131,7 +131,7 @@ class Language:
     def __str__(self):
         return self.name
 
-    def get_translation(self, to: Language) -> ITranslation:
+    def get_translation(self, to: Language) -> ITranslation | None:
         """Gets a translation from this Language to another Language.
 
         Args:
@@ -159,7 +159,7 @@ class PackageTranslation(ITranslation):
         self.pkg = pkg
         self.translator = None
 
-    def hypotheses(self, input_text: str, num_hypotheses: int) -> list[Hypothesis]:
+    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
             model_path = str(self.pkg.package_path / "model")
             self.translator = ctranslate2.Translator(model_path, device=settings.device)
@@ -202,7 +202,7 @@ class IdentityTranslation(ITranslation):
         self.from_lang = lang
         self.to_lang = lang
 
-    def hypotheses(self, input_text: str, num_hypotheses: int):
+    def hypotheses(self, input_text: str, num_hypotheses: int = 4):
         return [Hypothesis(input_text, 0) for i in range(num_hypotheses)]
 
 
@@ -232,7 +232,7 @@ class CompositeTranslation(ITranslation):
         self.from_lang = t1.from_lang
         self.to_lang = t2.to_lang
 
-    def hypotheses(self, input_text: str, num_hypotheses: int) -> list[Hypothesis]:
+    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         t1_hypotheses = self.t1.hypotheses(input_text, num_hypotheses)
 
         # Combine hypotheses
