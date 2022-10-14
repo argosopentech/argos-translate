@@ -68,7 +68,6 @@ def process_seq2seq_sbd(input_text: str, sbd_translated_guess: str) -> int:
         return -1
 
 
-
 def detect_sentence(input_text: str, sbd_translation, sentence_guess_length: int = 150) -> int:
     """Given input text, return the index after the end of the first sentence.
 
