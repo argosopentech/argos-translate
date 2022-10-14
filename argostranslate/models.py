@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class ILanguageModel:
     def infer(self, x: str) -> str:
         """Run language model on input x

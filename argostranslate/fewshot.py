@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 prompt = """Translate to French (fr)
 From English (es)
 ==========

@@ -1,15 +1,15 @@
-import logging
+from __future__ import annotations
+
 import copy
-import zipfile
 import json
 import shutil
 import urllib.request
+import zipfile
 from pathlib import Path
 from threading import Lock
 
-from argostranslate import settings
-from argostranslate import utils
 from argostranslate import networking
+from argostranslate import settings
 from argostranslate.utils import info, error
 
 """
@@ -135,12 +135,12 @@ class IPackage:
 
     def __eq__(self, other):
         return (
-            self.package_version == other.package_version
-            and self.argos_version == other.argos_version
-            and self.from_code == other.from_code
-            and self.from_name == other.from_name
-            and self.to_code == other.to_code
-            and self.to_name == other.to_name
+                self.package_version == other.package_version
+                and self.argos_version == other.argos_version
+                and self.from_code == other.from_code
+                and self.from_name == other.from_name
+                and self.to_code == other.to_code
+                and self.to_name == other.to_name
         )
 
     def __repr__(self):
@@ -223,8 +223,8 @@ class AvailablePackage(IPackage):
         # Install sbd package if needed
         if self.type == "translate" and not settings.stanza_available:
             if (
-                len(list(filter(lambda x: x.type == "sbd", get_installed_packages())))
-                == 0
+                    len(list(filter(lambda x: x.type == "sbd", get_installed_packages())))
+                    == 0
             ):
                 # No sbd packages are installed, download all available
                 sbd_packages = filter(

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from argostranslate.translate import ITranslation
 from argostranslate.utils import info
 
