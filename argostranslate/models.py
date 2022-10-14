@@ -1,5 +1,5 @@
 class ILanguageModel:
-    def infer(x: str) -> str:
+    def infer(self, x: str) -> str:
         """Run language model on input x
 
         Args:
