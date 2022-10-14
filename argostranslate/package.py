@@ -39,21 +39,21 @@ class IPackage:
     """A package, can be either installed locally or available from a remote package index.
 
     Attributes:
-        package_path (Path): The path to the installed package. None if not installed.
+        package_path: The path to the installed package. None if not installed.
 
-        package_version (str): The version of the package.
+        package_version: The version of the package.
 
-        argos_version (str): The version of Argos Translate the package is intended for.
+        argos_version: The version of Argos Translate the package is intended for.
 
-        from_code (str): The code of the language the package translates from.
+        from_code: The code of the language the package translates from.
 
-        from_name (str): Human readable name of the language the package translates from.
+        from_name: Human readable name of the language the package translates from.
 
-        to_code (str): The code of the language the package translates to.
+        to_code: The code of the language the package translates to.
 
-        to_name (str): Human readable name of the language the package translates to.
+        to_name: Human readable name of the language the package translates to.
 
-        links [list(str)]: A list of links to download the package
+        links: A list of links to download the package
 
 
     Packages are a zip archive of a directory with metadata.json
@@ -75,8 +75,25 @@ class IPackage:
         "to_name": "Spanish",
         "links": ["https://example.com/en_es.argosmodel"]
     }
-
     """
+
+    code: str
+    package_path: Path
+    package_version: str
+    argos_version: str
+    from_code: str
+    from_name: str
+    from_codes: list
+    to_code: str
+    to_codes: list
+    to_name: str
+    links: list
+    type: str
+    languages: list
+    dependencies: list
+    source_languages: list
+    target_languages: list
+    links: list[str]
 
     def load_metadata_from_json(self, metadata):
         """Loads package metadata from a JSON object.
@@ -336,10 +353,10 @@ def argospm_package_name(pkg: IPackage) -> str:
     """Gets argospm name of an IPackage.
 
     Args:
-        pkg: The package to get the name of.
+        The package to get the name of.
 
     Returns:
-        str: Package name for argospm
+        Package name for argospm
     """
     to_return = pkg.type
     if pkg.from_code and pkg.to_code:
