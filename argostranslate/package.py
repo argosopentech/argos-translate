@@ -222,8 +222,8 @@ def install_from_path(path: Path):
     with package_lock:
         if not zipfile.is_zipfile(path):
             raise Exception("Not a valid Argos Model (must be a zip archive)")
-        with zipfile.ZipFile(path, "r") as zip:
-            zip.extractall(path=settings.package_data_dir)
+        with zipfile.ZipFile(path, "r") as zipf:
+            zipf.extractall(path=settings.package_data_dir)
 
 
 class AvailablePackage(IPackage):
