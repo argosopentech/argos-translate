@@ -68,7 +68,7 @@ class ITranslation:
             num_hypotheses: Number of hypothetic results expected
 
         Returns:
-            [Hypothesis]: List of translation hypotheses
+            List of translation hypotheses
 
         """
         raise NotImplementedError()
@@ -135,10 +135,10 @@ class Language:
         """Gets a translation from this Language to another Language.
 
         Args:
-            to (Language): The Language to look for a Translation to.
+            to: The Language to look for a Translation to.
 
         Returns:
-            ITranslation: A valid Translation if there is one in translations_from
+            A valid Translation if there is one in translations_from
                 else None.
 
         """
@@ -195,7 +195,7 @@ class IdentityTranslation(ITranslation):
         """Creates an IdentityTranslation.
 
         Args:
-            lang (Language): The Language this Translation translates
+            lang: The Language this Translation translates
                 from and to.
 
         """
@@ -400,7 +400,7 @@ def apply_packaged_translation(pkg: Package, input_text: str, translator: Transl
         num_hypotheses: The number of hypotheses to generate
 
     Returns:
-        [Hypothesis]: A list of Hypothesis's for translating input_text
+        A list of Hypothesis's for translating input_text
 
     """
 
