@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import argparse
 import sys
 
-from argostranslate import package, translate
+from argostranslate import translate
 
 
 def main():
