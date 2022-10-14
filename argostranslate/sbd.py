@@ -4,7 +4,6 @@ from difflib import SequenceMatcher
 
 from argostranslate import package
 from argostranslate.package import Package
-from argostranslate.translate import ITranslation
 from argostranslate.utils import info
 
 fewshot_prompt = """<detect-sentence-boundaries> I walked down to the river. Then I went to the
@@ -69,7 +68,8 @@ def process_seq2seq_sbd(input_text: str, sbd_translated_guess: str) -> int:
         return -1
 
 
-def detect_sentence(input_text: str, sbd_translation: ITranslation, sentence_guess_length: int = 150) -> int:
+
+def detect_sentence(input_text: str, sbd_translation, sentence_guess_length: int = 150) -> int:
     """Given input text, return the index after the end of the first sentence.
 
     Args:
