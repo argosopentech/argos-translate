@@ -15,11 +15,14 @@ class Hypothesis:
     """Represents a translation hypothesis
 
     Attributes:
-        value (str): The hypothetical translation value
-        score (float): The score representing the quality of the translation
+        value: The hypothetical translation value
+        score: The score representing the quality of the translation
     """
 
-    def __init__(self, value, score):
+    value: str
+    score: float
+
+    def __init__(self, value: str, score: float):
         self.value = value
         self.score = score
 
@@ -34,18 +37,18 @@ class Hypothesis:
 
 
 class ITranslation:
-    """Respresents a translation between two Languages
+    """Represents a translation between two Languages
 
     Attributes:
-        from_lang (Language): The Language this Translation translates from.
-        to_lang (Language): The Language this Translation translates to.
+        from_lang: The Language this Translation translates from.
+        to_lang: The Language this Translation translates to.
 
     """
 
     from_lang: Language
     to_lang: Language
 
-    def translate(self, input_text):
+    def translate(self, input_text: str) -> str:
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
