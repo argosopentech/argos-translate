@@ -493,7 +493,9 @@ def get_installed_languages() -> list[Language]:
         argostranslate.settings.model_provider
         == argostranslate.settings.ModelProvider.OPENAI
     ):
-        language_model = argostranslate.apis.OpenAIAPI(argostranslate.settings.openai_api_key)
+        language_model = argostranslate.apis.OpenAIAPI(
+            argostranslate.settings.openai_api_key
+        )
         # TODO
         languages = [Language("en", "English"), Language("es", "Spanish")]
         for from_lang in languages:
