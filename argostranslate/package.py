@@ -163,7 +163,25 @@ class IPackage:
         raise NotImplementedError()
 
     def __eq__(self, other):
+<<<<<<< HEAD
         return self.code == other.code
+=======
+        return (
+            self.package_version == other.package_version
+            and self.argos_version == other.argos_version
+            and self.from_code == other.from_code
+            and self.from_name == other.from_name
+            and self.to_code == other.to_code
+            and self.to_name == other.to_name
+        )
+
+    def __repr__(self):
+        if len(self.from_name) > 0 and len(self.to_name) > 0:
+            return "{} -> {}".format(self.from_name, self.to_name)
+        elif self.type:
+            return self.type
+        return ""
+>>>>>>> master
 
     def __str__(self):
         if self.name is not None:

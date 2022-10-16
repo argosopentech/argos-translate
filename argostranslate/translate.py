@@ -226,6 +226,72 @@ class CompositeTranslation(ITranslation):
         return to_return[0:num_hypotheses]
 
 
+<<<<<<< HEAD
+=======
+class CachedTranslation(ITranslation):
+    """Caches a translation to improve performance.
+
+    This is done by splitting up the text passed for translation
+    into paragraphs and translating each paragraph individually.
+    A hash of the paragraphs and their corresponding translations
+    are saved from the previous translation and used to improve
+    performance on the next one. This is especially useful if you
+    are repeatedly translating nearly identical text with a small
+    change at the end of it.
+
+    """
+
+    underlying: ITranslation
+    from_lang: Language
+    to_lang: Language
+    cache: dict
+
+    def __init__(self, underlying: ITranslation):
+        """Creates a CachedTranslation.
+
+        Args:
+            underlying: The underlying translation to cache.
+        """
+        self.underlying = underlying
+        self.from_lang = underlying.from_lang
+        self.to_lang = underlying.to_lang
+        self.cache = dict()
+
+    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
+        new_cache = dict()  # 'text': ['t1'...('tN')]
+        paragraphs = ITranslation.split_into_paragraphs(input_text)
+        translated_paragraphs = []
+        for paragraph in paragraphs:
+            translated_paragraph = self.cache.get(paragraph)
+            # If len() of our cached items are different than `num_hypotheses` it means that
+            # the search parameter is changed by caller, so we can't re-use cache, and should update it.
+            if (
+                translated_paragraph is None
+                or len(translated_paragraph) != num_hypotheses
+            ):
+                translated_paragraph = self.underlying.hypotheses(
+                    paragraph, num_hypotheses
+                )
+            new_cache[paragraph] = translated_paragraph
+            translated_paragraphs.append(translated_paragraph)
+        self.cache = new_cache
+
+        # Construct hypotheses
+        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
+        for i in range(num_hypotheses):
+            for j in range(len(translated_paragraphs)):
+                value = ITranslation.combine_paragraphs(
+                    [hypotheses_to_return[i].value, translated_paragraphs[j][i].value]
+                )
+                score = (
+                    hypotheses_to_return[i].score + translated_paragraphs[j][i].score
+                )
+                hypotheses_to_return[i] = Hypothesis(value, score)
+            hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip("\n")
+        return hypotheses_to_return
+
+
+>>>>>>> master
 class RemoteTranslation(ITranslation):
     """A translation provided by a remote LibreTranslate server"""
 
@@ -254,10 +320,14 @@ class FewShotTranslation(ITranslation):
     language_model: argostranslate.models.ILanguageModel
 
     def __init__(
+<<<<<<< HEAD
         self,
         from_lang: Language,
         to_lang: Language,
         language_model: argostranslate.models.ILanguageModel,
+=======
+        self, from_lang: Language, to_lang: Language, language_model: ILanguageModel
+>>>>>>> master
     ):
         self.from_lang = from_lang
         self.to_lang = to_lang
@@ -283,11 +353,18 @@ class FewShotTranslation(ITranslation):
         return [Hypothesis(to_return, 0)] * num_hypotheses
 
 
+<<<<<<< HEAD
 class LocalTranslation(ITranslation):
     def __init__(self, translator, from_lang, to_lang):
         self.translator = translator
         self.from_lang = from_lang
         self.to_lang = to_lang
+=======
+def apply_packaged_translation(
+    pkg: Package, input_text: str, translator: Translator, num_hypotheses: int = 4
+) -> list[Hypothesis]:
+    """Applies the translation in pkg to translate input_text.
+>>>>>>> master
 
     def hypotheses(self, input_text, num_hypotheses=4):
         return self.translator.translate(
@@ -522,7 +599,16 @@ def get_installed_languages() -> list[Language]:
     return languages
 
 
+<<<<<<< HEAD
 def get_language_from_code(code: str) -> Language:
+=======
+def load_installed_languages() -> list[Language]:
+    """Deprecated 1.2, use get_installed_languages"""
+    return get_installed_languages()
+
+
+def get_language_from_code(code: str) -> Language | None:
+>>>>>>> master
     """Gets a language object from a code
 
     An exception will be thrown if an installed language with this
@@ -534,7 +620,8 @@ def get_language_from_code(code: str) -> Language:
     Returns:
         The language object
     """
-    return list(filter(lambda x: x.code == code, get_installed_languages()))[0]
+    return next(list(filter(lambda x: x.code == code, get_installed_languages())), None)
+    
 
 
 def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation:
