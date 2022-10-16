@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import copy
 import json
+import uuid
 import shutil
 import uuid
 import urllib.request
 import zipfile
 from pathlib import Path
 from threading import Lock
+
 
 from argostranslate import networking
 from argostranslate import settings
@@ -163,25 +165,7 @@ class IPackage:
         raise NotImplementedError()
 
     def __eq__(self, other):
-<<<<<<< HEAD
         return self.code == other.code
-=======
-        return (
-            self.package_version == other.package_version
-            and self.argos_version == other.argos_version
-            and self.from_code == other.from_code
-            and self.from_name == other.from_name
-            and self.to_code == other.to_code
-            and self.to_name == other.to_name
-        )
-
-    def __repr__(self):
-        if len(self.from_name) > 0 and len(self.to_name) > 0:
-            return "{} -> {}".format(self.from_name, self.to_name)
-        elif self.type:
-            return self.type
-        return ""
->>>>>>> master
 
     def __str__(self):
         if self.name is not None:
@@ -266,11 +250,11 @@ class AvailablePackage(IPackage):
         filename = f"{self.code}-{str(uuid.uuid4())}.argosmodel"
         filepath = settings.downloads_dir / filename
         data = networking.get_from(self.links)
-        if data is None:
-            raise Exception(f"Download failed for {str(self)}")
-        with open(filepath, "wb") as f:
-            f.write(data)
-        return filepath
+        if data is not None:
+            with open(filepath, "wb") as f:
+                f.write(data)
+            return filepath
+        return None
 
     def install(self):
         for dependency in self.get_dependencies():
@@ -337,48 +321,6 @@ def install_from_path(path: Path):
             raise Exception("Not a valid Argos Model (must be a zip archive)")
         with zipfile.ZipFile(path, "r") as zipf:
             zipf.extractall(path=settings.package_data_dir)
-
-
-class AvailablePackage(IPackage):
-    """A package available for download and installation"""
-
-    def __init__(self, metadata):
-        """Creates a new AvailablePackage from a metadata object"""
-        self.load_metadata_from_json(metadata)
-
-    def download(self) -> Path:
-        """Downloads the AvailablePackage and returns its path"""
-        filename = argospm_package_name(self) + ".argosmodel"
-
-        # Install sbd package if needed
-        if self.type == "translate" and not settings.stanza_available:
-            if (
-                len(list(filter(lambda x: x.type == "sbd", get_installed_packages())))
-                == 0
-            ):
-                # No sbd packages are installed, download all available
-                sbd_packages = filter(
-                    lambda x: x.type == "sbd", get_available_packages()
-                )
-                for sbd_package in sbd_packages:
-                    download_path = sbd_package.download()
-                    install_from_path(download_path)
-
-        filepath = settings.downloads_dir / filename
-        if not filepath.exists():
-            data = networking.get_from(self.links)
-            if data is None:
-                raise Exception(f"Download failed for {str(self)}")
-            with open(filepath, "wb") as f:
-                f.write(data)
-        return filepath
-
-    def install(self):
-        download_path = self.download()
-        install_from_path(download_path)
-
-    def get_description(self):
-        return "{} → {}".format(self.from_name, self.to_name)
 
 
 def uninstall(pkg: Package):

@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 import urllib.request
 
-from argostranslate.utils import info
+from argostranslate.utils import info, error
 
 
 def get_protocol(url: str) -> str | None:
@@ -38,9 +38,9 @@ def get(url: str, retry_count: int = 3) -> bytes | None:
     Returns:
         The downloaded data, None is returned if the download fails
     """
+    info(f"Get {url}")
     if get_protocol(url) not in supported_protocols:
         return None
-    info(f"Get {url}")
     download_attempts_count = 0
     while download_attempts_count <= retry_count:
         try:
