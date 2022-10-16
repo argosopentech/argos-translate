@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import json
 import sys
+
+from typing import Any, Dict
 from urllib import request, parse
 
 from argostranslate.models import ILanguageModel
 
 
+# https://github.com/argosopentech/LibreTranslate-py
 class LibreTranslateAPI:
     """Connect to the LibreTranslate API"""
 
@@ -112,7 +115,6 @@ class LibreTranslateAPI:
         response_str = response.read().decode()
 
         return json.loads(response_str)
-
 
 # OpenAI API
 # curl https://api.openai.com/v1/engines/davinci/completions \

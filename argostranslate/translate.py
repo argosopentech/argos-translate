@@ -478,14 +478,14 @@ def get_installed_languages() -> list[Language]:
         == argostranslate.settings.ModelProvider.LIBRETRANSLATE
     ):
         # TODO: Add API key and custom URL support
-        libretranslate_api = apis.LibreTranslateAPI()
+        libretranslate_api = argostranslate.apis.LibreTranslateAPI()
         supported_languages = (
             libretranslate_api.languages()
         )  # [{"code":"en", "name":"English"}]
         languages = [Language(l["code"], l["name"]) for l in supported_languages]
         for from_lang in languages:
             for to_lang in languages:
-                translation = REMOTE(from_lang, to_lang, libretranslate_api)
+                translation = RemoteTranslation(from_lang, to_lang, libretranslate_api)
                 from_lang.translations_from.append(translation)
                 to_lang.translations_to.append(translation)
 
@@ -493,7 +493,7 @@ def get_installed_languages() -> list[Language]:
         argostranslate.settings.model_provider
         == argostranslate.settings.ModelProvider.OPENAI
     ):
-        language_model = apis.OpenAIAPI(argostranslate.settings.openai_api_key)
+        language_model = argostranslate.apis.OpenAIAPI(argostranslate.settings.openai_api_key)
         # TODO
         languages = [Language("en", "English"), Language("es", "Spanish")]
         for from_lang in languages:
