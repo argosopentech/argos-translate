@@ -34,10 +34,10 @@ class Hypothesis:
         return self.score < other.score
 
     def __repr__(self):
-        return f"({repr(self.value)}, {self.score})"
+        return f"{self.score} : " + self.value
 
     def __str__(self):
-        return repr(self)
+        return self.__repr__()
 
 
 class ITranslation:
