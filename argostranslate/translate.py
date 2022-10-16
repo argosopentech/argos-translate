@@ -2,15 +2,17 @@ from __future__ import annotations
 import functools
 
 import ctranslate2
-import sentencepiece as spm
-from ctranslate2 import Translator
+import sentencepiece
+import ctranslate2
 
 import argostranslate
 import argostranslate.package
-from argostranslate import settings, fewshot, chunk
+import argostranslate.settings
+import argostranslate.fewshot
+import argostranslate.chunk
+import argostranslate.models
+
 from argostranslate.utils import info, warning
-from argostranslate.models import ILanguageModel
-from argostranslate.utils import info
 
 
 class Hypothesis:
@@ -249,20 +251,23 @@ class FewShotTranslation(ITranslation):
 
     from_lang: Language
     to_lang: Language
-    language_model: ILanguageModel
+    language_model: argostranslate.models.ILanguageModel
 
     def __init__(
-        self, from_lang: Language, to_lang: Language, language_model: ILanguageModel
+        self,
+        from_lang: Language,
+        to_lang: Language,
+        language_model: argostranslate.models.ILanguageModel,
     ):
         self.from_lang = from_lang
         self.to_lang = to_lang
         self.language_model = language_model
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
-        sentences = chunk.chunk(input_text)
+        sentences = argostranslate.chunk.chunk(input_text)
 
         for sentence in sentences:
-            prompt = fewshot.generate_prompt(
+            prompt = argostranslate.fewshot.generate_prompt(
                 sentence,
                 self.from_lang.name,
                 self.from_lang.code,
@@ -272,7 +277,7 @@ class FewShotTranslation(ITranslation):
             info("fewshot prompt", prompt)
             response = self.language_model.infer(prompt)
             info("fewshot response", response)
-            result = fewshot.parse_inference(response)
+            result = argostranslate.fewshot.parse_inference(response)
             info("fewshot result", result)
             to_return += result
         return [Hypothesis(to_return, 0)] * num_hypotheses
@@ -317,9 +322,13 @@ class Translator:
             for language in self.pkg.target_languages
         ]
         model_path = str(self.pkg.package_path / "model")
-        self.translator = ctranslate2.Translator(model_path, device=settings.device)
+        self.translator = ctranslate2.Translator(
+            model_path, device=argostranslate.settings.device
+        )
         sp_model_path = str(self.pkg.package_path / "sentencepiece.model")
-        self.sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
+        self.sp_processor = sentencepiece.SentencePieceProcessor(
+            model_file=sp_model_path
+        )
         self.map_code_to_chunk_translation = dict()
 
     def chunk(self, input_text, from_code):
@@ -330,10 +339,10 @@ class Translator:
 
         model_path = str(chunk_package.package_path / "model")
         ctranslate2_translator = ctranslate2.Translator(
-            model_path, device=settings.device
+            model_path, device=argostranslate.settings.device
         )
         sp_model_path = str(chunk_package.package_path / "sentencepiece.model")
-        sp_processor = spm.SentencePieceProcessor(
+        sp_processor = sentencepiece.SentencePieceProcessor(
             model_file=sp_model_path, out_type=str
         )
 
@@ -355,7 +364,7 @@ class Translator:
             sp_processor=sp_processor,
         )
 
-        sentences = chunk.chunk(input_text, chunk_translation)
+        sentences = argostranslate.chunk.chunk(input_text, chunk_translation)
         info("sentences", sentences)
         return sentences
 
@@ -432,7 +441,10 @@ class Translator:
 def get_installed_languages() -> list[Language]:
     """Returns a list of Languages installed from packages"""
 
-    if settings.model_provider == settings.ModelProvider.OPENNMT:
+    if (
+        argostranslate.settings.model_provider
+        == argostranslate.settings.ModelProvider.OPENNMT
+    ):
         packages = argostranslate.package.get_installed_packages()
 
         # Filter for translate packages
@@ -461,7 +473,10 @@ def get_installed_languages() -> list[Language]:
 
         languages = list(language_of_code.values())
 
-    elif settings.model_provider == settings.ModelProvider.LIBRETRANSLATE:
+    elif (
+        argostranslate.settings.model_provider
+        == argostranslate.settings.ModelProvider.LIBRETRANSLATE
+    ):
         # TODO: Add API key and custom URL support
         libretranslate_api = apis.LibreTranslateAPI()
         supported_languages = (
@@ -474,8 +489,11 @@ def get_installed_languages() -> list[Language]:
                 from_lang.translations_from.append(translation)
                 to_lang.translations_to.append(translation)
 
-    elif settings.model_provider == settings.ModelProvider.OPENAI:
-        language_model = apis.OpenAIAPI(settings.openai_api_key)
+    elif (
+        argostranslate.settings.model_provider
+        == argostranslate.settings.ModelProvider.OPENAI
+    ):
+        language_model = apis.OpenAIAPI(argostranslate.settings.openai_api_key)
         # TODO
         languages = [Language("en", "English"), Language("es", "Spanish")]
         for from_lang in languages:
