@@ -9,7 +9,7 @@ from argostranslate.utils import info
 def get_protocol(url: str) -> str | None:
     """Gets the protocol of a URL string
 
-    For example if url is "https://www.argosopentech.com" "https" is returned.
+    For example if url is "https://www.argosopentech.com/" "https" is returned.
     If the protocol can't be determined None is returned
 
     Args:
