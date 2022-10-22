@@ -320,17 +320,6 @@ def install_from_path(path: Path):
             zipf.extractall(path=settings.package_data_dir)
 
 
-def uninstall(pkg: Package):
-    """Uninstalls a package.
-
-    Args:
-        pkg: The package to uninstall
-
-    """
-    with package_lock:
-        shutil.rmtree(pkg.package_path)
-
-
 def get_installed_packages(path: Path = None) -> list[Package]:
     """Return a list of installed Packages
 
