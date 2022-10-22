@@ -278,9 +278,6 @@ class Package(IPackage):
             package_path: Path to installed package directory.
 
         """
-        if type(package_path) == str:
-            # Convert strings to pathlib.Path objects
-            package_path = Path(package_path)
         self.package_path = package_path
         metadata_path = package_path / "metadata.json"
         if not metadata_path.exists():
