@@ -83,22 +83,20 @@ class IPackage:
     """
 
     code: str
+    type: str
+    name: str
     package_path: Path
     package_version: str
     argos_version: str
-    from_code: str
-    from_name: str
-    from_codes: list
-    to_code: str
-    to_codes: list
-    to_name: str
-    links: list
-    type: str
-    languages: list
+    links: list[str]
     dependencies: list
+    languages: list
     source_languages: list
     target_languages: list
-    links: list[str]
+    from_code: str | None
+    from_name: str | None
+    to_code: str | None
+    to_name: str | None
 
     def load_metadata_from_json(self, metadata: dict):
         """Loads package metadata from a JSON object.
@@ -110,26 +108,20 @@ class IPackage:
         info("Load metadata from package json", metadata)
 
         self.code = metadata.get("code")
+        self.type = metadata.get("type", "translate")
         self.name = metadata.get("name")
         self.package_version = metadata.get("package_version", "")
         self.argos_version = metadata.get("argos_version", "")
-        self.from_code = metadata.get("from_code")
-        self.from_name = metadata.get("from_name", "")
-        self.from_codes = metadata.get("from_codes", list())
-        self.to_code = metadata.get("to_code")
-        self.to_codes = metadata.get("to_codes", list())
-        self.to_name = metadata.get("to_name", "")
         self.links = metadata.get("links", list())
-        self.type = metadata.get("type", "translate")
-        self.languages = metadata.get("languages", list())
         self.dependencies = metadata.get("dependencies", list())
+        self.languages = metadata.get("languages", list())
         self.source_languages = metadata.get("source_languages", list())
         self.target_languages = metadata.get("target_languages", list())
+        self.from_code = metadata.get("from_code")
+        self.from_name = metadata.get("from_name")
+        self.to_code = metadata.get("to_code")
+        self.to_name = metadata.get("to_name")
 
-        """Build all source and target languages
-        - Uses self.languages, self.source_languages, self.target_languages,
-        (self.from_code, self.from_name), and (self.to_code, self.to_name)
-        """
         if self.from_code is not None:
             from_lang = dict()
             from_lang["code"] = self.from_code
