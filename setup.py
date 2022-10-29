@@ -8,15 +8,15 @@ with open("README.md") as f:
 
 setup(
     name="argostranslate",
-    version="1.8.0", # Version also stored in argostranslate/__version__
+    version="1.8.0",  # Version also stored in argostranslate/__version__
     description="Open-source neural machine translation library based on OpenNMT's CTranslate2",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Argos Open Technologies, LLC",
+    author="Argos Open Tech",
     author_email="admin@argosopentech.com",
-    url="https://www.argosopentech.com",
+    url="https://www.argosopentech.com/",
     project_urls={
-        "Website": "https://www.argosopentech.com",
+        "Website": "https://www.argosopentech.com/",
         "Documentation": "https://argos-translate.readthedocs.io/en/latest/",
         "GitHub": "https://github.com/argosopentech/argos-translate",
         "Forum": "https://community.libretranslate.com/c/argos-translate/5",
@@ -30,5 +30,5 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Development Status :: 5 - Production/Stable",
-    ]
+    ],
 )
