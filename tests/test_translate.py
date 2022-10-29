@@ -27,6 +27,10 @@ def get_Spanish():
     return argostranslate.translate.Language("es", "Spanish")
 
 
+def get_French():
+    return argostranslate.translate.Language("fr", "French")
+
+
 def test_Language():
     en = get_English()
     assert en.code == "en"
@@ -44,35 +48,53 @@ def test_IdentityTranslation():
     assert h.score == 0
 
 
+def build_mock_translation(translation_dict, from_lang, to_lang):
+    translation = argostranslate.translate.ITranslation()
+
+    def mock_hypotheses(input_text: str, num_hypotheses: int = 1, **kwargs):
+        return [argostranslate.translate.Hypothesis(translation_dict[input_text], -0.3)]
+
+    translation.hypotheses = mock_hypotheses
+    translation.from_lang = from_lang
+    translation.to_lang = to_lang
+
+    return translation
+
+
 def get_translation_en_es():
-    translation_en_es = argostranslate.translate.ITranslation()
-
-    def en_es_hypotheses(input_text: str, num_hypotheses: int = 1, **kwargs):
-        return [argostranslate.translate.Hypothesis("Hola Mundo", -0.3)]
-
-    translation_en_es.hypotheses = en_es_hypotheses
-    translation_en_es.from_lang = get_English()
-    translation_en_es.to_lang = get_Spanish()
+    translation_dict = {
+        "Hello World": "Hola Mundo",
+    }
+    translation_en_es = build_mock_translation(
+        translation_dict, get_English(), get_Spanish()
+    )
     return translation_en_es
 
 
 def get_translation_es_en():
-    translation_es_en = argostranslate.translate.ITranslation()
+    translation_dict = {
+        "Hola Mundo": "Hello World",
+    }
+    translation_en_es = build_mock_translation(
+        translation_dict, get_English(), get_Spanish()
+    )
+    return translation_en_es
 
-    def es_en_hypotheses(input_text: str, num_hypotheses: int = 1, **kwargs):
-        return [argostranslate.translate.Hypothesis("Hello World", -0.3)]
 
-    translation_es_en.hypotheses = es_en_hypotheses
-    translation_es_en.from_lang = get_Spanish()
-    translation_es_en.to_lang = get_English()
-    return translation_es_en
+def get_translation_en_fr():
+    translation_dict = {
+        "Hello World": "Bonjour le monde",
+    }
+    translation_en_fr = build_mock_translation(
+        translation_dict, get_English(), get_French()
+    )
+    return translation_en_fr
 
 
 def test_CompositeTranslation():
-    translation_en_es = get_translation_en_es()
     translation_es_en = get_translation_es_en()
+    translation_en_fr = get_translation_en_fr()
     composite_translation = argostranslate.translate.CompositeTranslation(
-        translation_en_es, translation_es_en
+        translation_es_en, translation_en_fr
     )
-
-    assert composite_translation.translate("Hello World") == "Hello World"
+    assert composite_translation.translate("Hola Mundo") == "Bonjour le monde"
