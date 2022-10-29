@@ -1,7 +1,7 @@
 import argostranslate.package
 
 
-def test_IPackage_load_metadata_from_json():
+def test_IPackage_load_metadata():
     metadata = {
         "code": "test",
         "type": "translate",
@@ -17,7 +17,7 @@ def test_IPackage_load_metadata_from_json():
         ],
     }
     package = argostranslate.package.IPackage()
-    package.load_metadata_from_json(metadata)
+    package.load_metadata(metadata)
     assert package.code == "test"
     assert package.type == "translate"
     assert package.name == "Test Package"
@@ -42,7 +42,7 @@ def test_IPackage_load_metadata_from_json():
     ]
 
 
-def test_IPackage_load_metadata_from_json_v1():
+def test_IPackage_load_metadata_v1():
     metadata = {
         "package_version": "1.0",
         "argos_version": "1.0",
@@ -58,7 +58,7 @@ def test_IPackage_load_metadata_from_json_v1():
         ],
     }
     package = argostranslate.package.IPackage()
-    package.load_metadata_from_json(metadata)
+    package.load_metadata(metadata)
     assert package.package_version == "1.0"
     assert package.argos_version == "1.0"
     assert package.from_code == "ar"
