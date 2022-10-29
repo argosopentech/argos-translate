@@ -98,7 +98,7 @@ class IPackage:
     to_code: str | None
     to_name: str | None
 
-    def load_metadata(self, metadata: dict):
+    def set_metadata(self, metadata: dict):
         """Loads package metadata from a JSON object.
 
         Args:
@@ -227,7 +227,7 @@ class AvailablePackage(IPackage):
 
     def __init__(self, metadata):
         """Creates a new AvailablePackage from a metadata object"""
-        self.load_metadata(metadata)
+        self.set_metadata(metadata)
 
     def get_dependencies(self):
         return list(
@@ -280,7 +280,7 @@ class Package(IPackage):
             )
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
-            self.load_metadata(metadata)
+            self.set_metadata(metadata)
 
     def get_readme(self) -> str | None:
         """Returns the text of the README.md in this package.
