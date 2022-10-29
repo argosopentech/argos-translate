@@ -30,60 +30,17 @@ class Hypothesis:
         self.value = value
         self.score = score
 
-    def __lt__(self, other):
+    def __lt__(self, other: Hypothesis):
         return self.score < other.score
+
+    def __eq__(self, other: Hypothesis):
+        return self.score == other.score and self.value == other.value
 
     def __repr__(self):
         return f"{self.score} : " + self.value
 
     def __str__(self):
         return self.__repr__()
-
-
-class ITranslation:
-    """Represents a translation between two Languages
-
-    Attributes:
-        from_lang: The Language this Translation translates from.
-        to_lang: The Language this Translation translates to.
-
-    """
-
-    from_lang: Language
-    to_lang: Language
-
-    def translate(self, input_text: str) -> str:
-        """Translates a string from self.from_lang to self.to_lang
-
-        Args:
-            input_text: The text to be translated.
-
-        Returns:
-            input_text translated.
-
-        """
-        translation_result = self.hypotheses(input_text, num_hypotheses=1)[0].value
-        info("translation_result", translation_result)
-        return translation_result
-
-    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
-        """Translates a string from self.from_lang to self.to_lang
-
-        Args:
-            input_text: The text to be translated.
-            num_hypotheses: Number of hypothetic results expected
-
-        Returns:
-            List of translation hypotheses
-
-        """
-        raise NotImplementedError()
-
-    def __repr__(self):
-        return str(self.from_lang) + " -> " + str(self.to_lang)
-
-    def __str__(self):
-        return repr(self).replace("->", "→")
 
 
 class Language:
@@ -162,6 +119,52 @@ class Language:
             language.translations_to.append(identity_translation)
 
         """
+
+
+class ITranslation:
+    """Represents a translation between two Languages
+
+    Attributes:
+        from_lang: The Language this Translation translates from.
+        to_lang: The Language this Translation translates to.
+
+    """
+
+    from_lang: Language
+    to_lang: Language
+
+    def translate(self, input_text: str) -> str:
+        """Translates a string from self.from_lang to self.to_lang
+
+        Args:
+            input_text: The text to be translated.
+
+        Returns:
+            input_text translated.
+
+        """
+        translation_result = self.hypotheses(input_text, num_hypotheses=1)[0].value
+        info("translation_result", translation_result)
+        return translation_result
+
+    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
+        """Translates a string from self.from_lang to self.to_lang
+
+        Args:
+            input_text: The text to be translated.
+            num_hypotheses: Number of hypothetic results expected
+
+        Returns:
+            List of translation hypotheses
+
+        """
+        raise NotImplementedError()
+
+    def __repr__(self):
+        return str(self.from_lang) + " -> " + str(self.to_lang)
+
+    def __str__(self):
+        return repr(self).replace("->", "→")
 
 
 class IdentityTranslation(ITranslation):
