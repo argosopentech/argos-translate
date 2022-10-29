@@ -100,7 +100,7 @@ class IPackage:
     target_languages: list
     links: list[str]
 
-    def load_metadata_from_json(self, metadata):
+    def load_metadata_from_json(self, metadata: dict):
         """Loads package metadata from a JSON object.
 
         Args:
@@ -126,8 +126,10 @@ class IPackage:
         self.source_languages = metadata.get("source_languages", list())
         self.target_languages = metadata.get("target_languages", list())
 
-        # Add all package source and target languages to
-        # source_languages and target_languages
+        """Build all source and target languages
+        - Uses self.languages, self.source_languages, self.target_languages,
+        (self.from_code, self.from_name), and (self.to_code, self.to_name)
+        """
         if self.from_code is not None:
             from_lang = dict()
             from_lang["code"] = self.from_code
@@ -143,7 +145,7 @@ class IPackage:
         self.source_languages += copy.deepcopy(self.languages)
         self.target_languages += copy.deepcopy(self.languages)
 
-        # Languages must have a code
+        """Languages must have a code"""
         self.source_languages = list(
             filter(lambda lang: lang.get("code") is not None, self.source_languages)
         )

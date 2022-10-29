@@ -1,7 +1,3 @@
-import unittest.mock
-
-import pytest
-
 import argostranslate.translate
 
 
