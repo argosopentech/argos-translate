@@ -40,3 +40,34 @@ def test_IPackage_load_metadata_from_json():
         {"code": "es", "name": "Spanish"},
         {"code": "fr", "name": "French"},
     ]
+
+
+def test_IPackage_load_metadata_from_json_v1():
+    metadata = {
+        "package_version": "1.0",
+        "argos_version": "1.0",
+        "from_code": "ar",
+        "from_name": "Arabic",
+        "to_code": "en",
+        "to_name": "English",
+        "links": [
+            "https://argosopentech.nyc3.digitaloceanspaces.com/argospm/translate-ar_en-1_0.argosmodel",
+            "https://cdn.argosopentech.io/translate-ar_en-1_0.argosmodel",
+            "https://cdn2.argosopentech.io/translate-ar_en-1_0.argosmodel",
+            "ipfs://QmV5bmf8iqKpoGoyuTzEppaSWdceuW6zgiePaUr5ThPCpW",
+        ],
+    }
+    package = argostranslate.package.IPackage()
+    package.load_metadata_from_json(metadata)
+    assert package.package_version == "1.0"
+    assert package.argos_version == "1.0"
+    assert package.from_code == "ar"
+    assert package.from_name == "Arabic"
+    assert package.to_code == "en"
+    assert package.to_name == "English"
+    assert package.links == [
+        "https://argosopentech.nyc3.digitaloceanspaces.com/argospm/translate-ar_en-1_0.argosmodel",
+        "https://cdn.argosopentech.io/translate-ar_en-1_0.argosmodel",
+        "https://cdn2.argosopentech.io/translate-ar_en-1_0.argosmodel",
+        "ipfs://QmV5bmf8iqKpoGoyuTzEppaSWdceuW6zgiePaUr5ThPCpW",
+    ]
