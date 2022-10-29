@@ -71,3 +71,16 @@ def test_IPackage_set_metadata_v1():
         "https://cdn2.argosopentech.io/translate-ar_en-1_0.argosmodel",
         "ipfs://QmV5bmf8iqKpoGoyuTzEppaSWdceuW6zgiePaUr5ThPCpW",
     ]
+    assert sorted(package.languages, key=lambda x: x.get("code")) == sorted(
+        [
+            {"code": "en", "name": "English"},
+            {"code": "ar", "name": "Arabic"},
+        ],
+        key=lambda x: x.get("code"),
+    )
+    assert package.source_languages == [
+        {"code": "ar", "name": "Arabic"},
+    ]
+    assert package.target_languages == [
+        {"code": "en", "name": "English"},
+    ]

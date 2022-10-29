@@ -1,3 +1,4 @@
+import pathlib
 from pathlib import Path
 import os
 from enum import Enum
@@ -115,6 +116,10 @@ argos_translate_about_text = (
     + "translation application created by Argos Open "
     + "Technologies, LLC (www.argosopentech.com). "
 )
+
+version_file = pathlib.Path(__file__).parent.resolve() / "__version__"
+with open(version_file) as version_file_data:
+    argos_version = version_file_data.read().strip()
 
 # Fix Intel bug
 # https://github.com/argosopentech/argos-translate/issues/40

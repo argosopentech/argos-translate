@@ -12,8 +12,9 @@ from threading import Lock
 
 
 from argostranslate import networking
+import argostranslate.settings
 from argostranslate import settings
-from argostranslate.utils import info, error
+from argostranslate.utils import info, warning, error
 
 # TODO: Upgrade packages
 
@@ -122,20 +123,22 @@ class IPackage:
         self.to_code = metadata.get("to_code")
         self.to_name = metadata.get("to_name")
 
+        self.source_languages += copy.deepcopy(self.languages)
+        self.target_languages += copy.deepcopy(self.languages)
         if self.from_code is not None:
             from_lang = dict()
             from_lang["code"] = self.from_code
             if self.from_name is not None:
                 from_lang["name"] = self.from_name
+            self.languages.append(from_lang)
             self.source_languages.append(from_lang)
         if self.to_code is not None:
             to_lang = dict()
             to_lang["code"] = self.to_code
             if self.to_name is not None:
                 to_lang["name"] = self.to_name
+            self.languages.append(to_lang)
             self.target_languages.append(to_lang)
-        self.source_languages += copy.deepcopy(self.languages)
-        self.target_languages += copy.deepcopy(self.languages)
 
         """Languages must have a code"""
         self.source_languages = list(
@@ -281,6 +284,10 @@ class Package(IPackage):
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
             self.set_metadata(metadata)
+        if self.argos_version > argostranslate.settings.version:
+            warning(
+                f"Package version {self.argos_version} is newer than Argos Translate version {argostranslate.settings.argos_version}"
+            )
 
     def get_readme(self) -> str | None:
         """Returns the text of the README.md in this package.
