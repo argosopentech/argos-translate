@@ -83,12 +83,12 @@ class IPackage:
     }
     """
 
-    code: str
-    type: str
-    name: str
-    package_path: Path
-    package_version: str
-    argos_version: str
+    code: str | None
+    type: str | None
+    name: str | None
+    package_path: Path | None
+    package_version: str | None
+    argos_version: str | None
     links: list[str]
     dependencies: list
     languages: list
@@ -109,10 +109,10 @@ class IPackage:
         info("Load metadata from package json", metadata)
 
         self.code = metadata.get("code")
-        self.type = metadata.get("type", "translate")
+        self.type = metadata.get("type")
         self.name = metadata.get("name")
-        self.package_version = metadata.get("package_version", "")
-        self.argos_version = metadata.get("argos_version", "")
+        self.package_version = metadata.get("package_version")
+        self.argos_version = metadata.get("argos_version")
         self.links = metadata.get("links", list())
         self.dependencies = metadata.get("dependencies", list())
         self.languages = metadata.get("languages", list())
@@ -284,7 +284,10 @@ class Package(IPackage):
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
             self.set_metadata(metadata)
-        if self.argos_version > argostranslate.settings.version:
+        if (
+            self.argos_version is not None
+            and self.argos_version > argostranslate.settings.argos_version
+        ):
             warning(
                 f"Package version {self.argos_version} is newer than Argos Translate version {argostranslate.settings.argos_version}"
             )
@@ -297,6 +300,8 @@ class Package(IPackage):
                 if README.md can't be read
 
         """
+        if self.package_path is None:
+            return None
         readme_path = self.package_path / "README.md"
         if not readme_path.exists():
             return None
@@ -307,21 +312,7 @@ class Package(IPackage):
         return self.get_readme()
 
 
-def install_from_path(path: Path):
-    """Install a package file (zip archive ending in .argosmodel).
-
-    Args:
-        path: The path to the .argosmodel file to install.
-
-    """
-    with package_lock:
-        if not zipfile.is_zipfile(path):
-            raise Exception("Not a valid Argos Model (must be a zip archive)")
-        with zipfile.ZipFile(path, "r") as zipf:
-            zipf.extractall(path=settings.package_data_dir)
-
-
-def get_installed_packages(path: Path = None) -> list[Package]:
+def get_installed_packages(path: Path | None) -> list[Package]:
     """Return a list of installed Packages
 
     Looks for packages in <home>/.argos-translate/local/share/packages by
@@ -334,9 +325,9 @@ def get_installed_packages(path: Path = None) -> list[Package]:
             Defaults to the path in settings module.
 
     """
+    packages_path = argostranslate.settings.packages_dirs if path is None else [path]
     with package_lock:
         installed_packages = []
-        packages_path = settings.package_dirs if path is None else path
         for directory in packages_path:
             for path in directory.iterdir():
                 if path.is_dir():

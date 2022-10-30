@@ -80,6 +80,8 @@ package_data_dir = Path(
 )
 os.makedirs(package_data_dir, exist_ok=True)
 
+packages_dirs = [package_data_dir]
+
 downloads_dir = cache_dir / "downloads"
 os.makedirs(downloads_dir, exist_ok=True)
 
@@ -108,8 +110,6 @@ model_provider = model_mapping[get_setting("ARGOS_MODEL_PROVIDER", default="OPEN
 libretranslate_api_key = get_setting("LIBRETRANSLATE_API_KEY", None)
 openai_api_key = get_setting("OPENAI_API_KEY", None)
 
-
-package_dirs = [package_data_dir]
 
 argos_translate_about_text = (
     "Argos Translate is an open source neural machine "
