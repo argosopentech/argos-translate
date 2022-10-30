@@ -7,6 +7,7 @@ import shutil
 import uuid
 import urllib.request
 import zipfile
+import pathlib
 from pathlib import Path
 from threading import Lock
 
@@ -210,7 +211,7 @@ def get_available_packages():
         return get_available_packages()
 
 
-def install_from_path(path):
+def install_from_path(path: pathlib.Path):
     """Install a package file (zip archive ending in .argosmodel).
 
     Args:
@@ -221,7 +222,7 @@ def install_from_path(path):
         if not zipfile.is_zipfile(path):
             raise Exception("Not a valid Argos Model (must be a zip archive)")
         with zipfile.ZipFile(path, "r") as zip:
-            zip.extractall(path=settings.package_data_dir)
+            zip.extractall(path=settings.packages_dir)
             info("Installed package from path", path)
 
 
@@ -312,7 +313,7 @@ class Package(IPackage):
         return self.get_readme()
 
 
-def get_installed_packages(path: Path | None) -> list[Package]:
+def get_installed_packages(packages_dir: Path | None = None) -> list[Package]:
     """Return a list of installed Packages
 
     Looks for packages in <home>/.argos-translate/local/share/packages by
@@ -325,13 +326,13 @@ def get_installed_packages(path: Path | None) -> list[Package]:
             Defaults to the path in settings module.
 
     """
-    packages_path = argostranslate.settings.packages_dirs if path is None else [path]
+    if packages_dir is None:
+        packages_dir = argostranslate.settings.packages_dir
     with package_lock:
-        installed_packages = []
-        for directory in packages_path:
-            for path in directory.iterdir():
-                if path.is_dir():
-                    installed_packages.append(Package(path))
+        installed_packages = list()
+        for path in packages_dir.iterdir():
+            if path.is_dir():
+                installed_packages.append(Package(path))
         info("get_installed_packages", installed_packages)
         return installed_packages
 

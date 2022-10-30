@@ -1,5 +1,6 @@
 from __future__ import annotations
 import functools
+from typing import List
 
 import ctranslate2
 import sentencepiece
@@ -30,10 +31,10 @@ class Hypothesis:
         self.value = value
         self.score = score
 
-    def __lt__(self, other: Hypothesis):
+    def __lt__(self, other):
         return self.score < other.score
 
-    def __eq__(self, other: Hypothesis):
+    def __eq__(self, other):
         return self.score == other.score and self.value == other.value
 
     def __repr__(self):
@@ -56,8 +57,8 @@ class Language:
 
     """
 
-    translations_from: list[ITranslation] = []
-    translations_to: list[ITranslation] = []
+    translators_from: List[Translator]
+    translators_to: List[Translator]
 
     def __init__(self, code: str, name: str):
         self.code = code
@@ -540,7 +541,7 @@ def get_language_from_code(code: str) -> Language:
     return next(list(filter(lambda x: x.code == code, get_installed_languages())), None)
 
 
-def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation:
+def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation | None:
     """Gets a translation object from codes for from and to languages
 
     An exception will be thrown if an installed translation between the from lang

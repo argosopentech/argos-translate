@@ -75,12 +75,9 @@ package_index = get_setting(
     default="https://www.argosopentech.com/argospm/index/",
 )
 
-package_data_dir = Path(
-    get_setting("ARGOS_PACKAGES_DIR", default=data_dir / "packages")
-)
-os.makedirs(package_data_dir, exist_ok=True)
+packages_dir = Path(get_setting("ARGOS_PACKAGES_DIR", default=data_dir / "packages"))
+os.makedirs(packages_dir, exist_ok=True)
 
-packages_dirs = [package_data_dir]
 
 downloads_dir = cache_dir / "downloads"
 os.makedirs(downloads_dir, exist_ok=True)
