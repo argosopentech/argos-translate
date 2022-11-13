@@ -538,7 +538,7 @@ def get_language_from_code(code: str) -> Language:
     Returns:
         The language object
     """
-    return next(list(filter(lambda x: x.code == code, get_installed_languages())), None)
+    return next(filter(lambda x: x.code == code, get_installed_languages()), None)
 
 
 def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation | None:

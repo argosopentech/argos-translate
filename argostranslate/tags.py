@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argostranslate.translate
 from argostranslate.translate import ITranslation
 from argostranslate.utils import info
 
@@ -9,7 +10,7 @@ from argostranslate.tags import translate_tags, Tag
 from argostranslate import translate
 
 installed_languages = translate.get_installed_languages()
-translation = installed_languages[0].get_translation(installed_languages[1])
+translation = argostranslate.translate.get_translation_from_codes("en", "es")
 
 t = Tag(['I went to ', Tag(['Paris']), ' last summer.'])
 
@@ -66,7 +67,7 @@ def depth(tag: ITag | str) -> int:
         return 0
     if len(tag.children) == 0:
         return 0
-    return max([depth(t) for t in tag.children])
+    return max([depth(t) for t in tag.children]) + 1
 
 
 def translate_preserve_formatting(
@@ -91,98 +92,38 @@ def translate_preserve_formatting(
             translated_text = translated_text + " "
     return translated_text
 
+ARGOS_OPEN_TAG = "<argos-tag>"
+ARGOS_CLOSE_TAG = "</argos-tag>"
 
-def inject_tags_inference(
-    underlying_translation: ITranslation, tag: ITag
-) -> ITag | None:
-    """Returns translated tag tree with injection tags, None if not possible
-
-    tag is only modified in place if tag injection is successful.
-
-    Args:
-        underlying_translation: The translation to apply to the tags.
-        tag: A depth=2 tag tree to attempt injection on.
-
-    Returns:
-        A translated version of tag, None if not possible to tag inject
-    """
-    MAX_SEQUENCE_LENGTH = 200
-
-    text = tag.text()
-    if len(text) > MAX_SEQUENCE_LENGTH:
-        return None
-
-    translated_text = translate_preserve_formatting(underlying_translation, text)
-
-    class InjectionTag:
-        """
-
-        Attributes:
-            text: The text of the tag
-            tag: The depth 1 ITag it represents
-            injection_index: The index in the outer translated string that
-                    this tag can be injected into.
-        """
-
-        def __init__(self, text: str, tag: ITag):
-            self.text = text
-            self.tag = tag
-            self.injection_index = None
-
-    injection_tags = []
+def translate_tag_chunk(underlying_translation: ITranslation, tag: ITag) -> ITag | None:
+    """Translate a chunk of text in an ITag
+    
+    Is a helper function for translate_tags. Takes an ITag with depth 2 and translates it."""
+    prompt = str()
     for child in tag.children:
-        if depth(child) == 1:
-            translated = translate_preserve_formatting(
-                underlying_translation, child.text()
-            )
-            injection_tags.append(InjectionTag(translated, child))
-        elif type(child) is not str:
-            info("inject_tags_inference", "can't inject depth 0 ITag")
-            return None
-
-    for injection_tag in injection_tags:
-        injection_index = translated_text.find(injection_tag.text)
-        if injection_index != -1:
-            injection_tag.injection_index = injection_index
+        if type(child) is str:
+            prompt += child
         else:
-            info(
-                "inject_tags_inference",
-                "injection text not found in translated text",
-                translated_text,
-                injection_tag.text,
-            )
-            return None
-
-    # Check for overlap
-    injection_tags.sort(key=lambda x: x.injection_index)
-    for i in range(len(injection_tags) - 1):
-        injection_tag = injection_tags[i]
-        next_injection_tag = injection_tags[i + 1]
-        if (
-            injection_tag.injection_index + len(injection_tag.text)
-            >= next_injection_tag.injection_index
-        ):
-            info(
-                "inject_tags_inference",
-                "injection tags overlap",
-                injection_tag,
-                next_injection_tag,
-            )
-            return None
-
-    to_return = []
-    i = 0
-    for injection_tag in injection_tags:
-        if i < injection_tag.injection_index:
-            to_return.append(translated_text[i : injection_tag.injection_index])
-        to_return.append(injection_tag.tag)
-        i = injection_tag.injection_index + len(injection_tag.text)
-    if i < len(translated_text):
-        to_return.append(translated_text[i:])
-
-    tag.children = to_return
-
-    return tag
+            prompt += f"{ARGOS_OPEN_TAG}{child.text()}{ARGOS_CLOSE_TAG}"
+    translated_prompt = underlying_translation.translate(prompt)
+    translated_tag = Tag(list())
+    while len(translated_prompt) > 0:
+        open_tag_index = translated_prompt.find(ARGOS_OPEN_TAG)
+        if open_tag_index == -1:
+            translated_tag.children.append(translated_prompt)
+            translated_prompt = ""
+            break
+        elif open_tag_index > 0:
+            translated_tag.children.append(translated_prompt[:open_tag_index])
+            translated_prompt = translated_prompt[open_tag_index:]
+        else:
+            closing_tag_index = translated_prompt.find(ARGOS_CLOSE_TAG)
+            tag_inner_text = translated_prompt[
+                open_tag_index + len(ARGOS_OPEN_TAG) : closing_tag_index
+            ]
+            translated_tag.children.append(Tag([tag_inner_text]))
+            translated_prompt = translated_prompt[closing_tag_index + len(ARGOS_CLOSE_TAG) :]
+    return translated_tag
 
 
 def translate_tags(underlying_translation: ITranslation, tag: ITag | str) -> ITag | str:
@@ -202,10 +143,7 @@ def translate_tags(underlying_translation: ITranslation, tag: ITag | str) -> ITa
     elif tag.translateable is False:
         return tag
     elif depth(tag) == 2:
-        tag_injection = inject_tags_inference(underlying_translation, tag)
-        if tag_injection is not None:
-            info("translate_tags", "tag injection successful")
-            return tag_injection
+        translate_tag_chunk(underlying_translation, tag)
     else:
         tag.children = [
             translate_tags(underlying_translation, child) for child in tag.children
