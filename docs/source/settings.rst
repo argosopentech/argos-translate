@@ -17,7 +17,7 @@ View debugging information
 
 Argos Translate prints more verbose logging 
 
-.. code-block::sh
+.. code-block:: sh
 
   export ARGOS_DEBUG=1
 
