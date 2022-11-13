@@ -23,7 +23,7 @@ export ARGOS_DEVICE_TYPE="cpu"
 {
     "ARGOS_DEBUG": "0",
     "ARGOS_PACKAGES_INDEX": "https://www.argosopentech.com/argospm/index/",
-    "ARGOS_PACKAGE_DIR": "~/.local/share/packages/",
+    "ARGOS_PACKAGE_DIR": "~/.local/share/argos-translate/packages/",
     "ARGOS_DEVICE_TYPE": "cpu"
 }
 ```
