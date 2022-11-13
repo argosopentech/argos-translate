@@ -51,6 +51,7 @@ Python Example
    :maxdepth: 2
    :caption: Contents:
 
+   source/settings
    source/cli
    source/gui
 
