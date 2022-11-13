@@ -11,5 +11,16 @@ export ARGOS_PACKAGE_INDEX="https://raw.githubusercontent.com/argosopentech/argo
 Argos Translate prints more verbose logging 
 
 ```
-export DEBUG=1
+export ARGOS_DEBUG=1
+```
+
+#### Set packages dir
+```
+export ARGOS_PACKAGES_DIR="~/.local/share/argos-translate/packages/"
+```
+
+### Set device
+```
+export ARGOS_DEVICE_TYPE="cpu"
+export ARGOS_DEVICE_TYPE="cuda"
 ```
