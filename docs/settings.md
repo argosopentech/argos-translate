@@ -16,7 +16,7 @@ export ARGOS_DEBUG=1
 
 #### Set packages dir
 ```
-export ARGOS_PACKAGES_DIR="~/.local/share/argos-translate/packages/"
+export ARGOS_PACKAGES_DIR="/home/user/.local/share/argos-translate/packages/"
 ```
 
 ### Set device

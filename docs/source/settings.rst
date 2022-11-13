@@ -26,7 +26,7 @@ Set packages dir
 
 .. code-block:: sh
 
-  export ARGOS_PACKAGES_DIR="~/.local/share/argos-translate/packages/"
+  export ARGOS_PACKAGES_DIR="/home/user/.local/share/argos-translate/packages/"
 
 Set device
 ----------
