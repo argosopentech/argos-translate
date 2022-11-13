@@ -70,34 +70,38 @@ def depth(tag: ITag | str) -> int:
     return max([depth(t) for t in tag.children]) + 1
 
 
-def translate_preserve_formatting(
-    underlying_translation: ITranslation, input_text: str
-) -> str:
-    """Translates but preserves a space if it exists on either end of translation.
+def is_same_structure(tag1: ITag | str, tag2: ITag | str) -> bool:
+    """Checks if two tags have the same structure
+
     Args:
-        underlying_translation : The translation to apply
-        input_text: The text to translate
+        tag1: The first tag to compare
+        tag2: The second tag to compare
+
     Returns:
-        The translated text
+        True if the tags have the same structure, false otherwise
     """
-    translated_text = underlying_translation.translate(input_text)
-    if len(input_text) > 0:
-        if input_text[0] == " " and not (
-            len(translated_text) > 0 and translated_text[0] == " "
-        ):
-            translated_text = " " + translated_text
-        if input_text[-1] == " " and not (
-            len(translated_text) > 0 and translated_text[-1] == " "
-        ):
-            translated_text = translated_text + " "
-    return translated_text
+    if type(tag1) is str and type(tag2) is str:
+        return True
+    elif type(tag1) is str or type(tag2) is str:
+        return False
+    elif len(tag1.children) != len(tag2.children):
+        return False
+    else:
+        return all(
+            [
+                is_same_structure(tag1.children[i], tag2.children[i])
+                for i in range(len(tag1.children))
+            ]
+        )
+
 
 ARGOS_OPEN_TAG = "<argos-tag>"
 ARGOS_CLOSE_TAG = "</argos-tag>"
 
+
 def translate_tag_chunk(underlying_translation: ITranslation, tag: ITag) -> ITag | None:
     """Translate a chunk of text in an ITag
-    
+
     Is a helper function for translate_tags. Takes an ITag with depth 2 and translates it."""
     prompt = str()
     for child in tag.children:
@@ -122,8 +126,19 @@ def translate_tag_chunk(underlying_translation: ITranslation, tag: ITag) -> ITag
                 open_tag_index + len(ARGOS_OPEN_TAG) : closing_tag_index
             ]
             translated_tag.children.append(Tag([tag_inner_text]))
-            translated_prompt = translated_prompt[closing_tag_index + len(ARGOS_CLOSE_TAG) :]
-    return translated_tag
+            translated_prompt = translated_prompt[
+                closing_tag_index + len(ARGOS_CLOSE_TAG) :
+            ]
+    if not is_same_structure(tag, translated_tag):
+        info("Tags have different structure after translation", tag, translated_tag)
+        return None
+    # Copy the translated_tag values into the original tag
+    for i in range(len(tag.children)):
+        if isinstance(tag.children[i], Tag):
+            tag.children[i].children = translated_tag.children[i].children
+        elif isinstance(tag.children[i], str):
+            tag.children[i] = translated_tag.children[i]
+    return tag
 
 
 def translate_tags(underlying_translation: ITranslation, tag: ITag | str) -> ITag | str:
@@ -139,14 +154,15 @@ def translate_tags(underlying_translation: ITranslation, tag: ITag | str) -> ITa
         The translated tag tree
     """
     if type(tag) is str:
-        return translate_preserve_formatting(underlying_translation, tag)
+        return tag
     elif tag.translateable is False:
         return tag
     elif depth(tag) == 2:
-        translate_tag_chunk(underlying_translation, tag)
-    else:
-        tag.children = [
-            translate_tags(underlying_translation, child) for child in tag.children
-        ]
+        translated_tag_chunk = translate_tag_chunk(underlying_translation, tag)
+        if translated_tag_chunk is not None:
+            return translated_tag_chunk
+    tag.children = [
+        translate_tags(underlying_translation, child) for child in tag.children
+    ]
 
     return tag
