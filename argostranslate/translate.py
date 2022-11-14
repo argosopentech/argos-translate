@@ -610,9 +610,13 @@ def get_language_from_code(code: str) -> Language | None:
     Returns:
         The language object
     """
-    return next(list(filter(lambda x: x.code == code, get_installed_languages())), None)
-    
 
+    for i in get_installed_languages():
+        if i.code == code: 
+            return i
+
+    # return next(list(filter(lambda x: x.code == code, get_installed_languages())), None) #TypeError: 'list' object is not an iterator
+    
 
 def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation:
     """Gets a translation object from codes for from and to languages
@@ -645,3 +649,29 @@ def translate(q: str, from_code: str, to_code: str) -> str:
     """
     translation = get_translation_from_codes(from_code, to_code)
     return translation.translate(q)
+
+
+if __name__ == '__main__':
+
+    import argostranslate.package
+    import argostranslate.translate
+
+    from_code = "en"
+    to_code = "es"
+
+    # Download and install Argos Translate package
+    available_packages = argostranslate.package.get_available_packages()
+    package_to_install = list(
+        filter(
+            lambda x: x.from_code == from_code and x.to_code == to_code, available_packages
+        )
+    )[0]
+    argostranslate.package.install_from_path(package_to_install.download())
+
+    # Translate
+    translatedText = argostranslate.translate.translate("Hello World!", from_code, to_code)
+    print(translatedText)
+    # '¡Hola Mundo!'
+
+
+    
