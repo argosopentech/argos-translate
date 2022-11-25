@@ -75,6 +75,7 @@ print(translatedText)
 
 ### Command Line Interface
 ```
+argospm update
 argospm install translate-en_de
 argos-translate --from en --to de "Hello World!"
 # Hallo Welt!
