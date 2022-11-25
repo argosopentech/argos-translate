@@ -73,6 +73,14 @@ translatedText = translation.translate("Hello World!")
 print(translatedText)
 ```
 
+### Command Line Interface
+```
+argospm install translate-en_de
+argos-translate --from en --to de "Hello World!"
+# Hallo Welt!
+
+```
+
 ### [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
 ![Web App Screenshot](img/WebAppScreenshot.png)
 
