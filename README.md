@@ -45,25 +45,32 @@ pip install -e .
 ### [Python](https://argos-translate.readthedocs.io/en/latest/py-modindex.html)
 
 ```python
-import argostranslate.package
-import argostranslate.translate
+import argostranslate.package, argostranslate.translate
 
 from_code = "en"
 to_code = "es"
 
 # Download and install Argos Translate package
 available_packages = argostranslate.package.get_available_packages()
-package_to_install = list(
+available_package = list(
     filter(
         lambda x: x.from_code == from_code and x.to_code == to_code, available_packages
     )
 )[0]
-argostranslate.package.install_from_path(package_to_install.download())
+download_path = available_package.download()
+argostranslate.package.install_from_path(download_path)
 
 # Translate
-translatedText = argostranslate.translate.translate("Hello World", from_code, to_code)
+installed_languages = argostranslate.translate.get_installed_languages()
+from_lang = list(filter(
+        lambda x: x.code == from_code,
+        installed_languages))[0]
+to_lang = list(filter(
+        lambda x: x.code == to_code,
+        installed_languages))[0]
+translation = from_lang.get_translation(to_lang)
+translatedText = translation.translate("Hello World!")
 print(translatedText)
-# '¡Hola Mundo!'
 ```
 
 ### [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
