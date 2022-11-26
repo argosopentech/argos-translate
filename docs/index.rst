@@ -47,10 +47,21 @@ Python Example
         print(translatedText)
         # '¡Hola Mundo!'
 
+Command Line Interface Example
+--------------
+.. code-block:: bash
+        argospm update
+        argospm install translate-en_de
+        argos-translate --from en --to de "Hello World!"
+        # Hallo Welt!
+
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   :ref:`genindex`
    source/settings
    source/cli
    source/gui
