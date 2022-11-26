@@ -53,11 +53,11 @@ to_code = "es"
 
 # Download and install Argos Translate package
 available_packages = argostranslate.package.get_available_packages()
-package_to_install = list(
+package_to_install = next(
     filter(
         lambda x: x.from_code == from_code and x.to_code == to_code, available_packages
     )
-)[0]
+)
 argostranslate.package.install_from_path(package_to_install.download())
 
 # Translate
