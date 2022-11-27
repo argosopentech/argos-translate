@@ -27,3 +27,4 @@ def test_argospm_search_packages():
         argostranslate.argospm.search_packages(Args())
         expected_stdout = "MockPackage - Mock Package\n" * 3
         assert mock_stdout.getvalue() == expected_stdout
+
