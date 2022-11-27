@@ -53,17 +53,26 @@ to_code = "es"
 
 # Download and install Argos Translate package
 available_packages = argostranslate.package.get_available_packages()
-package_to_install = list(
+package_to_install = next(
     filter(
         lambda x: x.from_code == from_code and x.to_code == to_code, available_packages
     )
-)[0]
+)
 argostranslate.package.install_from_path(package_to_install.download())
 
 # Translate
 translatedText = argostranslate.translate.translate("Hello World", from_code, to_code)
 print(translatedText)
 # '¡Hola Mundo!'
+```
+
+### Command Line Interface
+```
+argospm update
+argospm install translate-en_de
+argos-translate --from en --to de "Hello World!"
+# Hallo Welt!
+
 ```
 
 ### [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
@@ -143,7 +152,6 @@ rm -r ~/.local/share/argos-translate
 - [LibreTranslate-rs](https://github.com/grantshandy/libretranslate-rs) - LibreTranslate Rust bindings
 - [LibreTranslate Go](https://github.com/SnakeSel/libretranslate) - LibreTranslate Golang bindings
 - [LibreTranslator](https://gitlab.com/BeowuIf/libretranslator) - LibreTranslate Android app
-- [Lexicon](https://github.com/dothq/lexicon) - Translation API
 - [LiTranslate](https://community.libretranslate.com/t/litranslate-ios-app/333) - iOS LibreTranslate client
 
 ## Contributing
