@@ -1,4 +1,5 @@
 import unittest.mock
+from io import StringIO
 
 import argostranslate.argospm
 
@@ -10,4 +11,7 @@ import mock_argostranslate_package
     mock_argostranslate_package.get_installed_packages,
 )
 def test_argospm_list():
-    argostranslate.argospm.list_packages(None)
+    with unittest.mock.patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+        argostranslate.argospm.list_packages(None)
+        expected_stdout = "MockPackage : Mock Package\n" * 3
+        assert mock_stdout.getvalue() == expected_stdout

@@ -2,7 +2,11 @@ import pathlib
 
 
 class Package:
-    pass
+    def __str__(self) -> str:
+        return "Mock Package"
+
+    def __repr__(self) -> str:
+        return "MockPackage"
 
 
 mock_packages = [Package() for i in range(3)]
