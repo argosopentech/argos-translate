@@ -8,9 +8,8 @@ import zipfile
 from pathlib import Path
 from threading import Lock
 
-from argostranslate import networking
-from argostranslate import settings
-from argostranslate.utils import info, error
+from argostranslate import networking, settings
+from argostranslate.utils import error, info
 
 """
 ## `package` module example usage
