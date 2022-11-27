@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
-from urllib import request, parse
+from urllib import parse, request
 
 from argostranslate.models import ILanguageModel
 

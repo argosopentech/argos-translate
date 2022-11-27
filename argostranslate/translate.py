@@ -5,7 +5,7 @@ import sentencepiece as spm
 import stanza
 from ctranslate2 import Translator
 
-from argostranslate import package, settings, sbd, apis, fewshot
+from argostranslate import apis, fewshot, package, sbd, settings
 from argostranslate.models import ILanguageModel
 from argostranslate.package import Package
 from argostranslate.utils import info
