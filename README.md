@@ -179,11 +179,12 @@ If you find this software useful donations are appreciated.
 Paid supporters receive priority support.
 
 #### Hosting affiliate links
-The Argos Translate CDN provides >15 TB/month in free and open source model downloads and runs on cload rentals from DigitalOcean, Sharktech, and Time4VPS. You can help offset our hosting costs by purchasing hosting through our referral links.
+The Argos Translate language models are trained with GPU rentals from Vast AI. The Argos Translate CDN provides >15 TB/month in free and open source model downloads and runs on cloud rentals from DigitalOcean, Sharktech, and Time4VPS. You can help offset our hosting costs by purchasing hosting through our referral links.
 
+- [Vast.ai](http://vast.ai/?ref=24817)
+- [Sharktech](https://portal.sharktech.net/aff.php?aff=1181)
 - [DigitalOcean](https://m.do.co/c/a1af57be6e3f)
 - [Time4VPS](https://www.time4vps.com/?affid=6929)
-- [Sharktech](https://portal.sharktech.net/aff.php?aff=1181)
 
 ## License
 Argos Translate is dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
