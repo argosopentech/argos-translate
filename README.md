@@ -179,7 +179,7 @@ If you find this software useful donations are appreciated.
 Paid supporters receive priority support.
 
 #### Hosting affiliate links
-You can help offset Argos Translate's hosting costs by purchasing hosting through our referral links.
+You can help offset Argos Translate's hosting costs by purchasing hosting through my referral links.
 
 ###### [Vast.ai](http://vast.ai/?ref=24817)
 Vast AI is a distributed GPU rental market designed for Machine Learning. [Argos Train](https://github.com/argosopentech/argos-train) runs on Vast AI to train the models for Argos Translate because Vast AI has some of the lowest GPU rental prices available.
