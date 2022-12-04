@@ -179,12 +179,19 @@ If you find this software useful donations are appreciated.
 Paid supporters receive priority support.
 
 #### Hosting affiliate links
-The Argos Translate language models are trained with GPU rentals from Vast AI. The Argos Translate CDN provides >15 TB/month in free and open source model downloads and runs on cloud rentals from DigitalOcean, Sharktech, and Time4VPS. You can help offset our hosting costs by purchasing hosting through our referral links.
+You can help offset our hosting costs by purchasing hosting through our referral links.
 
-- [Vast.ai](http://vast.ai/?ref=24817)
-- [Sharktech](https://portal.sharktech.net/aff.php?aff=1181)
-- [DigitalOcean](https://m.do.co/c/a1af57be6e3f)
-- [Time4VPS](https://www.time4vps.com/?affid=6929)
+###### [Vast.ai](http://vast.ai/?ref=24817)
+Vast AI is a distributed GPU rental market designed for Machine Learning. [Argos Train](https://github.com/argosopentech/argos-train) runs on Vast AI to train the models for Argos Translate because Vast AI has some of the lowest GPU rental prices available.
+
+###### [Sharktech](https://portal.sharktech.net/aff.php?aff=1181)
+Sharktech has the cheapest bandwidth prices I've been able to find with servers in America and Europe. The [Argos Translate CDN](https://cdn.argosopentech.com) runs on Sharktech and distributes over 15TB of free and open-source software a month.
+
+###### [DigitalOcean](https://m.do.co/c/a1af57be6e3f)
+Digital Ocean has very high quality hosting, although it is expensive at scale. I use Digital Ocean for hosting development VMs and for some CDN hosting. [translate.argosopentech.com](https://translate.argosopentech.com) is also hosted on DigitalOcean.
+
+###### [Time4VPS](https://www.time4vps.com/?affid=6929)
+Time4VPS has very cheap prices for disk space rentals. I use Time4VPS to host the [Argos Translate data index](https://github.com/argosopentech/argos-train/blob/master/data-index.json).
 
 ## License
 Argos Translate is dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
