@@ -52,6 +52,7 @@ from_code = "en"
 to_code = "es"
 
 # Download and install Argos Translate package
+argostranslate.package.update_package_index()
 available_packages = argostranslate.package.get_available_packages()
 package_to_install = next(
     filter(
