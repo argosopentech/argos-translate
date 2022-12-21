@@ -174,8 +174,6 @@ If you find this software useful donations are appreciated.
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
 - Ethereum: argosopentech.eth
-- Filecoin: f1nrnpmjxn27amidyiqrzq5mxihdo2trh2oijw2sq
-- Basic Attention Token: 0x8a16f26D277f924B04FCA5ECec64b76B5410A06c
 
 Paid supporters receive priority support.
 
