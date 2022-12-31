@@ -1,7 +1,10 @@
-exit 1
+#!/bin/bash
 
-# Documentation, not runnable
-source env/bin/activate
-pip install black
+# Format with black
 black argostranslate
+black setup.py
+
+# Sort imports with isort
+isort argostranslate
+isort setup.py
 
