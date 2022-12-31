@@ -20,7 +20,7 @@ class Hypothesis:
 
     Attributes:
         value: The hypothetical translation value
-        score: The score representing the quality of the translation. Higher scores represent higher quality translations.
+        score: The score representing the quality of the translation. Higher scores represent higher confidence in correctness.
     """
 
     value: str
