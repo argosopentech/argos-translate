@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-from argostranslate import package
-from argostranslate import settings
+from argostranslate import package, settings
 from argostranslate.package import AvailablePackage
 
 """

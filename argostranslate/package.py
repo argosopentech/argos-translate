@@ -11,6 +11,7 @@ import pathlib
 from pathlib import Path
 from threading import Lock
 
+<<<<<<< HEAD
 
 from argostranslate import networking
 import argostranslate.settings
@@ -18,6 +19,10 @@ from argostranslate import settings
 from argostranslate.utils import info, warning, error
 
 # TODO: Upgrade packages
+=======
+from argostranslate import networking, settings
+from argostranslate.utils import error, info
+>>>>>>> master
 
 """
 ## `package` module example usage

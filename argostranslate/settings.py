@@ -1,8 +1,6 @@
-import pathlib
-from pathlib import Path
 import os
 from enum import Enum
-import json
+from pathlib import Path
 
 """
 Argos Translate can be configured using either environment variables or json file

@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 import urllib.request
 
-from argostranslate.utils import info, error
+from argostranslate.utils import error, info
 
 
 def get_protocol(url: str) -> str | None:
