@@ -314,7 +314,7 @@ def get_chunk_package(from_code):
 
 
 class Translator:
-    def __init__(self, pkg):
+    def __init__(self, pkg: argostranslate.package.Package):
         self.pkg = pkg
         self.source_languages = [
             Language(language["code"], language["name"])
@@ -324,13 +324,13 @@ class Translator:
             Language(language["code"], language["name"])
             for language in self.pkg.target_languages
         ]
-        model_path = str(self.pkg.package_path / "model")
+        self.model_path = self.pkg.package_path / "model"
         self.translator = ctranslate2.Translator(
-            model_path, device=argostranslate.settings.device
+            self.model_path, device=argostranslate.settings.device
         )
-        sp_model_path = str(self.pkg.package_path / "sentencepiece.model")
+        self.sp_model_path = str(self.pkg.package_path / "sentencepiece.model")
         self.sp_processor = sentencepiece.SentencePieceProcessor(
-            model_file=sp_model_path
+            model_file=self.sp_model_path
         )
         self.map_code_to_chunk_translation = dict()
 
