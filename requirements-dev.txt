@@ -1,2 +1,3 @@
 black
 isort
+pytest
