@@ -28,7 +28,7 @@ argostranslate.cli module
    :undoc-members:
    :show-inheritance:
 
-argostranslate.prompt module
+argostranslate.fewshot module
 -----------------------------
 
 .. automodule:: argostranslate.cli

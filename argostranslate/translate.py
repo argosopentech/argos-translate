@@ -8,7 +8,7 @@ import sentencepiece
 
 import argostranslate
 import argostranslate.chunk
-import argostranslate.prompt
+import argostranslate.fewshot
 import argostranslate.models
 import argostranslate.package
 import argostranslate.settings
@@ -249,7 +249,7 @@ class RemoteTranslation(ITranslation):
         return [Hypothesis(result, 0)] * num_hypotheses
 
 
-class promptTranslation(ITranslation):
+class FewShotTranslation(ITranslation):
     """A translation performed with a few shot language model"""
 
     from_lang: Language
@@ -270,18 +270,18 @@ class promptTranslation(ITranslation):
         sentences = argostranslate.chunk.chunk(input_text)
 
         for sentence in sentences:
-            prompt = argostranslate.prompt.generate_prompt(
+            prompt = argostranslate.fewshot.generate_prompt(
                 sentence,
                 self.from_lang.name,
                 self.from_lang.code,
                 self.to_lang.name,
                 self.to_lang.code,
             )
-            info("prompt", prompt)
+            info("fewshot prompt", prompt)
             response = self.language_model.infer(prompt)
-            info("prompt response", response)
-            result = argostranslate.prompt.parse_inference(response)
-            info("prompt result", result)
+            info("fewshot response", response)
+            result = argostranslate.fewshot.parse_inference(response)
+            info("fewshot result", result)
             to_return += result
         return [Hypothesis(to_return, 0)] * num_hypotheses
 
@@ -503,7 +503,7 @@ def get_installed_languages() -> list[Language]:
         languages = [Language("en", "English"), Language("es", "Spanish")]
         for from_lang in languages:
             for to_lang in languages:
-                translation = promptTranslation(from_lang, to_lang, language_model)
+                translation = FewShotTranslation(from_lang, to_lang, language_model)
                 from_lang.translations_from.append(translation)
                 to_lang.translations_to.append(translation)
 
