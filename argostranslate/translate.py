@@ -1,18 +1,17 @@
 from __future__ import annotations
+
 import functools
 from typing import List
 
 import ctranslate2
 import sentencepiece
-import ctranslate2
 
 import argostranslate
+import argostranslate.chunk
+import argostranslate.fewshot
+import argostranslate.models
 import argostranslate.package
 import argostranslate.settings
-import argostranslate.fewshot
-import argostranslate.chunk
-import argostranslate.models
-
 from argostranslate.utils import info, warning
 
 

@@ -1,6 +1,6 @@
-from argostranslate.utils import info
-
 from difflib import SequenceMatcher
+
+from argostranslate.utils import info
 
 
 def chunk(q: str, chunk_translation):

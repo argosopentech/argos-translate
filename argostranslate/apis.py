@@ -6,7 +6,6 @@ from urllib import parse, request
 
 from argostranslate.models import ILanguageModel
 
-
 # https://github.com/argosopentech/LibreTranslate-py
 
 

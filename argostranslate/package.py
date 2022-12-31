@@ -2,27 +2,19 @@ from __future__ import annotations
 
 import copy
 import json
-import uuid
-import shutil
-import uuid
-import urllib.request
-import zipfile
 import pathlib
+import shutil
+import urllib.request
+import uuid
+import zipfile
 from pathlib import Path
 from threading import Lock
 
-<<<<<<< HEAD
-
-from argostranslate import networking
 import argostranslate.settings
-from argostranslate import settings
-from argostranslate.utils import info, warning, error
+from argostranslate import networking, settings
+from argostranslate.utils import error, info, warning
 
 # TODO: Upgrade packages
-=======
-from argostranslate import networking, settings
-from argostranslate.utils import error, info
->>>>>>> master
 
 """
 ## `package` module example usage

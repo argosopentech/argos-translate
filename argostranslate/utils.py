@@ -1,6 +1,6 @@
+import json
 import logging
 import sys
-import json
 
 from argostranslate import settings
 
