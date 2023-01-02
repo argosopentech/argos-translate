@@ -350,8 +350,7 @@ class Translator:
         )
 
         def apply_chunk_translation(input_text, ctranslate2_translator, sp_processor):
-            # TODO: Make "chunk" it's own package type and include this in the package metadata
-            MAX_CHUNK_LENGTH = 300
+            MAX_CHUNK_LENGTH = 300 # TODO: make this configurable
             input_text = input_text[:MAX_CHUNK_LENGTH]
 
             tokenized = sp_processor.encode(input_text)
