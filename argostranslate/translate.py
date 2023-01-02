@@ -326,7 +326,7 @@ class Translator:
         ]
         self.model_path = self.pkg.package_path / "model"
         self.translator = ctranslate2.Translator(
-            self.model_path, device=argostranslate.settings.device
+            str(self.model_path), device=argostranslate.settings.device
         )
         self.sp_model_path = str(self.pkg.package_path / "sentencepiece.model")
         self.sp_processor = sentencepiece.SentencePieceProcessor(
@@ -350,7 +350,7 @@ class Translator:
         )
 
         def apply_chunk_translation(input_text, ctranslate2_translator, sp_processor):
-            MAX_CHUNK_LENGTH = 300 # TODO: make this configurable
+            MAX_CHUNK_LENGTH = 300  # TODO: make this configurable
             input_text = input_text[:MAX_CHUNK_LENGTH]
 
             tokenized = sp_processor.encode(input_text)
