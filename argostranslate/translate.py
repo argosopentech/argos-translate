@@ -267,23 +267,20 @@ class FewShotTranslation(ITranslation):
         self.language_model = language_model
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
-        sentences = argostranslate.chunk.chunk(input_text)
-
-        for sentence in sentences:
-            prompt = argostranslate.fewshot.generate_prompt(
-                sentence,
-                self.from_lang.name,
-                self.from_lang.code,
-                self.to_lang.name,
-                self.to_lang.code,
-            )
-            info("fewshot prompt", prompt)
-            response = self.language_model.infer(prompt)
-            info("fewshot response", response)
-            result = argostranslate.fewshot.parse_inference(response)
-            info("fewshot result", result)
-            to_return += result
-        return [Hypothesis(to_return, 0)] * num_hypotheses
+        # TODO: Split into chunks
+        prompt = argostranslate.fewshot.generate_prompt(
+            input_text,
+            self.from_lang.name,
+            self.from_lang.code,
+            self.to_lang.name,
+            self.to_lang.code,
+        )
+        info("fewshot prompt", prompt)
+        response = self.language_model.infer(prompt)
+        info("fewshot response", response)
+        result = argostranslate.fewshot.parse_inference(response)
+        info("fewshot result", result)
+        return [Hypothesis(result, 0)] * num_hypotheses
 
 
 class LocalTranslation(ITranslation):
