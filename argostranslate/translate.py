@@ -325,9 +325,9 @@ class Translator:
         self.translator = ctranslate2.Translator(
             str(self.model_path), device=argostranslate.settings.device
         )
-        self.sp_model_path = str(self.pkg.package_path / "sentencepiece.model")
+        self.sp_model_path = self.pkg.package_path / "sentencepiece.model"
         self.sp_processor = sentencepiece.SentencePieceProcessor(
-            model_file=self.sp_model_path
+            model_file=str(self.sp_model_path)
         )
         self.map_code_to_chunk_translation = dict()
 

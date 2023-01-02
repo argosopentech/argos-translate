@@ -115,10 +115,10 @@ class TestTranslate:
         assert translator.model_path == model_path
         assert mock_ctranslate2_Translator.call_count == 1
         mock_ctranslate2_Translator.assert_called_with(str(model_path), device="cuda")
-        sp_model_path = str(pathlib.Path("test_package_path/sentencepiece.model"))
+        sp_model_path = pathlib.Path("test_package_path/sentencepiece.model")
         assert translator.sp_model_path == sp_model_path
         mock_sentencepiece_SentencePieceProcessor.assert_called_with(
-            model_file=sp_model_path
+            model_file=str(sp_model_path)
         )
 
     @unittest.mock.patch("argostranslate.settings.device", "cuda")
