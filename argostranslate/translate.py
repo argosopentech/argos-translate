@@ -371,12 +371,12 @@ class Translator:
         info("sentences", sentences)
         return sentences
 
-    def tokenize(self, input_text):
+    def tokenize(self, input_text: str) -> List[str]:
         tokenized = self.sp_processor.encode(input_text, out_type=str)
         info("tokenized", tokenized)
         return tokenized
 
-    def detokenize(self, tokens):
+    def detokenize(self, tokens: List[str]) -> str:
         return self.sp_processor.decode(tokens)
 
     def add_source_prefix(self, tokenized_sentence, from_code):

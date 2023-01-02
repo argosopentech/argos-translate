@@ -18,24 +18,24 @@ class TestTranslate:
         assert repr(hypothesis7) == "-0.9 : 7"
         assert str(hypothesis7) == "-0.9 : 7"
 
-    def get_English(self):
+    def get_mock_English(self):
         return argostranslate.translate.Language("en", "English")
 
-    def get_Spanish(self):
+    def get_mock_Spanish(self):
         return argostranslate.translate.Language("es", "Spanish")
 
     def get_French(self):
         return argostranslate.translate.Language("fr", "French")
 
     def test_Language(self):
-        en = self.get_English()
+        en = self.get_mock_English()
         assert en.code == "en"
         assert en.name == "English"
         assert str(en) == "English"
         assert repr(en) == "en"
 
     def test_IdentityTranslation(self):
-        en = self.get_English()
+        en = self.get_mock_English()
         i = argostranslate.translate.IdentityTranslation(en)
         assert i.translate("Hello World") == "Hello World"
         h = i.hypotheses("Hello World")[0]
@@ -61,7 +61,7 @@ class TestTranslate:
             "Hello World": "Hola Mundo",
         }
         translation_en_es = self.build_mock_translation(
-            translation_dict, self.get_English(), self.get_Spanish()
+            translation_dict, self.get_mock_English(), self.get_mock_Spanish()
         )
         return translation_en_es
 
@@ -70,7 +70,7 @@ class TestTranslate:
             "Hola Mundo": "Hello World",
         }
         translation_en_es = self.build_mock_translation(
-            translation_dict, self.get_English(), self.get_Spanish()
+            translation_dict, self.get_mock_English(), self.get_mock_Spanish()
         )
         return translation_en_es
 
@@ -79,7 +79,7 @@ class TestTranslate:
             "Hello World": "Bonjour le monde",
         }
         translation_en_fr = self.build_mock_translation(
-            translation_dict, self.get_English(), self.get_French()
+            translation_dict, self.get_mock_English(), self.get_French()
         )
         return translation_en_fr
 
@@ -91,7 +91,7 @@ class TestTranslate:
         )
         assert composite_translation.translate("Hola Mundo") == "Bonjour le monde"
 
-    def get_Package(self):
+    def get_mock_Package(self):
         """Create a mock argostranslate.package.Package"""
         package = unittest.mock.Mock(spec=argostranslate.package.Package)
         package.package_path = pathlib.Path("test_package_path")
@@ -107,10 +107,10 @@ class TestTranslate:
         mock_ctranslate2_Translator,
         mock_sentencepiece_SentencePieceProcessor,
     ):
-        translator = argostranslate.translate.Translator(self.get_Package())
+        translator = argostranslate.translate.Translator(self.get_mock_Package())
         assert translator.pkg.package_path == pathlib.Path("test_package_path")
-        assert translator.source_languages == [self.get_English()]
-        assert translator.target_languages == [self.get_Spanish()]
+        assert translator.source_languages == [self.get_mock_English()]
+        assert translator.target_languages == [self.get_mock_Spanish()]
         model_path = pathlib.Path("test_package_path/model")
         assert translator.model_path == model_path
         assert mock_ctranslate2_Translator.call_count == 1
@@ -120,3 +120,31 @@ class TestTranslate:
         mock_sentencepiece_SentencePieceProcessor.assert_called_with(
             model_file=sp_model_path
         )
+
+    @unittest.mock.patch("argostranslate.settings.device", "cuda")
+    @unittest.mock.patch("sentencepiece.SentencePieceProcessor")
+    @unittest.mock.patch("ctranslate2.Translator")
+    def test_Translator_tokenize(
+        self,
+        mock_ctranslate2_Translator,
+        mock_sentencepiece_SentencePieceProcessor,
+    ):
+        translator = argostranslate.translate.Translator(self.get_mock_Package())
+        translator.sp_processor = unittest.mock.Mock()
+        translator.sp_processor.encode.return_value = ["Hello", "_World"]
+        assert translator.tokenize("Hello World") == ["Hello", "_World"]
+        translator.sp_processor.encode.assert_called_with("Hello World", out_type=str)
+
+    @unittest.mock.patch("argostranslate.settings.device", "cuda")
+    @unittest.mock.patch("sentencepiece.SentencePieceProcessor")
+    @unittest.mock.patch("ctranslate2.Translator")
+    def test_Translator_detokenize(
+        self,
+        mock_ctranslate2_Translator,
+        mock_sentencepiece_SentencePieceProcessor,
+    ):
+        translator = argostranslate.translate.Translator(self.get_mock_Package())
+        translator.sp_processor = unittest.mock.Mock()
+        translator.sp_processor.decode.return_value = ["Hello World"]
+        assert translator.detokenize(["Hello", "_World"]) == ["Hello World"]
+        translator.sp_processor.decode.assert_called_with(["Hello", "_World"])
