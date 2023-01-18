@@ -10,7 +10,7 @@ Argos Translate can be configured using either environment variables or json fil
 ### Environment variables
 ```
 export ARGOS_DEBUG="0"
-export ARGOS_PACKAGE_INDEX="https://www.argosopentech.com/argospm/index/"
+export ARGOS_PACKAGE_INDEX="https://raw.githubusercontent.com/argosopentech/argospm-index/v2/"
 export ARGOS_PACKAGES_DIR="/home/user/.local/share/argos-translate/packages/"
 export ARGOS_DEVICE_TYPE="cpu"
 
@@ -22,7 +22,7 @@ export ARGOS_DEVICE_TYPE="cpu"
 ```
 {
     "ARGOS_DEBUG": "0",
-    "ARGOS_PACKAGES_INDEX": "https://www.argosopentech.com/argospm/index/",
+    "ARGOS_PACKAGES_INDEX": "https://raw.githubusercontent.com/argosopentech/argospm-index/v2/",
     "ARGOS_PACKAGE_DIR": "~/.local/share/argos-translate/packages/",
     "ARGOS_DEVICE_TYPE": "cpu"
 }
@@ -72,7 +72,7 @@ is_debug = get_setting("ARGOS_DEBUG") in ["1", "TRUE", "True", "true", 1, True]
 
 package_index = get_setting(
     "ARGOS_PACKAGE_INDEX",
-    default="https://www.argosopentech.com/argospm/index/",
+    default="https://raw.githubusercontent.com/argosopentech/argospm-index/v2/index.json",
 )
 
 packages_dir = Path(get_setting("ARGOS_PACKAGES_DIR", default=data_dir / "packages"))
