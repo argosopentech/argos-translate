@@ -34,15 +34,11 @@ def get_available_packages() -> list[AvailablePackage]:
     return available_packages
 
 
-def install_package_print_path(available_package: AvailablePackage):
-    available_package.install()
-
-
 def install_all_packages():
     """Install all packages available to Argos Translate."""
     available_packages = get_available_packages()
     for available_package in available_packages:
-        install_package_print_path(available_package)
+        available_package.install()
 
 
 def install_package(args):
@@ -57,7 +53,7 @@ def install_package(args):
         for available_package in available_packages:
             name = package.argospm_package_name(available_package)
             if name == package_name:
-                install_package_print_path(available_package)
+                available_package.install()
                 break
         else:
             print("Package not found")
