@@ -262,6 +262,7 @@ class AvailablePackage(IPackage):
     def install(self):
         download_path = self.download()
         install_from_path(download_path)
+        download_path.unlink()
 
     def get_description(self):
         return "{} → {}".format(self.from_name, self.to_name)
