@@ -193,6 +193,18 @@ class Package(IPackage):
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
 
+    def update(self):
+        """Update the package if a newer version is available."""
+        for available_package in get_available_packages():
+            if (
+                available_package.from_code == self.from_code
+                and available_package.to_code == self.to_code
+            ):
+                if available_package.package_version > self.package_version:
+                    new_package_path = available_package.download()
+                    uninstall(self)
+                    install_from_path(new_package_path)
+
     def get_readme(self) -> str | None:
         """Returns the text of the README.md in this package.
 
