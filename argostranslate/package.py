@@ -290,6 +290,15 @@ class Package(IPackage):
                 f"Package version {self.argos_version} is newer than Argos Translate version {argostranslate.settings.argos_version}"
             )
 
+    def update(self):
+        """Update the package if a newer version is available."""
+        for available_package in get_available_packages():
+            if available_package.code == self.code:
+                if available_package.package_version > self.package_version:
+                    new_package_path = available_package.download()
+                    uninstall(self)
+                    install_from_path(new_package_path)
+
     def get_readme(self) -> str | None:
         """Returns the text of the README.md in this package.
 
