@@ -34,6 +34,13 @@ def get_available_packages() -> list[AvailablePackage]:
     return available_packages
 
 
+def install_package_print_path(available_package: AvailablePackage):
+    download_path = available_package.download()
+    print(f"Downloaded package {download_path}")
+    package.install_from_path(download_path)
+    print(f"Installed package to {settings.package_data_dir}")
+
+
 def install_all_packages():
     """Install all packages available to Argos Translate."""
     available_packages = get_available_packages()
