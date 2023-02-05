@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+from typing import Any, Dict
 from urllib import parse, request
 
 from argostranslate.models import ILanguageModel
@@ -14,12 +15,9 @@ class LibreTranslateAPI:
 
     """Example usage:
     from libretranslatepy import LibreTranslateAPI
-
     lt = LibreTranslateAPI("https://translate.argosopentech.com/")
-
     print(lt.translate("LibreTranslate is awesome!", "en", "es"))
     # LibreTranslate es impresionante!
-
     print(lt.detect("Hello World"))
     # [{"confidence": 0.6, "language": "en"}]
     
@@ -29,9 +27,8 @@ class LibreTranslateAPI:
 
     DEFAULT_URL = "https://translate.argosopentech.com/"
 
-    def __init__(self, url: str = None, api_key: str = None):
+    def __init__(self, url: str | None = None, api_key: str | None = None):
         """Create a LibreTranslate API connection.
-
         Args:
             url (str): The url of the LibreTranslate endpoint.
             api_key (str): The API key.
@@ -46,12 +43,10 @@ class LibreTranslateAPI:
 
     def translate(self, q: str, source: str = "en", target: str = "es") -> Any:
         """Translate string
-
         Args:
             q (str): The text to translate
             source (str): The source language code (ISO 639)
             target (str): The target language code (ISO 639)
-
         Returns:
             str: The translated text
         """
@@ -67,10 +62,8 @@ class LibreTranslateAPI:
 
     def detect(self, q: str) -> Any:
         """Detect the language of a single text.
-
         Args:
             q (str): Text to detect
-
         Returns:
             The detected languages ex: [{"confidence": 0.6, "language": "en"}]
         """
@@ -86,7 +79,6 @@ class LibreTranslateAPI:
 
     def languages(self) -> Any:
         """Retrieve list of supported languages.
-
         Returns:
             A list of available languages ex: [{"code":"en", "name":"English"}]
         """
