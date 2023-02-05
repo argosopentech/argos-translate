@@ -258,6 +258,8 @@ class AvailablePackage(IPackage):
 class Package(IPackage):
     """An installed package"""
 
+    package_path: Path
+
     def __init__(self, package_path: Path):
         """Create a new Package from path.
 

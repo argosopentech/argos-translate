@@ -12,7 +12,7 @@ import argostranslate.fewshot
 import argostranslate.models
 import argostranslate.package
 import argostranslate.settings
-from argostranslate.utils import info, warning
+from argostranslate.utils import error, info, warning
 
 
 class Hypothesis:
@@ -58,6 +58,8 @@ class Language:
 
     translators_from: List[Translator]
     translators_to: List[Translator]
+    translations_from: List[ITranslation]
+    translations_to: List[ITranslation]
 
     def __init__(self, code: str, name: str):
         self.code = code
@@ -249,6 +251,58 @@ class RemoteTranslation(ITranslation):
         return [Hypothesis(result, 0)] * num_hypotheses
 
 
+def get_chunk_package(from_code):
+    packages = argostranslate.package.get_installed_packages()
+    CHUNK_LANG_CODE = "chunk"
+    AUTO_LANG_CODE = "auto"
+    for package in packages:
+        for package_target_language in package.target_languages:
+            if package_target_language["code"] == CHUNK_LANG_CODE:
+                for package_source_language in package.source_languages:
+                    if package_source_language["code"] in [from_code, AUTO_LANG_CODE]:
+                        info("get_chunk_package", from_code, package)
+                        return package
+    info("get_chunk_package", from_code, None)
+    return None
+
+
+def chunk(input_text, from_code):
+    chunk_package = get_chunk_package(from_code)
+    if chunk_package is None:
+        warning("Could not find chunk package", from_code)
+        return [input_text]
+
+    model_path = str(chunk_package.package_path / "model")
+    ctranslate2_translator = ctranslate2.Translator(
+        model_path, device=argostranslate.settings.device
+    )
+    sp_model_path = str(chunk_package.package_path / "sentencepiece.model")
+    sp_processor = sentencepiece.SentencePieceProcessor(
+        model_file=sp_model_path, out_type=str
+    )
+
+    def apply_chunk_translation(input_text, ctranslate2_translator, sp_processor):
+        MAX_CHUNK_LENGTH = 300  # TODO: make this configurable
+        input_text = input_text[:MAX_CHUNK_LENGTH]
+
+        tokenized = sp_processor.encode(input_text)
+        translation_results = ctranslate2_translator.translate_batch(
+            [tokenized],
+        )
+        translated_tokens = translation_results[0].hypotheses[0]
+        return sp_processor.decode(translated_tokens)
+
+    chunk_translation = functools.partial(
+        apply_chunk_translation,
+        ctranslate2_translator=ctranslate2_translator,
+        sp_processor=sp_processor,
+    )
+
+    sentences = argostranslate.chunk.chunk(input_text, chunk_translation)
+    info("sentences", sentences)
+    return sentences
+
+
 class FewShotTranslation(ITranslation):
     """A translation performed with a few shot language model"""
 
@@ -278,6 +332,10 @@ class FewShotTranslation(ITranslation):
         info("fewshot prompt", prompt)
         response = self.language_model.infer(prompt)
         info("fewshot response", response)
+        if response is None:
+            error("fewshot response is None")
+            return [Hypothesis("", 0)] * num_hypotheses
+        info("fewshot response", response)
         result = argostranslate.fewshot.parse_inference(response)
         info("fewshot result", result)
         return [Hypothesis(result, 0)] * num_hypotheses
@@ -293,21 +351,6 @@ class LocalTranslation(ITranslation):
         return self.translator.translate(
             input_text, self.from_lang.code, self.to_lang.code, num_hypotheses
         )
-
-
-def get_chunk_package(from_code):
-    packages = argostranslate.package.get_installed_packages()
-    CHUNK_LANG_CODE = "chunk"
-    AUTO_LANG_CODE = "auto"
-    for package in packages:
-        for package_target_language in package.target_languages:
-            if package_target_language["code"] == CHUNK_LANG_CODE:
-                for package_source_language in package.source_languages:
-                    if package_source_language["code"] in [from_code, AUTO_LANG_CODE]:
-                        info("get_chunk_package", from_code, package)
-                        return package
-    info("get_chunk_package", from_code, None)
-    return None
 
 
 class Translator:
@@ -329,43 +372,6 @@ class Translator:
         self.sp_processor = sentencepiece.SentencePieceProcessor(
             model_file=str(self.sp_model_path)
         )
-        self.map_code_to_chunk_translation = dict()
-
-    def chunk(self, input_text, from_code):
-        chunk_package = get_chunk_package(from_code)
-        if chunk_package is None:
-            warning("Could not find chunk package", from_code)
-            return [input_text]
-
-        model_path = str(chunk_package.package_path / "model")
-        ctranslate2_translator = ctranslate2.Translator(
-            model_path, device=argostranslate.settings.device
-        )
-        sp_model_path = str(chunk_package.package_path / "sentencepiece.model")
-        sp_processor = sentencepiece.SentencePieceProcessor(
-            model_file=sp_model_path, out_type=str
-        )
-
-        def apply_chunk_translation(input_text, ctranslate2_translator, sp_processor):
-            MAX_CHUNK_LENGTH = 300  # TODO: make this configurable
-            input_text = input_text[:MAX_CHUNK_LENGTH]
-
-            tokenized = sp_processor.encode(input_text)
-            translation_results = ctranslate2_translator.translate_batch(
-                [tokenized],
-            )
-            translated_tokens = translation_results[0].hypotheses[0]
-            return sp_processor.decode(translated_tokens)
-
-        chunk_translation = functools.partial(
-            apply_chunk_translation,
-            ctranslate2_translator=ctranslate2_translator,
-            sp_processor=sp_processor,
-        )
-
-        sentences = argostranslate.chunk.chunk(input_text, chunk_translation)
-        info("sentences", sentences)
-        return sentences
 
     def tokenize(self, input_text: str) -> List[str]:
         tokenized = self.sp_processor.encode(input_text, out_type=str)
@@ -387,7 +393,7 @@ class Translator:
 
     def translate(self, input_text, from_code, to_code, num_hypotheses):
         # Split sentences
-        sentences = self.chunk(input_text, from_code)
+        sentences = chunk(input_text, from_code)
 
         # Tokenize
         tokenized_sentences = [self.tokenize(sentence) for sentence in sentences]
@@ -471,7 +477,6 @@ def get_installed_languages() -> list[Language]:
                     )
 
         languages = list(language_of_code.values())
-
     elif (
         argostranslate.settings.model_provider
         == argostranslate.settings.ModelProvider.LIBRETRANSLATE
@@ -484,10 +489,11 @@ def get_installed_languages() -> list[Language]:
         languages = [Language(l["code"], l["name"]) for l in supported_languages]
         for from_lang in languages:
             for to_lang in languages:
-                translation = RemoteTranslation(from_lang, to_lang, libretranslate_api)
-                from_lang.translations_from.append(translation)
-                to_lang.translations_to.append(translation)
-
+                remote_translation = RemoteTranslation(
+                    from_lang, to_lang, libretranslate_api
+                )
+                from_lang.translations_from.append(remote_translation)
+                to_lang.translations_to.append(remote_translation)
     elif (
         argostranslate.settings.model_provider
         == argostranslate.settings.ModelProvider.OPENAI
@@ -499,9 +505,11 @@ def get_installed_languages() -> list[Language]:
         languages = [Language("en", "English"), Language("es", "Spanish")]
         for from_lang in languages:
             for to_lang in languages:
-                translation = FewShotTranslation(from_lang, to_lang, language_model)
-                from_lang.translations_from.append(translation)
-                to_lang.translations_to.append(translation)
+                few_shot_translation = FewShotTranslation(
+                    from_lang, to_lang, language_model
+                )
+                from_lang.translations_from.append(few_shot_translation)
+                to_lang.translations_to.append(few_shot_translation)
 
     # Put English first if available so it shows up as the from language in the gui
     en_index = None
@@ -521,7 +529,7 @@ def get_installed_languages() -> list[Language]:
     return languages
 
 
-def get_language_from_code(code: str) -> Language:
+def get_language_from_code(code: str) -> Language | None:
     """Gets a language object from a code
 
     An exception will be thrown if an installed language with this
@@ -531,9 +539,14 @@ def get_language_from_code(code: str) -> Language:
         code: The ISO 639 code of the language
 
     Returns:
-        The language object
+        The language object or None if no language is available
     """
-    return next(filter(lambda x: x.code == code, get_installed_languages()), None)
+    try:
+        return next(
+            filter(lambda language: language.code == code, get_installed_languages())
+        )
+    except StopIteration:
+        return None
 
 
 def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation | None:
@@ -547,14 +560,16 @@ def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation | N
         to_code: The ISO 639 code of the target language
 
     Returns:
-        The translation object
+        The translation object or None if no translation is available
     """
     from_lang = get_language_from_code(from_code)
     to_lang = get_language_from_code(to_code)
+    if from_lang is None or to_lang is None:
+        return None
     return from_lang.get_translation(to_lang)
 
 
-def translate(q: str, from_code: str, to_code: str) -> str:
+def translate(q: str, from_code: str, to_code: str) -> str | None:
     """Translate a string of text
 
     Args:
@@ -563,9 +578,11 @@ def translate(q: str, from_code: str, to_code: str) -> str:
         to_code: The ISO 639 code of the target language
 
     Returns:
-        The translated text
+        The translated text or None if no translation is available
     """
     translation = get_translation_from_codes(from_code, to_code)
+    if translation is None:
+        return None
     return translation.translate(q)
 
 
