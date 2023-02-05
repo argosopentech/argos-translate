@@ -102,7 +102,8 @@ ARGOS_CLOSE_TAG = "</argos-tag>"
 def translate_tag_chunk(underlying_translation: ITranslation, tag: ITag) -> ITag | None:
     """Translate a chunk of text in an ITag
 
-    Is a helper function for translate_tags. Takes an ITag with depth 2 and translates it."""
+    Is a helper function for translate_tags. Takes an ITag with depth 2 and translates it.
+    """
     prompt = str()
     for child in tag.children:
         if type(child) is str:

@@ -10,8 +10,8 @@ import zipfile
 from pathlib import Path
 from threading import Lock
 
+import argostranslate.networking
 import argostranslate.settings
-from argostranslate import networking, settings
 from argostranslate.utils import error, info, warning
 
 # TODO: Upgrade packages
@@ -29,8 +29,7 @@ available_packages = package.get_available_packages()
 
 # Download and install all available packages
 for available_package in available_packages:
-    download_path = available_package.download()
-    package.install_from_path(download_path)
+    available_package.install()
 ```
 """
 
@@ -179,33 +178,26 @@ class IPackage:
 
 def update_package_index():
     """Downloads remote package index"""
+    package_index_data = argostranslate.networking.get(
+        argostranslate.settings.remote_package_index
+    )
     with package_lock:
-        try:
-            response = urllib.request.urlopen(settings.remote_package_index)
-        except Exception as err:
-            error(err)
-            return
-        data = response.read()
-        with open(settings.local_package_index, "wb") as f:
-            f.write(data)
+        with open(argostranslate.settings.local_package_index, "wb") as f:
+            f.write(package_index_data)
 
 
 def get_available_packages():
     """Returns a list of AvailablePackages from the package index."""
-
-    try:
-        with open(settings.local_package_index) as index_file:
-            index = json.load(index_file)
-            available_packages = list()
-            for metadata in index:
-                package = AvailablePackage(metadata)
-                available_packages.append(package)
-
-            info("get_available_packages", available_packages)
-            return available_packages
-    except FileNotFoundError:
+    if not argostranslate.settings.local_package_index.exists():
         update_package_index()
-        return get_available_packages()
+    with open(argostranslate.settings.local_package_index) as index_file:
+        index = json.load(index_file)
+        available_packages = list()
+        for metadata in index:
+            package = AvailablePackage(metadata)
+            available_packages.append(package)
+        info("get_available_packages", available_packages)
+        return available_packages
 
 
 def install_from_path(path: pathlib.Path):
@@ -219,7 +211,7 @@ def install_from_path(path: pathlib.Path):
         if not zipfile.is_zipfile(path):
             raise Exception("Not a valid Argos Model (must be a zip archive)")
         with zipfile.ZipFile(path, "r") as zip:
-            zip.extractall(path=settings.packages_dir)
+            zip.extractall(path=argostranslate.settings.packages_dir)
             info("Installed package from path", path)
 
 
@@ -243,8 +235,8 @@ class AvailablePackage(IPackage):
         if len(self.links) == 0:
             return None
         filename = f"{self.code}-{str(uuid.uuid4())}.argosmodel"
-        filepath = settings.downloads_dir / filename
-        data = networking.get_from(self.links)
+        filepath = argostranslate.settings.downloads_dir / filename
+        data = argostranslate.networking.get_from(self.links)
         if data is not None:
             with open(filepath, "wb") as f:
                 f.write(data)
