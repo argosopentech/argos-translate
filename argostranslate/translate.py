@@ -546,6 +546,7 @@ def get_language_from_code(code: str) -> Language | None:
             filter(lambda language: language.code == code, get_installed_languages())
         )
     except StopIteration:
+        warning(f"Language with code {code} not found")
         return None
 
 
@@ -565,6 +566,7 @@ def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation | N
     from_lang = get_language_from_code(from_code)
     to_lang = get_language_from_code(to_code)
     if from_lang is None or to_lang is None:
+        warning(f"Translation from {from_code} to {to_code} not found")
         return None
     return from_lang.get_translation(to_lang)
 
@@ -582,6 +584,9 @@ def translate(q: str, from_code: str, to_code: str) -> str | None:
     """
     translation = get_translation_from_codes(from_code, to_code)
     if translation is None:
+        warning(
+            f"Translation failed - Translation from {from_code} to {to_code} not found"
+        )
         return None
     return translation.translate(q)
 
