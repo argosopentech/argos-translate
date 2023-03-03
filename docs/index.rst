@@ -67,4 +67,5 @@ Command Line Interface Example
    source/settings
    source/cli
    source/gui
+   source/examples
 
