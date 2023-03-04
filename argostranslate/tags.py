@@ -162,7 +162,7 @@ def translate_tags(
     Returns:
         The translated tag tree
     """
-    if type(tag) is str:
+    if isinstance(str, tag):
         return tag
     elif tag.translateable is False:
         return tag
