@@ -116,6 +116,46 @@ ARGOS_CLOSE_TAG = "</argos-tag>"
 GOLDEN_RATIO = (1 + 5**0.5) / 2
 
 
+def flatten_tag(tag: ITag) -> str:
+    """Flattens an ITag into a string"""
+    flat = str()
+    for child in tag.children:
+        if isinstance(child, str):
+            flat += child
+        else:
+            flat += f"{ARGOS_OPEN_TAG}{child.text()}{ARGOS_CLOSE_TAG}"
+    return flat
+
+
+def unflatten_tag(flat_tag: str) -> ITag | None:
+    """Unflattens a string into an depth=2 ITag
+
+    Returns None if the string is not a valid flattened depth=2 tag
+    """
+    unflattened = Tag(list())
+    while len(flat_tag) > 0:
+        open_tag_index = flat_tag.find(ARGOS_OPEN_TAG)
+        if open_tag_index == -1:
+            unflattened.children.append(flat_tag)
+            flat_tag = ""
+            break
+        elif open_tag_index > 0:
+            unflattened.children.append(flat_tag[:open_tag_index])
+            flat_tag = flat_tag[open_tag_index:]
+        else:
+            closing_tag_index = flat_tag.find(ARGOS_CLOSE_TAG)
+            tag_inner_text = flat_tag[
+                open_tag_index + len(ARGOS_OPEN_TAG) : closing_tag_index
+            ]
+            unflattened.children.append(Tag([tag_inner_text]))
+            flat_tag = flat_tag[closing_tag_index + len(ARGOS_CLOSE_TAG) :]
+
+    if depth(unflattened) != 2:
+        return None
+
+    return unflattened
+
+
 def translate_tag_chunk(
     translation: argostranslate.ITranslation, tag: ITag
 ) -> ITag | None:
@@ -142,32 +182,11 @@ def translate_tag_chunk(
     # Example:
     # I have a <argos-tag>house</argos-tag>
 
-    prompt = str()
-    for child in tag.children:
-        if isinstance(child, str):
-            prompt += child
-        else:
-            prompt += f"{ARGOS_OPEN_TAG}{child.text()}{ARGOS_CLOSE_TAG}"
-    translated_prompt = translation.translate(prompt)
-    translated_tag_attempt = Tag(list())
-    while len(translated_prompt) > 0:
-        open_tag_index = translated_prompt.find(ARGOS_OPEN_TAG)
-        if open_tag_index == -1:
-            translated_tag_attempt.children.append(translated_prompt)
-            translated_prompt = ""
-            break
-        elif open_tag_index > 0:
-            translated_tag_attempt.children.append(translated_prompt[:open_tag_index])
-            translated_prompt = translated_prompt[open_tag_index:]
-        else:
-            closing_tag_index = translated_prompt.find(ARGOS_CLOSE_TAG)
-            tag_inner_text = translated_prompt[
-                open_tag_index + len(ARGOS_OPEN_TAG) : closing_tag_index
-            ]
-            translated_tag_attempt.children.append(Tag([tag_inner_text]))
-            translated_prompt = translated_prompt[
-                closing_tag_index + len(ARGOS_CLOSE_TAG) :
-            ]
+    translated_prompt = translation.translate(flatten_tag(tag))
+    translated_tag_attempt = unflatten_tag(translated_prompt)
+
+    if translated_tag_attempt is None:
+        return None
 
     if not is_same_structure(tag, translated_tag_attempt):
         info(
