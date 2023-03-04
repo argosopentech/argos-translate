@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import typing
+
 import argostranslate.translate
 from argostranslate.translate import ITranslation
 from argostranslate.utils import info
@@ -31,6 +33,7 @@ class ITag:
     """
 
     translateable: bool
+    children: list[ITag | str]
 
     def text(self) -> str:
         """The combined text of all of the children
@@ -45,14 +48,18 @@ class ITag:
 
 
 class Tag(ITag):
-    def __init__(self, children: ITag | str, translateable: bool = True):
+    def __init__(self, children: list[ITag | str], translateable: bool = True):
         self.children = children
         self.translateable = translateable
 
     def text(self) -> str:
-        return "".join(
-            [(child.text() if type(child) != str else child) for child in self.children]
-        )
+        def child_to_str(child: ITag | str) -> str:
+            if isinstance(child, ITag):
+                return child.text()
+            else:
+                return child
+
+        return "".join([child_to_str(child) for child in self.children])
 
 
 def depth(tag: ITag | str) -> int:
@@ -63,7 +70,7 @@ def depth(tag: ITag | str) -> int:
     Args:
         tag: The ITag or string to get the depth of.
     """
-    if type(tag) is str:
+    if isinstance(tag, str):
         return 0
     if len(tag.children) == 0:
         return 0
@@ -80,9 +87,9 @@ def is_same_structure(tag1: ITag | str, tag2: ITag | str) -> bool:
     Returns:
         True if the tags have the same structure, false otherwise
     """
-    if type(tag1) is str and type(tag2) is str:
+    if isinstance(tag1, str) and isinstance(tag2, str):
         return True
-    elif type(tag1) is str or type(tag2) is str:
+    elif isinstance(tag1, str) or isinstance(tag2, str):
         return False
     elif len(tag1.children) != len(tag2.children):
         return False
@@ -106,7 +113,7 @@ def translate_tag_chunk(underlying_translation: ITranslation, tag: ITag) -> ITag
     """
     prompt = str()
     for child in tag.children:
-        if type(child) is str:
+        if isinstance(child, str):
             prompt += child
         else:
             prompt += f"{ARGOS_OPEN_TAG}{child.text()}{ARGOS_CLOSE_TAG}"
