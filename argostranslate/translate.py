@@ -135,25 +135,25 @@ class ITranslation:
     from_lang: Language
     to_lang: Language
 
-    def translate(self, input_text: str) -> str:
+    def translate(self, from_text: str) -> str:
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
-            input_text: The text to be translated.
+            from_text: The text to be translated.
 
         Returns:
-            input_text translated.
+            from_text translated.
 
         """
-        translation_result = self.hypotheses(input_text, num_hypotheses=1)[0].value
+        translation_result = self.hypotheses(from_text, num_hypotheses=1)[0].value
         info("translation_result", translation_result)
         return translation_result
 
-    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
+    def hypotheses(self, from_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         """Translates a string from self.from_lang to self.to_lang
 
         Args:
-            input_text: The text to be translated.
+            from_text: The text to be translated.
             num_hypotheses: Number of hypothetic results expected
 
         Returns:
@@ -170,7 +170,7 @@ class ITranslation:
 
 
 class IdentityTranslation(ITranslation):
-    """A Translation that doesn't modify input_text."""
+    """A Translation that doesn't modify from_text."""
 
     def __init__(self, lang: Language):
         """Creates an IdentityTranslation.
@@ -183,8 +183,8 @@ class IdentityTranslation(ITranslation):
         self.from_lang = lang
         self.to_lang = lang
 
-    def hypotheses(self, input_text: str, num_hypotheses: int = 4):
-        return [Hypothesis(input_text, 0) for i in range(num_hypotheses)]
+    def hypotheses(self, from_text: str, num_hypotheses: int = 4):
+        return [Hypothesis(from_text, 0) for i in range(num_hypotheses)]
 
 
 class CompositeTranslation(ITranslation):
@@ -213,8 +213,8 @@ class CompositeTranslation(ITranslation):
         self.from_lang = t1.from_lang
         self.to_lang = t2.to_lang
 
-    def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
-        t1_hypotheses = self.t1.hypotheses(input_text, num_hypotheses)
+    def hypotheses(self, from_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
+        t1_hypotheses = self.t1.hypotheses(from_text, num_hypotheses)
 
         # Combine hypotheses
         # O(n^2)
@@ -242,12 +242,12 @@ class RemoteTranslation(ITranslation):
         self.to_lang = to_lang
         self.api = api
 
-    def hypotheses(self, input_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
+    def hypotheses(self, from_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
         """LibreTranslate only supports single hypotheses.
 
         A list of length num_hypotheses will be returned with identical hypotheses.
         """
-        result = self.api.translate(input_text, self.from_lang.code, self.to_lang.code)
+        result = self.api.translate(from_text, self.from_lang.code, self.to_lang.code)
         return [Hypothesis(result, 0)] * num_hypotheses
 
 
@@ -266,11 +266,11 @@ def get_chunk_package(from_code):
     return None
 
 
-def chunk(input_text, from_code):
+def chunk(from_text, from_code):
     chunk_package = get_chunk_package(from_code)
     if chunk_package is None:
         warning("Could not find chunk package", from_code)
-        return [input_text]
+        return [from_text]
 
     model_path = str(chunk_package.package_path / "model")
     ctranslate2_translator = ctranslate2.Translator(
@@ -281,11 +281,11 @@ def chunk(input_text, from_code):
         model_file=sp_model_path, out_type=str
     )
 
-    def apply_chunk_translation(input_text, ctranslate2_translator, sp_processor):
+    def apply_chunk_translation(from_text, ctranslate2_translator, sp_processor):
         MAX_CHUNK_LENGTH = 300  # TODO: make this configurable
-        input_text = input_text[:MAX_CHUNK_LENGTH]
+        from_text = from_text[:MAX_CHUNK_LENGTH]
 
-        tokenized = sp_processor.encode(input_text)
+        tokenized = sp_processor.encode(from_text)
         translation_results = ctranslate2_translator.translate_batch(
             [tokenized],
         )
@@ -298,7 +298,7 @@ def chunk(input_text, from_code):
         sp_processor=sp_processor,
     )
 
-    sentences = argostranslate.chunk.chunk(input_text, chunk_translation)
+    sentences = argostranslate.chunk.chunk(from_text, chunk_translation)
     info("sentences", sentences)
     return sentences
 
@@ -320,10 +320,10 @@ class FewShotTranslation(ITranslation):
         self.to_lang = to_lang
         self.language_model = language_model
 
-    def hypotheses(self, input_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
+    def hypotheses(self, from_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
         # TODO: Split into chunks
         prompt = argostranslate.fewshot.generate_prompt(
-            input_text,
+            from_text,
             self.from_lang.name,
             self.from_lang.code,
             self.to_lang.name,
@@ -347,9 +347,9 @@ class LocalTranslation(ITranslation):
         self.from_lang = from_lang
         self.to_lang = to_lang
 
-    def hypotheses(self, input_text, num_hypotheses=4):
+    def hypotheses(self, from_text, num_hypotheses=4):
         return self.translator.translate(
-            input_text, self.from_lang.code, self.to_lang.code, num_hypotheses
+            from_text, self.from_lang.code, self.to_lang.code, num_hypotheses
         )
 
 
@@ -373,8 +373,8 @@ class Translator:
             model_file=str(self.sp_model_path)
         )
 
-    def tokenize(self, input_text: str) -> List[str]:
-        tokenized = self.sp_processor.encode(input_text, out_type=str)
+    def tokenize(self, from_text: str) -> List[str]:
+        tokenized = self.sp_processor.encode(from_text, out_type=str)
         info("tokenized", tokenized)
         return tokenized
 
@@ -391,9 +391,9 @@ class Translator:
         else:
             return translated_tokens
 
-    def translate(self, input_text, from_code, to_code, num_hypotheses):
+    def translate(self, from_text, from_code, to_code, num_hypotheses):
         # Split sentences
-        sentences = chunk(input_text, from_code)
+        sentences = chunk(from_text, from_code)
 
         # Tokenize
         tokenized_sentences = [self.tokenize(sentence) for sentence in sentences]
