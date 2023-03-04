@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import difflib
+import typing
 
 import argostranslate.translate
 from argostranslate.utils import info
@@ -157,7 +158,7 @@ def unflatten_tag(flat_tag: str) -> ITag | None:
 
 
 def translate_tag_chunk(
-    translation: argostranslate.ITranslation, tag: ITag
+    translation: argostranslate.translate.ITranslation, tag: ITag
 ) -> ITag | None:
     """Translate an ITag with depth(tag) == 2
 
@@ -206,15 +207,19 @@ def translate_tag_chunk(
 
     # Copy the translated_tag values into the original tag
     for i in range(len(tag.children)):
-        if isinstance(tag.children[i], Tag):
-            tag.children[i].children = translated_tag_attempt.children[i].children
+        if isinstance(tag.children[i], Tag) and isinstance(
+            translated_tag_attempt.children[i], Tag
+        ):
+            typing.cast(ITag, tag.children[i]).children = typing.cast(
+                ITag, translated_tag_attempt.children[i]
+            ).children
         elif isinstance(tag.children[i], str):
             tag.children[i] = translated_tag_attempt.children[i]
     return tag
 
 
 def translate_tags(
-    translation: argostranslate.ITranslation, tag: ITag | str
+    translation: argostranslate.translate.ITranslation, tag: ITag | str
 ) -> ITag | str:
     """Translate an ITag or str
 
