@@ -2,3 +2,4 @@ black
 isort
 pytest
 mypy
+twine
