@@ -1,9 +1,9 @@
 import unittest.mock
 from io import StringIO
 
-import argostranslate.argospm
-
 import mock_argostranslate_package
+
+import argostranslate.argospm
 
 
 @unittest.mock.patch(

@@ -1,5 +1,5 @@
-import unittest.mock
 import pathlib
+import unittest.mock
 
 import argostranslate.translate
 

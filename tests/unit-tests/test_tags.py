@@ -1,6 +1,6 @@
-import argostranslate.tags
-
 import mock_argostranslate_translate
+
+import argostranslate.tags
 
 
 def test_Tag():

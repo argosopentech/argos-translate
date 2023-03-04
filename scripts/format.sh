@@ -4,5 +4,5 @@
 black argostranslate tests setup.py
 
 # Sort imports with isort
-isort argostranslate setup.py
+isort argostranslate tests setup.py
 
