@@ -1,5 +1,5 @@
 #!/bin/bash
 
 ./scripts/format.sh
-./scripts/static-type-check.sh
+./scripts/type_check.sh
 ./scripts/test.sh

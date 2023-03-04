@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-import typing
-
 import argostranslate.translate
-from argostranslate.translate import ITranslation
 from argostranslate.utils import info
 
 """
@@ -106,7 +103,9 @@ ARGOS_OPEN_TAG = "<argos-tag>"
 ARGOS_CLOSE_TAG = "</argos-tag>"
 
 
-def translate_tag_chunk(underlying_translation: ITranslation, tag: ITag) -> ITag | None:
+def translate_tag_chunk(
+    underlying_translation: argostranslate.ITranslation, tag: ITag
+) -> ITag | None:
     """Translate a chunk of text in an ITag
 
     Is a helper function for translate_tags. Takes an ITag with depth 2 and translates it.
@@ -149,7 +148,9 @@ def translate_tag_chunk(underlying_translation: ITranslation, tag: ITag) -> ITag
     return tag
 
 
-def translate_tags(underlying_translation: ITranslation, tag: ITag | str) -> ITag | str:
+def translate_tags(
+    underlying_translation: argostranslate.ITranslation, tag: ITag | str
+) -> ITag | str:
     """Translate an ITag or str
 
     Recursively takes either an ITag or a str, modifies it in place, and returns the translated tag tree
