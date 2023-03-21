@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Format with black
+black argostranslate
+black setup.py
+
+# Sort imports with isort
+isort argostranslate
+isort setup.py
+
+# Execute Python type checker
+result='mypy --version'
+
+mypy_version='mypy [0-9].[0-9].[0-9]$'
+
+if [ $result != $mypy_version ]; then
+        sudo pip install mypy
+fi
+
+mypy .
+
+# Execute Prospector
+result='prospector --version'
+
+prospector_version='prospector [0-9].[0-9].[0-9]$'
+
+if [ $result != $prospector_version ]; then 
+	sudo pip install prospector
+fi
+
+prospector .

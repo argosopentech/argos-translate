@@ -1,0 +1,17 @@
+#!/bin/sh
+
+echo "Running tests"
+
+python ./tests/test_translate.py
+
+if [ $? -ne 0 ]; then
+        echo "All tests must pass!"
+        exit 1
+fi
+
+python ./tests/test_package.py
+
+if [ $? -ne 0 ]; then
+        echo "All tests must pass!"
+        exit 1
+fi
