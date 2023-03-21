@@ -1,0 +1,25 @@
+language: python
+python:
+  - "2.7"
+  - "3.8"
+before_install:
+  - python --version
+  - pip install -U pip
+  - pip install -U pytest
+  - pip install codecov
+install:
+  - pip install -r requirements.txt
+script: pytest
+after_success:
+  - codecov
+# Add emails to notify global users; otherwise, Travis CI sends emails to the committer and the commit authors
+notifications: 
+  email:
+    recipients:
+    - v37shah@uwaterloo.ca
+    on_success: always
+    on_failure: always
+# Slack notifications (if it is used in the future)
+  # slack: 
+   # on_success: always
+   # on_failure: always   
