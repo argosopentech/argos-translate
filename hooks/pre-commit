@@ -1,8 +1,24 @@
 #!/bin/sh
 
+result='black --version'
+
+black_version='black [0-9]+.[0-9]+.[0-9]+$'
+
+if [ "$result" != "$black_version" ]; then
+        sudo pip3 install black
+fi
+
 # Format with black
 black argostranslate
 black setup.py
+
+result='isort --version-number'
+
+isort_version='mypy [0-9]+.[0-9]+.[0-9]+$'
+
+if [ "$result" != "$isort_version" ]; then
+        sudo pip3 install isort
+fi
 
 # Sort imports with isort
 isort argostranslate
@@ -11,10 +27,10 @@ isort setup.py
 # Execute Python type checker
 result='mypy --version'
 
-mypy_version='mypy [0-9].[0-9].[0-9]$'
+mypy_version='mypy [0-9]+.[0-9]+.[0-9]+$'
 
-if [ $result != $mypy_version ]; then
-        sudo pip install mypy
+if [ "$result" != "$mypy_version" ]; then
+        sudo pip3 install mypy
 fi
 
 mypy .
@@ -22,10 +38,10 @@ mypy .
 # Execute Prospector
 result='prospector --version'
 
-prospector_version='prospector [0-9].[0-9].[0-9]$'
+prospector_version='prospector [0-9]+.[0-9]+.[0-9]+$'
 
-if [ $result != $prospector_version ]; then 
-	sudo pip install prospector
+if [ "$result" != "$prospector_version" ]; then 
+    sudo pip3 install prospector
 fi
 
 prospector .
