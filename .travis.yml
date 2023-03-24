@@ -1,6 +1,5 @@
 language: python
 python:
-  - "2.7"
   - "3.8"
 before_install:
   - python --version
