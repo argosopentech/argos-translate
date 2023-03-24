@@ -10,7 +10,7 @@ install:
   - pip install -r requirements.txt
 script: pytest
 after_success:
-  - codecov
+  - bash <(curl -s https://codecov.io/bash) -X gcov
 # Add emails to notify global users; otherwise, Travis CI sends emails to the committer and the commit authors
 notifications: 
   email:
