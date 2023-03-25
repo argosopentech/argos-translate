@@ -215,10 +215,7 @@ class CompositeTranslation(ITranslation):
 
     def hypotheses(self, from_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         t1_hypotheses = self.t1.hypotheses(from_text, num_hypotheses)
-
-        # Combine hypotheses
-        # O(n^2)
-        to_return = []
+        to_return = list()
         for t1_hypothesis in t1_hypotheses:
             t2_hypotheses = self.t2.hypotheses(t1_hypothesis.value, num_hypotheses)
             for t2_hypothesis in t2_hypotheses:
@@ -227,7 +224,7 @@ class CompositeTranslation(ITranslation):
                         t2_hypothesis.value, t1_hypothesis.score + t2_hypothesis.score
                     )
                 )
-        to_return.sort()
+        to_return.sort(reverse=True, key=lambda x: x.score)
         return to_return[0:num_hypotheses]
 
 
