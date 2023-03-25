@@ -246,7 +246,7 @@ class CompositeTranslation(ITranslation):
                         t2_hypothesis.value, t1_hypothesis.score + t2_hypothesis.score
                     )
                 )
-        to_return.sort()
+        to_return.sort(reverse=True)
         return to_return[0:num_hypotheses]
 
 
