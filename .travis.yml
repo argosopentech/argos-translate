@@ -1,6 +1,12 @@
 language: python
+os:
+  - linux
+  - osx
+  - windows
 python:
+  - "3.5"
   - "3.8"
+  - "3.11"
 before_install:
   - python --version
   - pip install -U pip
