@@ -21,7 +21,7 @@ setup(
         "GitHub": "https://github.com/argosopentech/argos-translate",
         "Forum": "https://community.libretranslate.com/c/argos-translate/5",
     },
-    python_requires=">=3.5",
+    python_requires=">=3.7",
     packages=find_packages(),
     install_requires=required_packages,
     include_package_data=True,

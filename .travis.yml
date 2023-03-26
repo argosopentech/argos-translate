@@ -1,12 +1,32 @@
 language: python
-os:
-  - linux
-  - osx
-  - windows
 python:
-  - "3.5"
+  - "3.7"
   - "3.8"
-  - "3.11"
+  - "3.9"
+jobs:
+  include:
+   - name: "Python 3.8.0 on macOS 10.15"
+      os: osx
+      osx_image: xcode11.3
+      language: shell
+      before_install:
+        - python3 --version
+        - python3 -m pip install --upgrade pip
+        - python3 -m pip install --upgrade codecov pytest
+      script: python3 -m pytest
+      after_success: 
+        - python3 -m codecov
+    - name: "Python 3.8.0 on Windows"
+      os: windows
+      language: shell
+      before_install:
+        - choco install python --version 3.8.0
+        - python --version
+        - python -m pip install --upgrade pip
+        - python -m pip install --upgrade codecov pytest
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      after_success: 
+        - codecov
 before_install:
   - python --version
   - pip install -U pip
@@ -23,6 +43,7 @@ notifications:
     recipients:
     - v37shah@uwaterloo.ca
     - d3diep@uwaterloo.ca
+    - s9menon@uwaterloo.ca
     on_success: always
     on_failure: always
 # Slack notifications (if it is used in the future)
