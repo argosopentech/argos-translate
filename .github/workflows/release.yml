@@ -1,5 +1,9 @@
 # .github/release.yml
-
+on:
+  push:
+    branches:
+    - main
+    
 changelog:
   categories:
     - title: 🏕️  Features
