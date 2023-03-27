@@ -14,7 +14,8 @@ jobs:
   release:
     name: "Release"
     runs-on: "ubuntu-latest"
-        - uses: "action-automatic-releases@latest"
+	- uses: actions/checkout@v2
+        #- uses: "action-automatic-releases@latest"
 #
 #changelog:
 #  categories:
