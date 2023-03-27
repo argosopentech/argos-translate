@@ -46,6 +46,7 @@ notifications:
     - s9menon@uwaterloo.ca
     on_success: always
     on_failure: always
+
 # Slack notifications (if it is used in the future)
   # slack: 
    # on_success: always
