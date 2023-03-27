@@ -327,7 +327,7 @@ def update_package_index():
             f.write(data)
 
 
-def get_available_packages() -> list[Package]:
+def get_available_packages() -> list[AvailablePackage]:
     """Returns a list of AvailablePackages from the package index."""
 
     try:
