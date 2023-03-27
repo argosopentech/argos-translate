@@ -6,7 +6,6 @@ name: Release
 # Run on every commit tag which begins with "v" (e.g., "v0.1.4")
 on:
   push:
-    branches: [ master, v2 ]
     tags:
       - "v*"
 
@@ -16,15 +15,3 @@ jobs:
     runs-on: "ubuntu-latest"
 	- uses: actions/checkout@v2
         #- uses: "action-automatic-releases@latest"
-#
-#changelog:
-#  categories:
-#    - title: 🏕️   Features
-#      labels:
-#        - '*'
-#      exclude:
-#      labels:
-#        - dependencies
-#    - title: 👒 Dependencies
-#      labels:
-#        - dependencies
