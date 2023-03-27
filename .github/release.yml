@@ -7,6 +7,8 @@ name: Release
 on:
   push:
     branches: [ master, v2 ]
+    tags:
+      - "v*"
 
 jobs:
   release:
