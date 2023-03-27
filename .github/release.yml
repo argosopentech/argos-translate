@@ -1,17 +1,13 @@
 # .github/release.yml
 
-# Name of the workflow
-name: Release
-
-# Run on every commit tag which begins with "v" (e.g., "v0.1.4")
-on:
-  push:
-    tags:
-      - "v*"
-
-jobs:
-  release:
-    name: "Release"
-    runs-on: "ubuntu-latest"
-	- uses: actions/checkout@v2
-        #- uses: "action-automatic-releases@latest"
+changelog:
+  categories:
+    - title: 🏕️  Features
+      labels:
+        - '*'
+      exclude:
+      labels:
+        - dependencies
+    - title: 👒 Dependencies
+      labels:
+        - dependencies
