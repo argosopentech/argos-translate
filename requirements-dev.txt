@@ -2,3 +2,6 @@ black
 isort
 pytest
 mypy
+codecov
+flake8
+pytest-cov

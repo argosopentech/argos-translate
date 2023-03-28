@@ -12,8 +12,10 @@ jobs:
       before_install:
         - python3 --version
         - python3 -m pip install --upgrade pip
-        - python3 -m pip install --upgrade codecov pytest flake8
-      script: python3 -m pytest --flake8
+        - python3 -m pip install --upgrade -r requirements-dev.txt
+      script: 
+        - python3 -m pytest --cov
+        - flake8
       after_success: 
         - python3 -m codecov
     - name: "Python 3.8.0 on macOS 10.15.2"
@@ -23,8 +25,8 @@ jobs:
       before_install:
         - python3 --version
         - python3 -m pip install --upgrade pip
-        - python3 -m pip install --upgrade codecov pytest flake8
-      script: python3 -m pytest --flake8
+        - python3 -m pip install --upgrade -r requirements-dev.txt
+      script: python3 -m pytest --cov
       after_success: 
         - python3 -m codecov
     - name: "Python 3.7.0 on Windows"
@@ -34,7 +36,7 @@ jobs:
         - choco install python --version 3.7.0
         - python --version
         - python -m pip install --upgrade pip
-        - python -m pip install --upgrade codecov pytest flake8
+        - python -m pip install --upgrade -r requirements-dev.txt
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       after_success: 
         - codecov
@@ -45,16 +47,20 @@ jobs:
         - choco install python --version 3.8.0
         - python --version
         - python -m pip install --upgrade pip
-        - python -m pip install --upgrade codecov pytest flake8
+        - python -m pip install --upgrade -r requirements-dev.txt
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       after_success: 
         - codecov
 before_install:
   - python --version
-  - pip install --upgrade codecov pytest flake8
+  - pip install --upgrade -r requirements-dev.txt
 install:
   - pip install -r requirements.txt
-script: pytest --flake8
+before_script:
+  - flake8 --version
+script: 
+  - pytest --cov
+  - flake8
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X gcov
 # Add emails to notify global users; otherwise, Travis CI sends emails to the committer and the commit authors
