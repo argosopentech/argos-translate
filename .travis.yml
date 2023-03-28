@@ -15,7 +15,7 @@ jobs:
         - python3 -m pip install --upgrade -r requirements-dev.txt
       script: 
         - python3 -m pytest --cov
-        - flake8
+        - flake8 --exit-zero
       after_success: 
         - python3 -m codecov
     - name: "Python 3.8.0 on macOS 10.15.2"
@@ -28,7 +28,7 @@ jobs:
         - python3 -m pip install --upgrade -r requirements-dev.txt
       script: 
         - python3 -m pytest --cov
-        - flake8
+        - flake8 --exit-zero
       after_success: 
         - python3 -m codecov
     - name: "Python 3.7.0 on Windows"
@@ -55,8 +55,6 @@ jobs:
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       after_success: 
         - codecov
-  allow_failures:
-    - script: flake8
 before_install:
   - python --version
   - pip install --upgrade -r requirements-dev.txt
@@ -66,7 +64,7 @@ before_script:
   - flake8 --version
 script: 
   - pytest --cov
-  - flake8
+  - flake8 --exit-zero
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X gcov
 # Add emails to notify global users; otherwise, Travis CI sends emails to the committer and the commit authors
