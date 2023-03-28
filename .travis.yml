@@ -1,21 +1,43 @@
 language: python
 python:
-  - "3.7"
-  - "3.8"
-  - "3.9"
+  - "3.7" # Python 3.7 on Linux
+  - "3.8" # Python 3.8 on Linux
+  - "3.9" # Python 3.9 on Linux
 jobs:
   include:
-   - name: "Python 3.8.0 on macOS 10.15"
+    - name: "Python 3.7.3 on macOS 10.14.4"
+      os: osx
+      osx_image: xcode10.2
+      language: shell
+      before_install:
+        - python3 --version
+        - python3 -m pip install --upgrade pip
+        - python3 -m pip install --upgrade codecov pytest flake8
+      script: python3 -m pytest --flake8
+      after_success: 
+        - python3 -m codecov
+    - name: "Python 3.8.0 on macOS 10.15.2"
       os: osx
       osx_image: xcode11.3
       language: shell
       before_install:
         - python3 --version
         - python3 -m pip install --upgrade pip
-        - python3 -m pip install --upgrade codecov pytest
-      script: python3 -m pytest
+        - python3 -m pip install --upgrade codecov pytest flake8
+      script: python3 -m pytest --flake8
       after_success: 
         - python3 -m codecov
+    - name: "Python 3.7.0 on Windows"
+      os: windows
+      language: shell
+      before_install:
+        - choco install python --version 3.7.0
+        - python --version
+        - python -m pip install --upgrade pip
+        - python -m pip install --upgrade codecov pytest flake8
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      after_success: 
+        - codecov
     - name: "Python 3.8.0 on Windows"
       os: windows
       language: shell
@@ -23,18 +45,16 @@ jobs:
         - choco install python --version 3.8.0
         - python --version
         - python -m pip install --upgrade pip
-        - python -m pip install --upgrade codecov pytest
+        - python -m pip install --upgrade codecov pytest flake8
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       after_success: 
         - codecov
 before_install:
   - python --version
-  - pip install -U pip
-  - pip install -U pytest
-  - pip install codecov
+  - pip install --upgrade codecov pytest flake8
 install:
   - pip install -r requirements.txt
-script: pytest
+script: pytest --flake8
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X gcov
 # Add emails to notify global users; otherwise, Travis CI sends emails to the committer and the commit authors
