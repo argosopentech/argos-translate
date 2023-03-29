@@ -36,11 +36,11 @@ jobs:
       language: shell
       python: "3.7"
       before_install:
-        - choco install python3
-        - python3 --version
-        - python3 -m pip install --upgrade pip
-        - python3 -m pip install --upgrade -r requirements-dev.txt
-      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+        - choco install python --version 3.7.0
+        - python --version
+        - python -m pip install --upgrade pip
+        - python -m pip install --upgrade -r requirements-dev.txt
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
       after_success: 
         - codecov
     - name: "Python 3.8.0 on Windows"
@@ -48,10 +48,10 @@ jobs:
       language: shell
       python: "3.8"
       before_install:
-        - choco install python3
-        - python3 --version
-        - python3 -m pip install --upgrade pip
-        - python3 -m pip install --upgrade -r requirements-dev.txt
+        - choco install python --version 3.8.0
+        - python --version
+        - python -m pip install --upgrade pip
+        - python -m pip install --upgrade -r requirements-dev.txt
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       after_success: 
         - codecov
