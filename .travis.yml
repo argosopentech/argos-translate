@@ -1,4 +1,8 @@
 language: python
+branches:
+  only:
+    - master
+    - v2
 python:
   - "3.7" # Python 3.7 on Linux
   - "3.8" # Python 3.8 on Linux
