@@ -179,10 +179,10 @@ Paid supporters receive priority support.
 
 #### Hosting affiliate links
 You can help support Argos Translate financially by purchasing hosting through these referral links:
-- [Vast.ai](http://vast.ai/?ref=24817)
-- [Sharktech](https://portal.sharktech.net/aff.php?aff=1181)
-- [DigitalOcean](https://m.do.co/c/a1af57be6e3f)
-- [Time4VPS](https://www.time4vps.com/?affid=6929)
+- [Vast.ai](http://vast.ai/?ref=24817) - Cheap GPU rentals
+- [Sharktech](https://portal.sharktech.net/aff.php?aff=1181) - Best all around hosting
+- [DigitalOcean](https://m.do.co/c/a1af57be6e3f) - Cheap bandwith
+- [Time4VPS](https://www.time4vps.com/?affid=6929) - Cheap storage
 
 ## License
 Argos Translate is dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
