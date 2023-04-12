@@ -76,6 +76,11 @@ argos-translate --from en --to de "Hello World!"
 
 ```
 
+Install all translation packages:
+```
+argospm install translate
+```
+
 ### [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
 ![Web App Screenshot](img/WebAppScreenshot.png)
 
