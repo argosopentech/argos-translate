@@ -190,7 +190,7 @@ You can help support Argos Translate financially by purchasing hosting through t
 - [Time4VPS](https://www.time4vps.com/?affid=6929) - Cheap storage
 
 #### Argos Translate 2 beta 
-A beta version of Argos Translate 2 is available to install from source from the [v2 branch on GitHub](https://github.com/argosopentech/argos-translate/tree/v2). Argos Translate 2 has a [multilingual model architecture](https://community.libretranslate.com/t/multilingual-translation-with-ctranslate2-and-pre-trained-fairseq-models/178/26), more extensive unit testing, and a more experimental orientation.
+A beta version of Argos Translate 2 is available to install from source from the [v2 branch on GitHub](https://github.com/argosopentech/argos-translate/tree/v2). Argos Translate 2 has a [multilingual model architecture](https://community.libretranslate.com/t/multilingual-translation-with-ctranslate2-and-pre-trained-fairseq-models/178/), more extensive unit testing, and a more experimental orientation.
 
 ## License
 Argos Translate is dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
