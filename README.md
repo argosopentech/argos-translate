@@ -171,7 +171,7 @@ For questions about [CTranslate2](https://github.com/OpenNMT/CTranslate2) or gen
 ## Services
 Custom models trained on your own data are available for $1000/language (negotiable).
 
-[I](https://www.argosopentech.com/about/) am also available for hire to do support, consulting, or custom software development.
+[I am also available for hire](https://www.argosopentech.com/about/) to do support, consulting, or custom software development.
 
 ## Donate
 If you find this software useful donations are appreciated.
