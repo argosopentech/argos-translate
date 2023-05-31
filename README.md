@@ -169,9 +169,9 @@ For support please use the [LibreTranslate Forum](https://community.libretransla
 For questions about [CTranslate2](https://github.com/OpenNMT/CTranslate2) or general machine translation research the [OpenNMT Forum](https://forum.opennmt.net/) is a good resource.
 
 ## Services
-Custom models trained on your own data are available for $1000/each (negotiable).
+Custom models trained on your own data are available for $1000/language (negotiable).
 
-Managed LibreTranslate hosting is available for $500/mo.
+[I](https://www.argosopentech.com/about/) am also available for hire to do support, consulting, or custom software development.
 
 ## Donate
 If you find this software useful donations are appreciated.
