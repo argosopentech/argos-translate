@@ -11,7 +11,7 @@ Argos Translate can be configured using either environment variables or json fil
 ```
 export ARGOS_DEBUG="0"
 export ARGOS_PACKAGE_INDEX="https://raw.githubusercontent.com/argosopentech/argospm-index/v2/"
-export ARGOS_PACKAGES_DIR="/home/user/.local/share/argos-translate/packages/"
+export ARGOS_PACKAGES_DIR="/home/<username>/.local/share/argos-translate/packages/"
 export ARGOS_DEVICE_TYPE="cpu"
 
 ```
@@ -23,7 +23,7 @@ export ARGOS_DEVICE_TYPE="cpu"
 {
     "ARGOS_DEBUG": "0",
     "ARGOS_PACKAGES_INDEX": "https://raw.githubusercontent.com/argosopentech/argospm-index/v2/",
-    "ARGOS_PACKAGE_DIR": "~/.local/share/argos-translate/packages/",
+    "ARGOS_PACKAGE_DIR": "/home/<username>/.local/share/argos-translate/packages/",
     "ARGOS_DEVICE_TYPE": "cpu"
 }
 ```
@@ -103,6 +103,24 @@ model_mapping = {
     "OPENAI": ModelProvider.OPENAI,
 }
 model_provider = model_mapping[get_setting("ARGOS_MODEL_PROVIDER", default="OPENNMT")]
+
+
+# Sentence boundary detection
+class ChunkType(Enum):
+    DEFAULT = 0
+    ARGOSTRANSLATE = 1
+    NONE = 2  # No sentence splitting
+
+
+chunk_type_mapping = {
+    "DEFAULT": ChunkType.DEFAULT,
+    "ARGOSTRANSLATE": ChunkType.ARGOSTRANSLATE,
+    "NONE": ChunkType.NONE,
+}
+chunk_type = chunk_type_mapping[os.getenv("ARGOS_CHUNK_TYPE", "DEFAULT")]
+if chunk_type == ChunkType.DEFAULT:
+    chunk_type = ChunkType.ARGOSTRANSLATE
+
 
 libretranslate_api_key = get_setting("LIBRETRANSLATE_API_KEY", None)
 openai_api_key = get_setting("OPENAI_API_KEY", None)

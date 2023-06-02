@@ -264,40 +264,49 @@ def get_chunk_package(from_code):
 
 
 def chunk(from_text, from_code):
-    chunk_package = get_chunk_package(from_code)
-    if chunk_package is None:
-        warning("Could not find chunk package", from_code)
+    if argostranslate.settings.chunk_type == argostranslate.settings.ChunkType.NONE:
         return [from_text]
+    elif (
+        argostranslate.settings.chunk_type
+        == argostranslate.settings.ChunkType.ARGOSTRANSLATE
+    ):
+        chunk_package = get_chunk_package(from_code)
+        if chunk_package is None:
+            warning("Could not find chunk package", from_code)
+            return [from_text]
 
-    model_path = str(chunk_package.package_path / "model")
-    ctranslate2_translator = ctranslate2.Translator(
-        model_path, device=argostranslate.settings.device
-    )
-    sp_model_path = str(chunk_package.package_path / "sentencepiece.model")
-    sp_processor = sentencepiece.SentencePieceProcessor(
-        model_file=sp_model_path, out_type=str
-    )
-
-    def apply_chunk_translation(from_text, ctranslate2_translator, sp_processor):
-        MAX_CHUNK_LENGTH = 300  # TODO: make this configurable
-        from_text = from_text[:MAX_CHUNK_LENGTH]
-
-        tokenized = sp_processor.encode(from_text)
-        translation_results = ctranslate2_translator.translate_batch(
-            [tokenized],
+        model_path = str(chunk_package.package_path / "model")
+        ctranslate2_translator = ctranslate2.Translator(
+            model_path, device=argostranslate.settings.device
         )
-        translated_tokens = translation_results[0].hypotheses[0]
-        return sp_processor.decode(translated_tokens)
+        sp_model_path = str(chunk_package.package_path / "sentencepiece.model")
+        sp_processor = sentencepiece.SentencePieceProcessor(
+            model_file=sp_model_path, out_type=str
+        )
 
-    chunk_translation = functools.partial(
-        apply_chunk_translation,
-        ctranslate2_translator=ctranslate2_translator,
-        sp_processor=sp_processor,
-    )
+        def apply_chunk_translation(from_text, ctranslate2_translator, sp_processor):
+            MAX_CHUNK_LENGTH = 300  # TODO: make this configurable
+            from_text = from_text[:MAX_CHUNK_LENGTH]
 
-    sentences = argostranslate.chunk.chunk(from_text, chunk_translation)
-    info("sentences", sentences)
-    return sentences
+            tokenized = sp_processor.encode(from_text)
+            translation_results = ctranslate2_translator.translate_batch(
+                [tokenized],
+            )
+            translated_tokens = translation_results[0].hypotheses[0]
+            return sp_processor.decode(translated_tokens)
+
+        chunk_translation = functools.partial(
+            apply_chunk_translation,
+            ctranslate2_translator=ctranslate2_translator,
+            sp_processor=sp_processor,
+        )
+
+        sentences = argostranslate.chunk.chunk(from_text, chunk_translation)
+        info("sentences", sentences)
+        return sentences
+    else:
+        error("Unknown chunk type", argostranslate.settings.chunk_type)
+        return [from_text]
 
 
 class FewShotTranslation(ITranslation):
