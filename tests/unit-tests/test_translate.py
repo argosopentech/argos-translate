@@ -148,3 +148,17 @@ class TestTranslate:
         translator.sp_processor.decode.return_value = ["Hello World"]
         assert translator.detokenize(["Hello", "_World"]) == ["Hello World"]
         translator.sp_processor.decode.assert_called_with(["Hello", "_World"])
+
+
+class TestChunk:
+    chunk_text = (
+        "This is the first sentence. This is the second sentence in this statement. "
+    )
+
+    @unittest.mock.patch(
+        "argostranslate.settings.chunk_type", argostranslate.settings.ChunkType.NONE
+    )
+    def test_chunk_none(self):
+        assert argostranslate.translate.chunk(self.chunk_text, "en") == [
+            self.chunk_text
+        ]
