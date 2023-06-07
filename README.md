@@ -119,7 +119,6 @@ The GUI code is in a [separate repository](https://github.com/argosopentech/argo
 - [Browse](https://www.argosopentech.com/argospm/index/)
 - [P2P download (IPFS and BitTorrent)](/p2p/README.md)
 - [Training scripts](https://github.com/argosopentech/argos-train)
-- [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
 
 
 ### GPU Acceleration
