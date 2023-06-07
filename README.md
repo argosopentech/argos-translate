@@ -31,13 +31,15 @@ pip install argostranslategui
 2. Extract the archive.
 3. Copy the `.app` file to the Applications directory.
 
-### Python source installation
+### Python source installation into virtualenv
 
 Download a copy of this repo and install with pip.
 
 ```
 git clone https://github.com/argosopentech/argos-translate.git
 cd argos-translate
+virtualenv env
+source env/bin/activate
 pip install -e .
 ```
 
