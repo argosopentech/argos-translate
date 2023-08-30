@@ -224,11 +224,7 @@ class CompositeTranslation(ITranslation):
                         t2_hypothesis.value, t1_hypothesis.score + t2_hypothesis.score
                     )
                 )
-<<<<<<< HEAD
         to_return.sort(reverse=True, key=lambda x: x.score)
-=======
-        to_return.sort(reverse=True)
->>>>>>> master
         return to_return[0:num_hypotheses]
 
 
@@ -458,10 +454,13 @@ class InstalledTranslate:
     Global storage of instances of the CachedTranslation class by unique keys.
     To avoid creating unnecessary objects in memory.
     """
+
     package_key: str
     cached_translation: CachedTranslation
 
+
 installed_translates: List[InstalledTranslate] = []
+
 
 def get_installed_languages() -> list[Language]:
     """Returns a list of Languages installed from packages"""
@@ -478,7 +477,6 @@ def get_installed_languages() -> list[Language]:
         # Load languages and translations from packages
         language_of_code = dict()
         for pkg in packages:
-<<<<<<< HEAD
             translator = Translator(pkg)
             for source_language in pkg.source_languages:
                 if source_language["code"] not in language_of_code:
@@ -496,31 +494,6 @@ def get_installed_languages() -> list[Language]:
                     language_of_code[target_language["code"]].translators_to.append(
                         translator
                     )
-=======
-            if pkg.from_code not in language_of_code:
-                language_of_code[pkg.from_code] = Language(pkg.from_code, pkg.from_name)
-            if pkg.to_code not in language_of_code:
-                language_of_code[pkg.to_code] = Language(pkg.to_code, pkg.to_name)
-            from_lang = language_of_code[pkg.from_code]
-            to_lang = language_of_code[pkg.to_code]
-
-            package_key = f"{pkg.from_code}-{pkg.to_code}"
-            contain = list(filter(lambda x: x.package_key == package_key, installed_translates))
-            translation_to_add: CachedTranslation
-            if len(contain) == 0:
-                translation_to_add =  CachedTranslation(
-                    PackageTranslation(from_lang, to_lang, pkg)
-                )
-                saved_cache = InstalledTranslate()
-                saved_cache.package_key = package_key
-                saved_cache.cached_translation = translation_to_add
-                installed_translates.append(saved_cache)
-            else:
-                translation_to_add = contain[0].cached_translation
-
-            from_lang.translations_from.append(translation_to_add)
-            to_lang.translations_to.append(translation_to_add)
->>>>>>> master
 
         languages = list(language_of_code.values())
     elif (
