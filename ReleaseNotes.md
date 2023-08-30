@@ -4,6 +4,11 @@
 - Improved logging
 
 # 1.7:
+1.8:
+- Delete cached package files after they've been installed
+- Automatically update packages to newer version with package.Package.update
+
+1.7:
 - Improved examples and documentation
 - Use multiple links for redundancy and load balancing
 - Add logger namespace

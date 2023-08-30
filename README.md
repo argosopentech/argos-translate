@@ -1,5 +1,5 @@
 # Argos Translate
-[Demo](https://libretranslate.com) | [Website](https://www.argosopentech.com) | [Docs](https://argos-translate.readthedocs.io) |  [Forum](https://community.libretranslate.com/c/argos-translate/5) | [Video intro](https://odysee.com/@argosopentech:7/Machine-Translation-in-Argos-Translate-2021:5) | [GitHub](https://github.com/argosopentech/argos-translate) | [Wiki](https://github.com/argosopentech/argos-translate/wiki)
+[Demo](https://libretranslate.com) | [Website](https://www.argosopentech.com) | [Docs](https://argos-translate.readthedocs.io) |  [Forum](https://community.libretranslate.com/c/argos-translate/5) | [GitHub](https://github.com/argosopentech/argos-translate) | [PyPI](https://pypi.org/project/argostranslate/)
 
 **Open-source offline translation library written in Python**
 
@@ -31,13 +31,15 @@ pip install argostranslategui
 2. Extract the archive.
 3. Copy the `.app` file to the Applications directory.
 
-### Python source installation
+### Python source installation into virtualenv
 
 Download a copy of this repo and install with pip.
 
 ```
 git clone https://github.com/argosopentech/argos-translate.git
 cd argos-translate
+virtualenv env
+source env/bin/activate
 pip install -e .
 ```
 
@@ -74,6 +76,11 @@ argospm install translate-en_de
 argos-translate --from en --to de "Hello World!"
 # Hallo Welt!
 
+```
+
+Install all translation packages:
+```
+argospm install translate
 ```
 
 ### [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
@@ -164,9 +171,9 @@ For support please use the [LibreTranslate Forum](https://community.libretransla
 For questions about [CTranslate2](https://github.com/OpenNMT/CTranslate2) or general machine translation research the [OpenNMT Forum](https://forum.opennmt.net/) is a good resource.
 
 ## Services
-Custom models trained on your own data are available for $1000/each (negotiable).
+Custom models trained on your own data are available for $1000/language (negotiable).
 
-Managed LibreTranslate hosting is available for $500/mo.
+[I am also available for hire](https://www.argosopentech.com/about/) to do support, consulting, or custom software development.
 
 ## Donate
 If you find this software useful donations are appreciated.
@@ -178,19 +185,17 @@ If you find this software useful donations are appreciated.
 Paid supporters receive priority support.
 
 #### Hosting affiliate links
-You can help offset Argos Translate's hosting costs by purchasing hosting through my referral links.
+You can help support Argos Translate financially by purchasing hosting through these referral links:
+- [Vast.ai](http://vast.ai/?ref=24817) - Cheap GPU rentals
+- [DigitalOcean](https://m.do.co/c/a1af57be6e3f) - Best all around hosting
+- [Sharktech](https://portal.sharktech.net/aff.php?aff=1181) - Cheap bandwith
+- [Time4VPS](https://www.time4vps.com/?affid=6929) - Cheap storage
 
-###### [Vast.ai](http://vast.ai/?ref=24817)
-Vast AI is a distributed GPU rental market designed for Machine Learning. [Argos Train](https://github.com/argosopentech/argos-train) runs on Vast AI to train the models for Argos Translate because Vast AI has some of the lowest GPU rental prices available.
+#### Argos Translate 2 beta 
+A beta version of Argos Translate 2 is available to install from source from the [v2 branch on GitHub](https://github.com/argosopentech/argos-translate/tree/v2). Argos Translate 2 has a [multilingual model architecture](https://community.libretranslate.com/t/multilingual-translation-with-ctranslate2-and-pre-trained-fairseq-models/178/), more extensive unit testing, and a more experimental orientation.
 
-###### [Sharktech](https://portal.sharktech.net/aff.php?aff=1181)
-Sharktech has the cheapest bandwidth prices I've been able to find with servers in America and Europe. The [Argos Translate CDN](https://cdn.argosopentech.com) runs on Sharktech and distributes over 15TB of free and open-source software a month.
-
-###### [DigitalOcean](https://m.do.co/c/a1af57be6e3f)
-Digital Ocean has very high quality hosting, although it is expensive at scale. I use Digital Ocean for hosting development VMs and for some CDN hosting. [translate.argosopentech.com](https://translate.argosopentech.com) is also hosted on DigitalOcean.
-
-###### [Time4VPS](https://www.time4vps.com/?affid=6929)
-Time4VPS has very cheap prices for disk space rentals. I use Time4VPS to host the [Argos Translate data index](https://github.com/argosopentech/argos-train/blob/master/data-index.json).
+## Contributing
+Contributions are welcome! Bug reports, pull requests, documentation writing, and feature ideas are all appreciated.
 
 ## License
 Argos Translate is dual licensed under either the [MIT License](https://github.com/argosopentech/argos-translate/blob/master/LICENSE) or [Creative Commons CC0](https://creativecommons.org/share-your-work/public-domain/cc0/).
