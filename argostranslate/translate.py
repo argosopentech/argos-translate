@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 import ctranslate2
 import sentencepiece as spm
 import stanza
@@ -9,7 +11,6 @@ from argostranslate import apis, fewshot, package, sbd, settings
 from argostranslate.models import ILanguageModel
 from argostranslate.package import Package
 from argostranslate.utils import info
-from typing import List
 
 
 class Hypothesis:
@@ -494,10 +495,13 @@ class InstalledTranslate:
     Global storage of instances of the CachedTranslation class by unique keys.
     To avoid creating unnecessary objects in memory.
     """
+
     package_key: str
     cached_translation: CachedTranslation
 
+
 installed_translates: List[InstalledTranslate] = []
+
 
 def get_installed_languages() -> list[Language]:
     """Returns a list of Languages installed from packages"""
@@ -531,10 +535,12 @@ def get_installed_languages() -> list[Language]:
             to_lang = language_of_code[pkg.to_code]
 
             package_key = f"{pkg.from_code}-{pkg.to_code}"
-            contain = list(filter(lambda x: x.package_key == package_key, installed_translates))
+            contain = list(
+                filter(lambda x: x.package_key == package_key, installed_translates)
+            )
             translation_to_add: CachedTranslation
             if len(contain) == 0:
-                translation_to_add =  CachedTranslation(
+                translation_to_add = CachedTranslation(
                     PackageTranslation(from_lang, to_lang, pkg)
                 )
                 saved_cache = InstalledTranslate()
