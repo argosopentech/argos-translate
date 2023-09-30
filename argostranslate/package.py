@@ -8,6 +8,8 @@ import zipfile
 from pathlib import Path
 from threading import Lock
 
+import packaging.version
+
 from argostranslate import networking, settings
 from argostranslate.utils import error, info
 
@@ -200,7 +202,9 @@ class Package(IPackage):
                 available_package.from_code == self.from_code
                 and available_package.to_code == self.to_code
             ):
-                if available_package.package_version > self.package_version:
+                if packaging.version.parse(
+                    available_package.package_version
+                ) > packaging.version.parse(self.package_version):
                     new_package_path = available_package.download()
                     uninstall(self)
                     install_from_path(new_package_path)
