@@ -356,9 +356,8 @@ def get_available_packages() -> list[AvailablePackage]:
 
             return packages
     except FileNotFoundError:
-        raise Exception(
-            "Local package index not found, use package.update_package_index() to load it"
-        )
+        update_package_index()
+        return get_available_packages()
 
 
 def argospm_package_name(pkg: IPackage) -> str:
