@@ -164,7 +164,7 @@ class PackageTranslation(ITranslation):
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
             model_path = str(self.pkg.package_path / "model")
-            self.translator = ctranslate2.Translator(model_path, device=settings.device)
+            self.translator = ctranslate2.Translator(model_path, device=settings.device, compute_type="float32") # TODO REMOVE
         paragraphs = ITranslation.split_into_paragraphs(input_text)
         info("paragraphs:", paragraphs)
         translated_paragraphs = []
@@ -456,8 +456,14 @@ def apply_packaged_translation(
 
     # Translation
     BATCH_SIZE = 32
+    target_prefix = None
+
+    if pkg.target_prefix != "":
+        target_prefix = [[pkg.target_prefix]] * len(tokenized)
+
     translated_batches = translator.translate_batch(
         tokenized,
+        target_prefix=target_prefix,
         replace_unknowns=True,
         max_batch_size=BATCH_SIZE,
         beam_size=max(num_hypotheses, 4),
@@ -475,13 +481,18 @@ def apply_packaged_translation(
         for translated_batch in translated_batches:
             translated_tokens += translated_batch[i]["tokens"]
             cumulative_score += translated_batch[i]["score"]
-        detokenized = "".join(translated_tokens)
-        detokenized = detokenized.replace("▁", " ")
-        value = detokenized
+        
+        value = pkg.tokenizer.decode(translated_tokens)
+        
+        if pkg.target_prefix != "" and value.startswith(pkg.target_prefix):
+            # Remove target prefix
+            value = value[len(pkg.target_prefix):]
+
         if len(value) > 0 and value[0] == " ":
             # Remove space at the beginning of the translation added
             # by the tokenizer.
             value = value[1:]
+        
         hypothesis = Hypothesis(value, cumulative_score)
         value_hypotheses.append(hypothesis)
     info("value_hypotheses:", value_hypotheses)
