@@ -164,7 +164,7 @@ class PackageTranslation(ITranslation):
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
             model_path = str(self.pkg.package_path / "model")
-            self.translator = ctranslate2.Translator(model_path, device=settings.device, compute_type="float32") # TODO REMOVE
+            self.translator = ctranslate2.Translator(model_path, device=settings.device)
         paragraphs = ITranslation.split_into_paragraphs(input_text)
         info("paragraphs:", paragraphs)
         translated_paragraphs = []
