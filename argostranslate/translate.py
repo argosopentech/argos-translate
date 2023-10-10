@@ -451,9 +451,7 @@ def apply_packaged_translation(
     info("sentences", sentences)
 
     # Tokenization
-    sp_model_path = str(pkg.package_path / "sentencepiece.model")
-    sp_processor = spm.SentencePieceProcessor(model_file=sp_model_path)
-    tokenized = [sp_processor.encode(sentence, out_type=str) for sentence in sentences]
+    tokenized = [pkg.tokenizer.encode(sentence) for sentence in sentences]
     info("tokenized", tokenized)
 
     # Translation
