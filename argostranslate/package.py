@@ -12,6 +12,7 @@ import packaging.version
 
 from argostranslate import networking, settings
 from argostranslate.utils import error, info
+from argostranslate.tokenizer import SentencePieceTokenizer, BPETokenizer
 
 """
 ## `package` module example usage
@@ -60,7 +61,7 @@ class IPackage:
     Packages are a zip archive of a directory with metadata.json
     in its root the .argosmodel file extension. By default a
     OpenNMT CTranslate2 directory named model/ is expected in the root directory
-    along with a sentencepiece model named sentencepiece.model
+    along with a sentencepiece model named sentencepiece.model or a bpe.model
     for tokenizing and Stanza data for sentence boundary detection.
     Packages may also optionally have a README.md in the root.
 
@@ -194,6 +195,18 @@ class Package(IPackage):
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
+        
+        sp_model_path = package_path / "sentencepiece.model"
+        bpe_model_path = package_path / "bpe.model"
+
+        if sp_model_path.exists():
+            self.tokenizer = SentencePieceTokenizer(sp_model_path)
+        elif bpe_model_path.exists():
+            self.tokenizer = BPETokenizer(bpe_model_path)
+        else:
+            raise FileNotFoundError(
+                "Error opening package at " + str(package_path) + " no tokenizer model found"
+            )
 
     def update(self):
         """Update the package if a newer version is available."""
