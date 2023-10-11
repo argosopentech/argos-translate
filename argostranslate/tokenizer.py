@@ -3,26 +3,14 @@ from pathlib import Path
 
 
 class Tokenizer:
-    def __init__(self, prefix: str = "", suffix: str = ""):
-        self.prefix = prefix
-        self.suffix = suffix
-    
     def encode(self, sentence: str):
         raise NotImplementedError()
     
     def decode(self, tokens: list[str]):
         raise NotImplementedError()
 
-    def add_fixes(self, tokens):
-        if self.prefix != "":
-            tokens = [self.prefix] + tokens
-        if self.suffix != "":
-            tokens = tokens + [self.suffix]
-        return tokens
-
 class SentencePieceTokenizer(Tokenizer):
-    def __init__(self, model_file: Path, prefix: str = "", suffix: str = ""):
-        super().__init__(prefix, suffix)
+    def __init__(self, model_file: Path):
         self.model_file = model_file
         self.processor = None
 
@@ -33,7 +21,7 @@ class SentencePieceTokenizer(Tokenizer):
 
     def encode(self, sentence: str):
         tokens = self.lazy_processor().encode(sentence, out_type=str)
-        return self.add_fixes(tokens)
+        return tokens
 
     def decode(self, tokens: list[str]):
         detokenized = "".join(tokens)
@@ -41,8 +29,7 @@ class SentencePieceTokenizer(Tokenizer):
 
 
 class BPETokenizer(Tokenizer):
-    def __init__(self, model_file: Path, from_code: str, to_code: str, prefix: str = "", suffix: str = ""):
-        super().__init__(prefix, suffix)
+    def __init__(self, model_file: Path, from_code: str, to_code: str):
         self.model_file = model_file
         self.from_code = from_code
         self.to_code = to_code
@@ -69,7 +56,7 @@ class BPETokenizer(Tokenizer):
         normalized = self.normalizer.normalize(sentence)
         tokenized = ' '.join(self.tokenizer.tokenize(normalized))
         segmented = self.bpe_source.segment_tokens(tokenized.strip('\r\n ').split(' '))
-        return self.add_fixes(segmented)
+        return segmented
     
     def decode(self, tokens: list[str]):
         self.lazy_load()

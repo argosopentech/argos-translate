@@ -119,8 +119,6 @@ class IPackage:
         self.dependencies = metadata.get("dependencies", list())
         self.source_languages = metadata.get("source_languages", list())
         self.target_languages = metadata.get("target_languages", list())
-        self.tokens_prefix = metadata.get("tokens_prefix", "")
-        self.tokens_suffix = metadata.get("tokens_suffix", "")
         self.target_prefix = metadata.get("target_prefix", "")
 
         # Add all package source and target languages to
@@ -203,9 +201,9 @@ class Package(IPackage):
         bpe_model_path = package_path / "bpe.model"
 
         if sp_model_path.exists():
-            self.tokenizer = SentencePieceTokenizer(sp_model_path, self.tokens_prefix, self.tokens_suffix)
+            self.tokenizer = SentencePieceTokenizer(sp_model_path)
         elif bpe_model_path.exists():
-            self.tokenizer = BPETokenizer(bpe_model_path, self.from_code, self.to_code, self.tokens_prefix, self.tokens_suffix)
+            self.tokenizer = BPETokenizer(bpe_model_path, self.from_code, self.to_code)
 
     def update(self):
         """Update the package if a newer version is available."""
