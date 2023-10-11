@@ -3,10 +3,10 @@ from pathlib import Path
 
 
 class Tokenizer:
-    def encode(self, sentence: str):
+    def encode(self, sentence: str) -> list[str]:
         raise NotImplementedError()
     
-    def decode(self, tokens: list[str]):
+    def decode(self, tokens: list[str]) -> str:
         raise NotImplementedError()
 
 class SentencePieceTokenizer(Tokenizer):
@@ -14,16 +14,16 @@ class SentencePieceTokenizer(Tokenizer):
         self.model_file = model_file
         self.processor = None
 
-    def lazy_processor(self):
+    def lazy_processor(self) -> spm.SentencePieceProcessor:
         if self.processor is None:
             self.processor = spm.SentencePieceProcessor(model_file=str(self.model_file))
         return self.processor
 
-    def encode(self, sentence: str):
+    def encode(self, sentence: str) -> list[str]:
         tokens = self.lazy_processor().encode(sentence, out_type=str)
         return tokens
 
-    def decode(self, tokens: list[str]):
+    def decode(self, tokens: list[str]) -> str:
         detokenized = "".join(tokens)
         return detokenized.replace("▁", " ")
 
@@ -50,7 +50,7 @@ class BPETokenizer(Tokenizer):
             with open(str(self.model_file), "r", encoding="utf-8") as f:
                 self.bpe_source = BPE(f)
 
-    def encode(self, sentence: str):
+    def encode(self, sentence: str) -> list[str]:
         self.lazy_load()
 
         normalized = self.normalizer.normalize(sentence)
@@ -58,7 +58,7 @@ class BPETokenizer(Tokenizer):
         segmented = self.bpe_source.segment_tokens(tokenized.strip('\r\n ').split(' '))
         return segmented
     
-    def decode(self, tokens: list[str]):
+    def decode(self, tokens: list[str]) -> str:
         self.lazy_load()
         
         for i in range(len(tokens)):
