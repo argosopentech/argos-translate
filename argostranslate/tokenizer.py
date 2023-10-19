@@ -1,12 +1,12 @@
 import sentencepiece as spm
 from pathlib import Path
-
+from typing import List
 
 class Tokenizer:
-    def encode(self, sentence: str) -> list[str]:
+    def encode(self, sentence: str) -> List[str]:
         raise NotImplementedError()
     
-    def decode(self, tokens: list[str]) -> str:
+    def decode(self, tokens: List[str]) -> str:
         raise NotImplementedError()
 
 class SentencePieceTokenizer(Tokenizer):
@@ -19,11 +19,11 @@ class SentencePieceTokenizer(Tokenizer):
             self.processor = spm.SentencePieceProcessor(model_file=str(self.model_file))
         return self.processor
 
-    def encode(self, sentence: str) -> list[str]:
+    def encode(self, sentence: str) -> List[str]:
         tokens = self.lazy_processor().encode(sentence, out_type=str)
         return tokens
 
-    def decode(self, tokens: list[str]) -> str:
+    def decode(self, tokens: List[str]) -> str:
         detokenized = "".join(tokens)
         return detokenized.replace("▁", " ")
 
@@ -50,7 +50,7 @@ class BPETokenizer(Tokenizer):
             with open(str(self.model_file), "r", encoding="utf-8") as f:
                 self.bpe_source = BPE(f)
 
-    def encode(self, sentence: str) -> list[str]:
+    def encode(self, sentence: str) -> List[str]:
         self.lazy_load()
 
         normalized = self.normalizer.normalize(sentence)
@@ -59,7 +59,7 @@ class BPETokenizer(Tokenizer):
 
         return segmented
     
-    def decode(self, tokens: list[str]) -> str:
+    def decode(self, tokens: List[str]) -> str:
         self.lazy_load()
         
         return self.detokenizer.detokenize(" ".join(tokens).replace("@@ ", "").split(" "))
