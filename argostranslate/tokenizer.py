@@ -56,11 +56,10 @@ class BPETokenizer(Tokenizer):
         normalized = self.normalizer.normalize(sentence)
         tokenized = ' '.join(self.tokenizer.tokenize(normalized))
         segmented = self.bpe_source.segment_tokens(tokenized.strip('\r\n ').split(' '))
+
         return segmented
     
     def decode(self, tokens: list[str]) -> str:
         self.lazy_load()
         
-        for i in range(len(tokens)):
-            tokens[i] = tokens[i].replace('@@', '')
-        return self.detokenizer.detokenize(tokens)
+        return self.detokenizer.detokenize(" ".join(tokens).replace("@@ ", "").split(" "))
