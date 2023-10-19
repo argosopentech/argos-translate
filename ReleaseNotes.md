@@ -1,3 +1,6 @@
+1.9:
+- Add support for Byte Pair Encoding
+
 1.8:
 - Delete cached package files after they've been installed
 - Automatically update packages to newer version with package.Package.update
