@@ -45,7 +45,6 @@ import warnings
 
 class BPE(object):
     def __init__(self, codes, merges=-1, separator="@@", vocab=None, glossaries=None):
-
         codes.seek(0)
         offset = 1
 
@@ -160,7 +159,6 @@ class BPE(object):
 
 
 def create_parser(subparsers=None):
-
     if subparsers:
         parser = subparsers.add_parser(
             "apply-bpe",
@@ -415,7 +413,6 @@ def isolate_glossary(word, glossary):
 
 
 if __name__ == "__main__":
-
     currentdir = os.path.dirname(
         os.path.abspath(inspect.getfile(inspect.currentframe()))
     )
