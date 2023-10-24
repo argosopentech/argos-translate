@@ -2,6 +2,17 @@ from __future__ import annotations
 
 import functools
 from typing import List
+from typing import List
+
+import ctranslate2
+import sentencepiece as spm
+import stanza
+from ctranslate2 import Translator
+
+from argostranslate import apis, fewshot, package, sbd, settings
+from argostranslate.models import ILanguageModel
+from argostranslate.package import Package
+from argostranslate.utils import info
 
 import ctranslate2
 import sentencepiece
@@ -411,12 +422,19 @@ class Translator:
             for tokenized_sentence in tokenized_sentences
         ]
 
+        # TODO target_prefix
+        # The current target_prefix code in the master branch isn't compatible with
+        # the way we're using the target_prefix for multilingual models
+
+        # TODO support BPE
+
+
         # Translate
         translation_results = self.translator.translate_batch(
             tokenized_sentences,
             target_prefix=[[target_code_token]] * len(tokenized_sentences),
             replace_unknowns=True,
-            max_batch_size=2024,
+            max_batch_size=BATCH_SIZE,
             beam_size=max(num_hypotheses, 4),
             num_hypotheses=num_hypotheses,
             length_penalty=0.2,

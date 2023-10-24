@@ -5,6 +5,8 @@ import urllib.request
 
 from argostranslate.utils import error, info
 
+USER_AGENT = "ArgosTranslate"
+
 
 def get_protocol(url: str) -> str | None:
     """Gets the protocol of a URL string
@@ -46,7 +48,7 @@ def get(url: str, retry_count: int = 3) -> bytes | None:
         try:
             req = urllib.request.Request(
                 url,
-                headers={"User-Agent": "ArgosTranslate"},
+                headers={"User-Agent": USER_AGENT},
             )
             response = urllib.request.urlopen(req)
             data = response.read()

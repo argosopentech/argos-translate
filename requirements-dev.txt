@@ -3,3 +3,4 @@ isort
 pytest
 mypy
 twine
+argostranslategui

@@ -10,9 +10,12 @@ import zipfile
 from pathlib import Path
 from threading import Lock
 
+import packaging.version
+
 import argostranslate.networking
 import argostranslate.settings
 from argostranslate.utils import error, info, warning
+from argostranslate.tokenizer import SentencePieceTokenizer, BPETokenizer
 
 # TODO: Upgrade packages
 
@@ -62,7 +65,7 @@ class IPackage:
     Packages are a zip archive of a directory with metadata.json
     in its root the .argosmodel file extension. By default a
     OpenNMT CTranslate2 directory named model/ is expected in the root directory
-    along with a sentencepiece model named sentencepiece.model
+    along with a sentencepiece model named sentencepiece.model or a bpe.model
     for tokenizing and Stanza data for sentence boundary detection.
     Packages may also optionally have a README.md in the root.
 
@@ -119,6 +122,7 @@ class IPackage:
         self.from_name = metadata.get("from_name")
         self.to_code = metadata.get("to_code")
         self.to_name = metadata.get("to_name")
+        self.target_prefix = metadata.get("target_prefix", "")
 
         self.source_languages += copy.deepcopy(self.languages)
         self.target_languages += copy.deepcopy(self.languages)
@@ -283,12 +287,26 @@ class Package(IPackage):
             warning(
                 f"Package version {self.argos_version} is newer than Argos Translate version {argostranslate.settings.argos_version}"
             )
+            self.load_metadata_from_json(metadata)
+        
+        sp_model_path = package_path / "sentencepiece.model"
+        bpe_model_path = package_path / "bpe.model"
+
+        if sp_model_path.exists():
+            self.tokenizer = SentencePieceTokenizer(sp_model_path)
+        elif bpe_model_path.exists():
+            self.tokenizer = BPETokenizer(bpe_model_path, self.from_code, self.to_code)
 
     def update(self):
         """Update the package if a newer version is available."""
         for available_package in get_available_packages():
-            if available_package.code == self.code:
-                if available_package.package_version > self.package_version:
+            if (
+                available_package.from_code == self.from_code
+                and available_package.to_code == self.to_code
+            ):
+                if packaging.version.parse(
+                    available_package.package_version
+                ) > packaging.version.parse(self.package_version):
                     new_package_path = available_package.download()
                     uninstall(self)
                     install_from_path(new_package_path)
