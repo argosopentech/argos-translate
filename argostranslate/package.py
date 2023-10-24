@@ -14,8 +14,8 @@ import packaging.version
 
 import argostranslate.networking
 import argostranslate.settings
+from argostranslate.tokenizer import BPETokenizer, SentencePieceTokenizer
 from argostranslate.utils import error, info, warning
-from argostranslate.tokenizer import SentencePieceTokenizer, BPETokenizer
 
 # TODO: Upgrade packages
 
@@ -288,7 +288,7 @@ class Package(IPackage):
                 f"Package version {self.argos_version} is newer than Argos Translate version {argostranslate.settings.argos_version}"
             )
             self.load_metadata_from_json(metadata)
-        
+
         sp_model_path = package_path / "sentencepiece.model"
         bpe_model_path = package_path / "bpe.model"
 

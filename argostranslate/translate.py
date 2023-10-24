@@ -2,20 +2,12 @@ from __future__ import annotations
 
 import functools
 from typing import List
-from typing import List
-
-import ctranslate2
-import sentencepiece as spm
-import stanza
-from ctranslate2 import Translator
-
-from argostranslate import apis, fewshot, package, sbd, settings
-from argostranslate.models import ILanguageModel
-from argostranslate.package import Package
-from argostranslate.utils import info
 
 import ctranslate2
 import sentencepiece
+import sentencepiece as spm
+import stanza
+from ctranslate2 import Translator
 
 import argostranslate
 import argostranslate.chunk
@@ -23,6 +15,9 @@ import argostranslate.fewshot
 import argostranslate.models
 import argostranslate.package
 import argostranslate.settings
+from argostranslate import apis, fewshot, package, sbd, settings
+from argostranslate.models import ILanguageModel
+from argostranslate.package import Package
 from argostranslate.utils import error, info, warning
 
 
@@ -427,7 +422,6 @@ class Translator:
         # the way we're using the target_prefix for multilingual models
 
         # TODO support BPE
-
 
         # Translate
         translation_results = self.translator.translate_batch(
