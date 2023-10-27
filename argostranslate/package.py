@@ -149,6 +149,10 @@ class IPackage:
             filter(lambda lang: lang.get("code") is not None, self.target_languages)
         )
 
+    def load_metadata_from_json(self, metadata):
+        """Deprecated"""
+        self.set_metadata(metadata)
+
     def get_readme(self):
         """Returns the text of the README.md in this package.
 
@@ -287,7 +291,7 @@ class Package(IPackage):
             warning(
                 f"Package version {self.argos_version} is newer than Argos Translate version {argostranslate.settings.argos_version}"
             )
-            self.load_metadata_from_json(metadata)
+            self.set_metadata(metadata)
 
         sp_model_path = package_path / "sentencepiece.model"
         bpe_model_path = package_path / "bpe.model"

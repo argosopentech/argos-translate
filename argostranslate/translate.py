@@ -15,7 +15,7 @@ import argostranslate.fewshot
 import argostranslate.models
 import argostranslate.package
 import argostranslate.settings
-from argostranslate import apis, fewshot, package, sbd, settings
+from argostranslate import apis, fewshot, package, settings
 from argostranslate.models import ILanguageModel
 from argostranslate.package import Package
 from argostranslate.utils import error, info, warning
