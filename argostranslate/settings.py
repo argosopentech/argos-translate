@@ -57,7 +57,16 @@ if settings_file.exists():
         settings_object = json.load(open(settings_file))
 
 
-def get_setting(key, default=None):
+def get_setting(key: str, default=None):
+    """Gets a setting from either environment variables or settings.json
+
+    Args:
+        key (str): Key value
+        default: The default setting value. Defaults to None.
+
+    Returns:
+        The setting value
+    """
     value_from_environment = os.getenv(key)
     value_from_file = settings_object.get(key)
     if value_from_environment is not None:
@@ -68,11 +77,14 @@ def get_setting(key, default=None):
         return default
 
 
-is_debug = get_setting("ARGOS_DEBUG") in ["1", "TRUE", "True", "true", 1, True]
+TRUE_VALUES = ["1", "TRUE", "True", "true", 1, True]
+
+
+is_debug = get_setting("ARGOS_DEBUG") in TRUE_VALUES
 
 package_index = get_setting(
     "ARGOS_PACKAGE_INDEX",
-    default="https://raw.githubusercontent.com/argosopentech/argospm-index/v2/index.json",
+    default="https://raw.githubusercontent.com/argosopentech/argospm-index/main/index.json",
 )
 
 packages_dir = Path(get_setting("ARGOS_PACKAGES_DIR", default=data_dir / "packages"))
