@@ -150,7 +150,7 @@ class IPackage:
         )
 
     def load_metadata_from_json(self, metadata):
-        """Deprecated"""
+        """Deprecated use set_metadata instead"""
         self.set_metadata(metadata)
 
     def get_readme(self):
