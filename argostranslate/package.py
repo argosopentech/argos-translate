@@ -124,6 +124,13 @@ class IPackage:
         self.to_name = metadata.get("to_name")
         self.target_prefix = metadata.get("target_prefix", "")
 
+        if (
+            self.code is None
+            and self.from_code is not None
+            and self.to_code is not None
+        ):
+            self.code = f"translate-{self.from_code}_{self.to_code}"
+
         self.source_languages += copy.deepcopy(self.languages)
         self.target_languages += copy.deepcopy(self.languages)
         if self.from_code is not None:
