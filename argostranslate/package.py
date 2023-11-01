@@ -99,6 +99,42 @@ class IPackage:
     to_code: str | None
     to_name: str | None
 
+    def load_metadata_from_json(self, metadata):
+        """Deprecated use set_metadata instead"""
+        self.set_metadata(metadata)
+
+    def get_readme(self):
+        """Returns the text of the README.md in this package.
+
+        Returns:
+            The text of the package README.md, None
+                if README.md can't be read
+
+        """
+        raise NotImplementedError()
+
+    def get_description(self):
+        raise NotImplementedError()
+
+    def __eq__(self, other):
+        return self.code == other.code
+
+    def __str__(self):
+        if self.name is not None:
+            return self.name
+        if self.code is not None:
+            return self.code
+        if self.type is not None:
+            return self.type
+        return "Argos Translate Package"
+
+    def __repr__(self):
+        if self.code is not None:
+            return self.code
+        return str(self)
+
+
+class BasePackage(IPackage):
     def set_metadata(self, metadata: dict):
         """Loads package metadata from a JSON object.
 
@@ -156,40 +192,6 @@ class IPackage:
             filter(lambda lang: lang.get("code") is not None, self.target_languages)
         )
 
-    def load_metadata_from_json(self, metadata):
-        """Deprecated use set_metadata instead"""
-        self.set_metadata(metadata)
-
-    def get_readme(self):
-        """Returns the text of the README.md in this package.
-
-        Returns:
-            The text of the package README.md, None
-                if README.md can't be read
-
-        """
-        raise NotImplementedError()
-
-    def get_description(self):
-        raise NotImplementedError()
-
-    def __eq__(self, other):
-        return self.code == other.code
-
-    def __str__(self):
-        if self.name is not None:
-            return self.name
-        if self.code is not None:
-            return self.code
-        if self.type is not None:
-            return self.type
-        return "Argos Translate Package"
-
-    def __repr__(self):
-        if self.code is not None:
-            return self.code
-        return str(self)
-
 
 def update_package_index():
     """Downloads remote package index"""
@@ -230,7 +232,7 @@ def install_from_path(path: pathlib.Path):
             info("Installed package from path", path)
 
 
-class AvailablePackage(IPackage):
+class AvailablePackage(BasePackage):
     """A package available for download and installation"""
 
     def __init__(self, metadata):
@@ -270,7 +272,7 @@ class AvailablePackage(IPackage):
         return self.name
 
 
-class Package(IPackage):
+class Package(BasePackage):
     """An installed package"""
 
     package_path: Path
