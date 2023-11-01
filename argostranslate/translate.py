@@ -7,7 +7,6 @@ import ctranslate2
 import sentencepiece
 import sentencepiece as spm
 import stanza
-from ctranslate2 import Translator
 
 import argostranslate
 import argostranslate.chunk
@@ -367,6 +366,7 @@ class LocalTranslation(ITranslation):
 
 class Translator:
     def __init__(self, pkg: argostranslate.package.Package):
+        # TODO: Cache to prevent memory leaks
         self.pkg = pkg
         self.source_languages = [
             Language(language["code"], language["name"])
@@ -459,19 +459,6 @@ class Translator:
         if to_lang not in self.target_languages:
             return None
         return LocalTranslation(self, from_lang, to_lang)
-
-
-class InstalledTranslate:
-    """
-    Global storage of instances of the CachedTranslation class by unique keys.
-    To avoid creating unnecessary objects in memory.
-    """
-
-    package_key: str
-    cached_translation: CachedTranslation
-
-
-installed_translates: List[InstalledTranslate] = []
 
 
 def get_installed_languages() -> list[Language]:

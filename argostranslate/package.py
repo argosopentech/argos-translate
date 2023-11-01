@@ -14,7 +14,8 @@ import packaging.version
 
 import argostranslate.networking
 import argostranslate.settings
-from argostranslate.tokenizer import BPETokenizer, SentencePieceTokenizer
+from argostranslate.tokenizer import (BPETokenizer, SentencePieceTokenizer,
+                                      Tokenizer)
 from argostranslate.utils import error, info, warning
 
 # TODO: Upgrade packages
@@ -276,6 +277,7 @@ class Package(BasePackage):
     """An installed package"""
 
     package_path: Path
+    tokenizer: Tokenizer
 
     def __init__(self, package_path: Path):
         """Create a new Package from path.
@@ -308,6 +310,8 @@ class Package(BasePackage):
         if sp_model_path.exists():
             self.tokenizer = SentencePieceTokenizer(sp_model_path)
         elif bpe_model_path.exists():
+            assert self.from_code is not None
+            assert self.to_code is not None
             self.tokenizer = BPETokenizer(bpe_model_path, self.from_code, self.to_code)
 
     def update(self):

@@ -38,6 +38,7 @@ class BPETokenizer(Tokenizer):
         self.to_code = to_code
         self.tokenizer = None
         self.detokenizer = None
+        self.normalizer = None
         self.bpe_source = None
 
     def lazy_load(self):
@@ -56,7 +57,9 @@ class BPETokenizer(Tokenizer):
 
     def encode(self, sentence: str) -> List[str]:
         self.lazy_load()
-
+        assert self.tokenizer is not None
+        assert self.normalizer is not None
+        assert self.bpe_source is not None
         normalized = self.normalizer.normalize(sentence)
         tokenized = " ".join(self.tokenizer.tokenize(normalized))
         segmented = self.bpe_source.segment_tokens(tokenized.strip("\r\n ").split(" "))
@@ -65,7 +68,7 @@ class BPETokenizer(Tokenizer):
 
     def decode(self, tokens: List[str]) -> str:
         self.lazy_load()
-
+        assert self.detokenizer is not None
         return self.detokenizer.detokenize(
             " ".join(tokens).replace("@@ ", "").split(" ")
         )
