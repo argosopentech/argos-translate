@@ -345,7 +345,7 @@ def get_installed_packages(packages_dir: Path | None = None) -> list[Package]:
 
     Args:
         path: Path to look for installed package directories in.
-            Defaults to the path in settings module.
+            Defaults to the path in argostranslate.settings.
 
     """
     if packages_dir is None:

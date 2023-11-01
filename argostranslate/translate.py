@@ -410,23 +410,23 @@ class Translator:
         # Tokenize
         tokenized_sentences = [self.tokenize(sentence) for sentence in sentences]
 
-        # Add source prefix
-        target_code_token = f"__{to_code}__"
-        tokenized_sentences = [
-            self.add_source_prefix(tokenized_sentence, from_code)
-            for tokenized_sentence in tokenized_sentences
-        ]
-
+        BATCH_SIZE = 32
         # TODO target_prefix
         # The current target_prefix code in the master branch isn't compatible with
         # the way we're using the target_prefix for multilingual models
+        # Add source prefix
+        target_code_token = f"__{to_code}__"
+        # tokenized_sentences = [
+        #     self.add_source_prefix(tokenized_sentence, from_code)
+        #     for tokenized_sentence in tokenized_sentences
+        # ]
 
         # TODO support BPE
 
         # Translate
         translation_results = self.translator.translate_batch(
             tokenized_sentences,
-            target_prefix=[[target_code_token]] * len(tokenized_sentences),
+            # target_prefix=[[target_code_token]] * len(tokenized_sentences),
             replace_unknowns=True,
             max_batch_size=BATCH_SIZE,
             beam_size=max(num_hypotheses, 4),
@@ -483,8 +483,7 @@ def get_installed_languages() -> list[Language]:
     ):
         packages = argostranslate.package.get_installed_packages()
 
-        # Filter for translate packages
-        packages = list(filter(lambda x: x.type == "translate", packages))
+        packages = list(filter(lambda x: x.type != "chunk", packages))
 
         # Load languages and translations from packages
         language_of_code = dict()
