@@ -393,15 +393,11 @@ class Translator:
     def detokenize(self, tokens: List[str]) -> str:
         return self.sp_processor.decode(tokens)
 
-    def add_source_prefix(self, tokenized_sentence, from_code):
-        source_code_token = f"__{from_code}__"
-        return [source_code_token] + tokenized_sentence
-
-    def remove_target_prefix(self, translated_tokens, target_code_token):
-        if translated_tokens[0] == target_code_token:
-            return translated_tokens[1:]
-        else:
-            return translated_tokens
+    def remove_target_prefix(self, translated_tokens):
+        if self.pkg.target_prefix != "" and self.pkg.target_prefix is not None:
+            if translated_tokens[0] == self.pkg.target_prefix:
+                return translated_tokens[1:]
+        return translated_tokens
 
     def translate(self, from_text, from_code, to_code, num_hypotheses):
         # Split sentences
@@ -411,22 +407,15 @@ class Translator:
         tokenized_sentences = [self.tokenize(sentence) for sentence in sentences]
 
         BATCH_SIZE = 32
-        # TODO target_prefix
-        # The current target_prefix code in the master branch isn't compatible with
-        # the way we're using the target_prefix for multilingual models
-        # Add source prefix
-        target_code_token = f"__{to_code}__"
-        # tokenized_sentences = [
-        #     self.add_source_prefix(tokenized_sentence, from_code)
-        #     for tokenized_sentence in tokenized_sentences
-        # ]
 
         # TODO support BPE
+
+        target_prefix = [[self.pkg.target_prefix]] * len(tokenized_sentences)
 
         # Translate
         translation_results = self.translator.translate_batch(
             tokenized_sentences,
-            # target_prefix=[[target_code_token]] * len(tokenized_sentences),
+            target_prefix=target_prefix,
             replace_unknowns=True,
             max_batch_size=BATCH_SIZE,
             beam_size=max(num_hypotheses, 4),
@@ -443,7 +432,7 @@ class Translator:
             cumulative_score = 0
             for translation_result in translation_results:
                 translated_tokens += self.remove_target_prefix(
-                    translation_result.hypotheses[i], target_code_token
+                    translation_result.hypotheses[i]
                 )
                 cumulative_score += translation_result.scores[i]
             hypothesis_value = self.detokenize(translated_tokens)
