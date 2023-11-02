@@ -99,6 +99,7 @@ class IPackage:
     from_name: str | None
     to_code: str | None
     to_name: str | None
+    target_prefix: str | None
 
     def load_metadata_from_json(self, metadata):
         """Deprecated use set_metadata instead"""
