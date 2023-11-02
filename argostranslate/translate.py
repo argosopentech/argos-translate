@@ -410,7 +410,10 @@ class Translator:
 
         # TODO support BPE
 
-        target_prefix = [[self.pkg.target_prefix]] * len(tokenized_sentences)
+        if self.pkg.target_prefix is not None and self.pkg.target_prefix != "":
+            target_prefix = [[self.pkg.target_prefix]] * len(tokenized_sentences)
+        else:
+            target_prefix = list()
 
         # Translate
         translation_results = self.translator.translate_batch(
