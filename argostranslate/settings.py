@@ -131,7 +131,7 @@ chunk_type_mapping = {
     "ARGOSTRANSLATE": ChunkType.ARGOSTRANSLATE,
     "NONE": ChunkType.NONE,
 }
-chunk_type = chunk_type_mapping[os.getenv("ARGOS_CHUNK_TYPE", "DEFAULT")]
+chunk_type = chunk_type_mapping[get_setting("ARGOS_CHUNK_TYPE", default="DEFAULT")]
 if chunk_type == ChunkType.DEFAULT:
     chunk_type = ChunkType.ARGOSTRANSLATE
 
