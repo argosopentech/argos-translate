@@ -60,6 +60,8 @@ if settings_file.exists():
 def get_setting(key: str, default=None):
     """Gets a setting from either environment variables or settings.json
 
+    Settings from environment variables take precedence over settings.json
+
     Args:
         key (str): Key value
         default: The default setting value. Defaults to None.
