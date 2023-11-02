@@ -1,6 +1,7 @@
 import pathlib
 import unittest.mock
 
+import argostranslate.settings
 import argostranslate.translate
 
 
