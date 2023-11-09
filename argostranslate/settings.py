@@ -18,7 +18,7 @@ export ARGOS_DEVICE_TYPE="cpu"
 
 ### JSON 
 
-# ~/.config/argos-translate/settings.json
+# $HOME/.config/argos-translate/settings.json
 ```
 {
     "ARGOS_DEBUG": "0",

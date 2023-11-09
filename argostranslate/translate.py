@@ -95,6 +95,7 @@ class Language:
 
         # Pivot through intermediate languages to add translations
         # that don't already exist
+        # TODO
         """
         for language in languages:
             keep_adding_translations = True
@@ -264,6 +265,7 @@ def get_chunk_package(from_code):
 
 
 def chunk(from_text, from_code):
+    # TODO Support Stanza and spacy
     if argostranslate.settings.chunk_type == argostranslate.settings.ChunkType.NONE:
         return [from_text]
     elif (
