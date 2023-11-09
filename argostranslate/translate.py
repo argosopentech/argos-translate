@@ -520,19 +520,6 @@ def get_installed_languages() -> list[Language]:
                 from_lang.translations_from.append(few_shot_translation)
                 to_lang.translations_to.append(few_shot_translation)
 
-    # Put English first if available so it shows up as the from language in the gui
-    en_index = None
-    for i, language in enumerate(languages):
-        if language.code == "en":
-            en_index = i
-            break
-    english = None
-    if en_index is not None:
-        english = languages.pop(en_index)
-    languages.sort(key=lambda x: x.name)
-    if english is not None:
-        languages = [english] + languages
-
     info("languages", languages)
 
     return languages
