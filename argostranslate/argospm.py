@@ -14,9 +14,12 @@ argospm search m2m
 """
 
 
-def update_index(args):
-    """Update the package index."""
+def update(args):
+    """Update the package index and upgrade any installed packages with newer versions available."""
     package.update_package_index()
+    installed_packages = package.get_installed_packages()
+    for installed_package in installed_packages:
+        installed_package.update()
 
 
 def install_package(args):
@@ -89,7 +92,7 @@ def main():
     subparser = parser.add_subparsers(help="Available commands.")
 
     update_parser = subparser.add_parser("update", help="Update package index")
-    update_parser.set_defaults(callback=update_index)
+    update_parser.set_defaults(callback=update)
 
     search_parser = subparser.add_parser(
         "search", help="Search for packages in package index"
