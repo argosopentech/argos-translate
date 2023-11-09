@@ -10,8 +10,6 @@ import zipfile
 from pathlib import Path
 from threading import Lock
 
-import packaging.version
-
 import argostranslate.networking
 import argostranslate.settings
 from argostranslate.tokenizer import (BPETokenizer, SentencePieceTokenizer,
@@ -273,6 +271,18 @@ class AvailablePackage(BasePackage):
     def get_description(self):
         return self.name
 
+def version_parse(version_string):
+    parts = version_string.split('.')
+    parsed_version = []
+
+    for part in parts:
+        try:
+            parsed_version.append(int(part))
+        except ValueError:
+            parsed_version.append(part)
+
+    return tuple(parsed_version)
+
 
 class Package(BasePackage):
     """An installed package"""
@@ -322,9 +332,9 @@ class Package(BasePackage):
                 available_package.from_code == self.from_code
                 and available_package.to_code == self.to_code
             ):
-                if packaging.version.parse(
+                if version_parse(
                     available_package.package_version
-                ) > packaging.version.parse(self.package_version):
+                ) > version_parse(self.package_version):
                     new_package_path = available_package.download()
                     uninstall(self)
                     install_from_path(new_package_path)
