@@ -5,8 +5,6 @@ from typing import List
 
 import ctranslate2
 import sentencepiece
-import sentencepiece as spm
-import stanza
 
 import argostranslate
 import argostranslate.chunk
@@ -14,9 +12,6 @@ import argostranslate.fewshot
 import argostranslate.models
 import argostranslate.package
 import argostranslate.settings
-from argostranslate import apis, fewshot, package, settings
-from argostranslate.models import ILanguageModel
-from argostranslate.package import Package
 from argostranslate.utils import error, info, warning
 
 
