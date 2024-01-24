@@ -180,6 +180,7 @@ If you find this software useful donations are appreciated.
 - [GitHub Sponsor](https://github.com/sponsors/argosopentech)
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
+- BCH: bitcoincash:qzvpxe8y5kq45kahqkyv3p88sjrhlymj2v6xdrj3cv
 - Ethereum: argosopentech.eth
 
 Paid supporters receive priority support.
