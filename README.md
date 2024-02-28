@@ -156,6 +156,7 @@ rm -r ~/.local/share/argos-translate
 ## Related Projects
 - [LibreTranslate-py](https://github.com/argosopentech/LibreTranslate-py) - Python bindings for LibreTranslate
 - [MetalTranslate](https://github.com/argosopentech/MetalTranslate) - Customizable translation in C++
+- [LibreTranslate/Locomotive](https://github.com/LibreTranslate/Locomotive) - Toolkit for training/converting LibreTranslate compatible language models 🚂 
 - [DesktopTranslator](https://github.com/ymoslem/DesktopTranslator) - [OpenNMT](https://opennmt.net/) based translation application
 - [LibreTranslate-rs](https://github.com/grantshandy/libretranslate-rs) - LibreTranslate Rust bindings
 - [LibreTranslate Go](https://github.com/SnakeSel/libretranslate) - LibreTranslate Golang bindings
