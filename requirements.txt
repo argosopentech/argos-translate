@@ -1,4 +1,4 @@
-ctranslate2==3.20.0
+ctranslate2>=4.0,<5
 sentencepiece==0.1.99
 stanza>=1.1.1
 packaging
