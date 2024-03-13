@@ -1,5 +1,5 @@
 ctranslate2==3.20.0
 sentencepiece==0.1.99
-stanza>=1.1.1
+stanza>=1.2.1
 packaging
 sacremoses==0.0.53
