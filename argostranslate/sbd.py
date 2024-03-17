@@ -6,6 +6,36 @@ from argostranslate import package
 from argostranslate.package import Package
 from argostranslate.utils import info
 
+from typing import List
+from typing import Optional
+from difflib import SequenceMatcher
+
+import spacy
+
+class ISentenceBoundaryDetectionModel:
+    # https://github.com/argosopentech/sbd/blob/main/main.py
+    def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
+        raise NotImplementedError
+
+# Spacy sentence boundary detection Sentencizer
+# https://community.libretranslate.com/t/sentence-boundary-detection-for-machine-translation/606/3
+
+# Download model:
+# python -m spacy download xx_sent_ud_sm
+class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
+    def __init__(self):
+        self.nlp = spacy.load("xx_sent_ud_sm")
+        self.nlp.add_pipe("sentencizer")
+
+    def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
+        doc = self.nlp(text)
+        return [sent.text for sent in doc.sents]
+
+    def __str__(self):
+        return "Spacy xx_sent_ud_sm"
+
+# Few Shot Sentence Boundary Detection
+
 fewshot_prompt = """<detect-sentence-boundaries> I walked down to the river. Then I went to the
 I walked down to the river. <sentence-boundary>
 ----------
