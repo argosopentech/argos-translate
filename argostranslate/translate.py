@@ -11,7 +11,7 @@ from argostranslate import apis, fewshot, package, sbd, settings
 from argostranslate.models import ILanguageModel
 from argostranslate.package import Package
 from argostranslate.utils import info
-
+from argostranslate.sbd import SpacySentencizerSmall
 
 class Hypothesis:
     """Represents a translation hypothesis
@@ -412,9 +412,12 @@ def apply_packaged_translation(
     info("apply_packaged_translation", input_text)
 
     # Sentence boundary detection
+    """
+    # Argos Translate 1.9 Sentence Boundary Detection
     if pkg.type == "sbd":
         sentences = [input_text]
     elif settings.stanza_available:
+        # PJDEBUG
         stanza_pipeline = stanza.Pipeline(
             lang=pkg.from_code,
             dir=str(pkg.package_path / "stanza"),
@@ -448,6 +451,10 @@ def apply_packaged_translation(
             info("sbd_index", sbd_index)
             info(input_text[start_index:sbd_index])
             start_index = sbd_index
+    """
+    sentencizer = SpacySentencizerSmall()
+    sentences = sentencizer.split_sentences(input_text)
+
     info("sentences", sentences)
 
     # Tokenization

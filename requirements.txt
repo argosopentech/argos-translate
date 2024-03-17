@@ -1,5 +1,6 @@
 ctranslate2==3.20.0
 sentencepiece==0.1.99
 stanza==1.1.1
+spacy
 packaging
 sacremoses==0.0.53
