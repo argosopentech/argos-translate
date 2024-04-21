@@ -83,6 +83,57 @@ Install all translation packages:
 argospm install translate
 ```
 
+language List
+
+```Python
+code_name_list = {
+	'ar': 'Arabic', 
+	'az': 'Azerbaijani', 
+	'bg': 'Bulgarian', 
+	'bn': 'Bengali', 
+	'ca': 'Catalan', 
+	'cs': 'Czech', 
+	'da': 'Danish', 
+	'de': 'German', 
+	'el': 'Greek', 
+	'en': 'English', 
+	'eo': 'Esperanto', 
+	'es': 'Spanish', 
+	'et': 'Estonian', 
+	'fa': 'Persian', 
+	'fi': 'Finnish', 
+	'fr': 'French', 
+	'ga': 'Irish', 
+	'he': 'Hebrew', 
+	'hi': 'Hindi', 
+	'hu': 'Hungarian', 
+	'id': 'Indonesian', 
+	'it': 'Italian', 
+	'ja': 'Japanese', 
+	'ko': 'Korean', 
+	'lt': 'Lithuanian', 
+	'lv': 'Latvian', 
+	'ms': 'Malay', 
+	'nb': 'Norwegian', 
+	'nl': 'Dutch', 
+	'pl': 'Polish', 
+	'pt': 'Portuguese', 
+	'ro': 'Romanian', 
+	'ru': 'Russian', 
+	'sk': 'Slovak', 
+	'sl': 'Slovenian', 
+	'sq': 'Albanian', 
+	'sv': 'Swedish', 
+	'th': 'Thai', 
+	'tl': 'Tagalog', 
+	'tr': 'Turkish', 
+	'uk': 'Ukranian', 
+	'ur': 'Urdu', 
+	'zh': 'Chinese', 
+	'zt': 'Chinese (traditional)'
+}
+```
+
 ### [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) Web App ([Demo](https://libretranslate.com/))
 ![Web App Screenshot](img/WebAppScreenshot.png)
 
