@@ -6,6 +6,7 @@ exit 1
 
 # Git tag version number
 # git tag -a v1.0.0
+# git push --tags
 
 # Run from root of project
 rm -rf build dist

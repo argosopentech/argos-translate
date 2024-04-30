@@ -479,8 +479,8 @@ def apply_packaged_translation(
         translated_tokens = []
         cumulative_score = 0
         for translated_batch in translated_batches:
-            translated_tokens += translated_batch[i]["tokens"]
-            cumulative_score += translated_batch[i]["score"]
+            translated_tokens += translated_batch.hypotheses[i]
+            cumulative_score += translated_batch.scores[i]
         
         value = pkg.tokenizer.decode(translated_tokens)
         
