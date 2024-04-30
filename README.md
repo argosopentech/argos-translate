@@ -177,7 +177,7 @@ Custom models trained on your own data are available for $1000/language (negotia
 [I am also available for hire](https://www.argosopentech.com/about/) to do support, consulting, or custom software development.
 
 ## Donate
-If you find this software useful donations are appreciated.
+If you find this software useful donations are greatly appreciated and help to make this project sustainable.
 - [GitHub Sponsor](https://github.com/sponsors/argosopentech)
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
