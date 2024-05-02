@@ -117,7 +117,7 @@ The GUI code is in a [separate repository](https://github.com/argosopentech/argo
 
 ## [Packages](https://www.argosopentech.com/argospm/index/)
 - [Browse](https://www.argosopentech.com/argospm/index/)
-- [P2P download (IPFS and BitTorrent)](/p2p/README.md)
+- [P2P download (IPFS and BitTorrent)](https://github.com/argosopentech/argos-translate/blob/master/p2p/README.md)
 - [Training scripts](https://github.com/argosopentech/argos-train)
 - [Google Drive download](https://drive.google.com/drive/folders/11wxM3Ze7NCgOk_tdtRjwet10DmtvFu3i)
 
