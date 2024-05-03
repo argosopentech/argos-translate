@@ -24,8 +24,7 @@ class SentencePieceTokenizer(Tokenizer):
         return tokens
 
     def decode(self, tokens: List[str]) -> str:
-        detokenized = "".join(tokens)
-        return detokenized.replace("▁", " ")
+        return self.lazy_processor().decode_pieces(tokens)
 
 
 class BPETokenizer(Tokenizer):
