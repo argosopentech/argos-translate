@@ -8,7 +8,7 @@ Argos Translate uses [OpenNMT](https://opennmt.net/) for translations and can be
 Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct translation between them installed. For example, if you have a es → en and en → fr translation installed you are able to translate from es → fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
 
 ### Supported languages
-Arabic, Azerbaijani, Catalan, Chinese, Czech, Danish, Dutch, English, Esperanto, Finnish, French, German, Greek, Hebrew, Hindi, Hungarian, Indonesian, Irish, Italian, Japanese, Korean, Persian, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian
+Arabic, Azerbaijani, Catalan, Chinese, Czech, Danish, Dutch, English, Esperanto, Finnish, French, German, Greek, Hebrew, Hindi, Hungarian, Indonesian, Irish, Italian, Japanese, Korean, Persian, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian, and more
 
 [Request a language](https://github.com/argosopentech/argos-translate/discussions/91)
 
@@ -156,6 +156,7 @@ rm -r ~/.local/share/argos-translate
 ## Related Projects
 - [LibreTranslate-py](https://github.com/argosopentech/LibreTranslate-py) - Python bindings for LibreTranslate
 - [MetalTranslate](https://github.com/argosopentech/MetalTranslate) - Customizable translation in C++
+- [LibreTranslate/Locomotive](https://github.com/LibreTranslate/Locomotive) - Toolkit for training/converting LibreTranslate compatible language models 🚂 
 - [DesktopTranslator](https://github.com/ymoslem/DesktopTranslator) - [OpenNMT](https://opennmt.net/) based translation application
 - [LibreTranslate-rs](https://github.com/grantshandy/libretranslate-rs) - LibreTranslate Rust bindings
 - [LibreTranslate Go](https://github.com/SnakeSel/libretranslate) - LibreTranslate Golang bindings
@@ -176,11 +177,13 @@ Custom models trained on your own data are available for $1000/language (negotia
 [I am also available for hire](https://www.argosopentech.com/about/) to do support, consulting, or custom software development.
 
 ## Donate
-If you find this software useful donations are appreciated.
+If you find this software useful donations are greatly appreciated and help to make this project sustainable.
 - [GitHub Sponsor](https://github.com/sponsors/argosopentech)
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
 - Ethereum: argosopentech.eth
+- Litecoin: MCwu7RRWeCRJdsv2bXGj2nnL1xYxDBvwW5
+- BCH: bitcoincash:qzvpxe8y5kq45kahqkyv3p88sjrhlymj2v6xdrj3cv
 
 Paid supporters receive priority support.
 
