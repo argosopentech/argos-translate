@@ -24,7 +24,11 @@ class ISentenceBoundaryDetectionModel:
 # python -m spacy download xx_sent_ud_sm
 class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
     def __init__(self):
-        self.nlp = spacy.load("xx_sent_ud_sm")
+        try:
+         self.nlp = spacy.load("xx_sent_ud_sm")
+        except OSError:
+            spacy.cli.download("xx_sent_ud_sm")
+            self.nlp = spacy.load("xx_sent_ud_sm")
         self.nlp.add_pipe("sentencizer")
 
     def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
