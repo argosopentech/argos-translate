@@ -160,6 +160,7 @@ class PackageTranslation(ITranslation):
         self.to_lang = to_lang
         self.pkg = pkg
         self.translator = None
+        self.sentencizer = SpacySentencizerSmall()
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
@@ -171,7 +172,7 @@ class PackageTranslation(ITranslation):
         for paragraph in paragraphs:
             translated_paragraphs.append(
                 apply_packaged_translation(
-                    self.pkg, paragraph, self.translator, num_hypotheses
+                    self.pkg, paragraph, self.translator, num_hypotheses, self.sentencizer
                 )
             )
         info("translated_paragraphs:", translated_paragraphs)
@@ -394,7 +395,7 @@ class FewShotTranslation(ITranslation):
 
 
 def apply_packaged_translation(
-    pkg: Package, input_text: str, translator: Translator, num_hypotheses: int = 4
+    pkg: Package, input_text: str, translator: Translator, num_hypotheses: int = 4, sentencizer: sbd.ISentenceBoundaryDetectionModel = SpacySentencizerSmall()
 ) -> list[Hypothesis]:
     """Applies the translation in pkg to translate input_text.
 
@@ -452,7 +453,6 @@ def apply_packaged_translation(
             info(input_text[start_index:sbd_index])
             start_index = sbd_index
     """
-    sentencizer = SpacySentencizerSmall()
     sentences = sentencizer.split_sentences(input_text)
 
     info("sentences", sentences)
