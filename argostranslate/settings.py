@@ -86,7 +86,7 @@ is_debug = get_setting("ARGOS_DEBUG") in TRUE_VALUES
 
 package_index = get_setting(
     "ARGOS_PACKAGE_INDEX",
-    default="https://raw.githubusercontent.com/argosopentech/argospm-index/main/index.json",
+    default="https://raw.githubusercontent.com/argosopentech/argospm-index/main/",
 )
 
 packages_dir = Path(get_setting("ARGOS_PACKAGES_DIR", default=data_dir / "packages"))

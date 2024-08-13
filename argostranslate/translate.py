@@ -12,12 +12,11 @@ import argostranslate.fewshot
 import argostranslate.models
 import argostranslate.package
 import argostranslate.settings
-from argostranslate.utils import error, info, warning
-
 from argostranslate import apis, fewshot, package, sbd, settings
 from argostranslate.package import Package
-from argostranslate.utils import info
 from argostranslate.sbd import SpacySentencizerSmall
+from argostranslate.utils import error, info, warning
+
 
 class Hypothesis:
     """Represents a translation hypothesis
@@ -247,6 +246,7 @@ class RemoteTranslation(ITranslation):
     def hypotheses(self, from_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
         """LibreTranslate only supports single hypotheses.
 
+        TODO LibreTranslate now supports multiple hypotheses
         A list of length num_hypotheses will be returned with identical hypotheses.
         """
         result = self.api.translate(from_text, self.from_lang.code, self.to_lang.code)
@@ -269,7 +269,7 @@ def get_chunk_package(from_code):
 
 
 def chunk(from_text, from_code):
-    # TODO Support Stanza and spacy
+    # TODO Support Spacy
     if argostranslate.settings.chunk_type == argostranslate.settings.ChunkType.NONE:
         return [from_text]
     elif (
@@ -315,56 +315,6 @@ def chunk(from_text, from_code):
         return [from_text]
 
 
-class FewShotTranslation(ITranslation):
-    """A translation performed with a few shot language model"""
-
-    from_lang: Language
-    to_lang: Language
-    language_model: argostranslate.models.ILanguageModel
-
-    def __init__(
-        self,
-        from_lang: Language,
-        to_lang: Language,
-        language_model: argostranslate.models.ILanguageModel,
-    ):
-        self.from_lang = from_lang
-        self.to_lang = to_lang
-        self.language_model = language_model
-
-    def hypotheses(self, from_text: str, num_hypotheses: int = 1) -> list[Hypothesis]:
-        # TODO: Split into chunks
-        prompt = argostranslate.fewshot.generate_prompt(
-            from_text,
-            self.from_lang.name,
-            self.from_lang.code,
-            self.to_lang.name,
-            self.to_lang.code,
-        )
-        info("fewshot prompt", prompt)
-        response = self.language_model.infer(prompt)
-        info("fewshot response", response)
-        if response is None:
-            error("fewshot response is None")
-            return [Hypothesis("", 0)] * num_hypotheses
-        info("fewshot response", response)
-        result = argostranslate.fewshot.parse_inference(response)
-        info("fewshot result", result)
-        return [Hypothesis(result, 0)] * num_hypotheses
-
-
-class LocalTranslation(ITranslation):
-    def __init__(self, translator, from_lang, to_lang):
-        self.translator = translator
-        self.from_lang = from_lang
-        self.to_lang = to_lang
-
-    def hypotheses(self, from_text, num_hypotheses=4):
-        return self.translator.translate(
-            from_text, self.from_lang.code, self.to_lang.code, num_hypotheses
-        )
-
-
 class Translator:
     def __init__(self, pkg: argostranslate.package.Package):
         # TODO: Cache to prevent memory leaks
@@ -402,7 +352,6 @@ class Translator:
 
     def translate(self, from_text, from_code, to_code, num_hypotheses):
         # Split sentences
-        # TODO add spacy chunking from v1
         sentences = chunk(from_text, from_code)
 
         # Tokenize
@@ -453,6 +402,18 @@ class Translator:
         if to_lang not in self.target_languages:
             return None
         return LocalTranslation(self, from_lang, to_lang)
+
+
+class LocalTranslation(ITranslation):
+    def __init__(self, translator, from_lang, to_lang):
+        self.translator = translator
+        self.from_lang = from_lang
+        self.to_lang = to_lang
+
+    def hypotheses(self, from_text, num_hypotheses=4):
+        return self.translator.translate(
+            from_text, self.from_lang.code, self.to_lang.code, num_hypotheses
+        )
 
 
 def get_installed_languages() -> list[Language]:

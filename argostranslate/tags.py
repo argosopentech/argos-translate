@@ -114,7 +114,7 @@ def is_same_structure(tag1: ITag | str, tag2: ITag | str) -> bool:
 ARGOS_OPEN_TAG = "<argos-tag>"
 ARGOS_CLOSE_TAG = "</argos-tag>"
 
-GOLDEN_RATIO = (1 + 5**0.5) / 2
+GOLDEN_RATIO = (1 + 5 ** 0.5) / 2
 
 
 def flatten_tag(tag: ITag) -> str:
