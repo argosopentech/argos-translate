@@ -127,7 +127,7 @@ either from the torrent file
 https://github.com/argosopentech/argos-translate/raw/master/p2p/Argos-Translate-LibreTranslate-2022-04-30.torrent
 
 or from the magnet link
-magnet:?xt=urn:btmh:12203d4464d5ccd13dfa5d1829f7c36f4b512c07e1d3086c1f7b9bb706864b82ef6f
+magnet:?xt=urn:btih:d1fb14d1b0f25e2e6f49d6dfd4ea761c445ad0d0&dn=Argos-Translate-LibreTranslate-2022-04-30
 
 and set the download folder to
 $(dirname "$(readlink -f Argos-Translate-LibreTranslate-2022-04-30)")

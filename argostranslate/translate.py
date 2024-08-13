@@ -14,6 +14,10 @@ import argostranslate.package
 import argostranslate.settings
 from argostranslate.utils import error, info, warning
 
+from argostranslate import apis, fewshot, package, sbd, settings
+from argostranslate.package import Package
+from argostranslate.utils import info
+from argostranslate.sbd import SpacySentencizerSmall
 
 class Hypothesis:
     """Represents a translation hypothesis
@@ -398,6 +402,7 @@ class Translator:
 
     def translate(self, from_text, from_code, to_code, num_hypotheses):
         # Split sentences
+        # TODO add spacy chunking from v1
         sentences = chunk(from_text, from_code)
 
         # Tokenize
