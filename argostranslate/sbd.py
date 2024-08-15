@@ -1,21 +1,20 @@
 from __future__ import annotations
 
 from difflib import SequenceMatcher
+from typing import List, Optional
+
+import spacy
 
 from argostranslate import package
 from argostranslate.package import Package
 from argostranslate.utils import info
 
-from typing import List
-from typing import Optional
-from difflib import SequenceMatcher
-
-import spacy
 
 class ISentenceBoundaryDetectionModel:
     # https://github.com/argosopentech/sbd/blob/main/main.py
     def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
         raise NotImplementedError
+
 
 # Spacy sentence boundary detection Sentencizer
 # https://community.libretranslate.com/t/sentence-boundary-detection-for-machine-translation/606/3
@@ -25,7 +24,7 @@ class ISentenceBoundaryDetectionModel:
 class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
     def __init__(self):
         try:
-         self.nlp = spacy.load("xx_sent_ud_sm")
+            self.nlp = spacy.load("xx_sent_ud_sm")
         except OSError:
             spacy.cli.download("xx_sent_ud_sm")
             self.nlp = spacy.load("xx_sent_ud_sm")
@@ -37,6 +36,7 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
 
     def __str__(self):
         return "Spacy xx_sent_ud_sm"
+
 
 # Few Shot Sentence Boundary Detection
 

@@ -10,8 +10,9 @@ from ctranslate2 import Translator
 from argostranslate import apis, fewshot, package, sbd, settings
 from argostranslate.models import ILanguageModel
 from argostranslate.package import Package
-from argostranslate.utils import info
 from argostranslate.sbd import SpacySentencizerSmall
+from argostranslate.utils import info
+
 
 class Hypothesis:
     """Represents a translation hypothesis
@@ -172,7 +173,11 @@ class PackageTranslation(ITranslation):
         for paragraph in paragraphs:
             translated_paragraphs.append(
                 apply_packaged_translation(
-                    self.pkg, paragraph, self.translator, num_hypotheses, self.sentencizer
+                    self.pkg,
+                    paragraph,
+                    self.translator,
+                    num_hypotheses,
+                    self.sentencizer,
                 )
             )
         info("translated_paragraphs:", translated_paragraphs)
@@ -395,7 +400,11 @@ class FewShotTranslation(ITranslation):
 
 
 def apply_packaged_translation(
-    pkg: Package, input_text: str, translator: Translator, num_hypotheses: int = 4, sentencizer: sbd.ISentenceBoundaryDetectionModel = SpacySentencizerSmall()
+    pkg: Package,
+    input_text: str,
+    translator: Translator,
+    num_hypotheses: int = 4,
+    sentencizer: sbd.ISentenceBoundaryDetectionModel = SpacySentencizerSmall(),
 ) -> list[Hypothesis]:
     """Applies the translation in pkg to translate input_text.
 
@@ -488,18 +497,18 @@ def apply_packaged_translation(
         for translated_batch in translated_batches:
             translated_tokens += translated_batch.hypotheses[i]
             cumulative_score += translated_batch.scores[i]
-        
+
         value = pkg.tokenizer.decode(translated_tokens)
-        
+
         if pkg.target_prefix != "" and value.startswith(pkg.target_prefix):
             # Remove target prefix
-            value = value[len(pkg.target_prefix):]
+            value = value[len(pkg.target_prefix) :]
 
         if len(value) > 0 and value[0] == " ":
             # Remove space at the beginning of the translation added
             # by the tokenizer.
             value = value[1:]
-        
+
         hypothesis = Hypothesis(value, cumulative_score)
         value_hypotheses.append(hypothesis)
     info("value_hypotheses:", value_hypotheses)
