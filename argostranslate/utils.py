@@ -12,6 +12,14 @@ if settings.is_debug:
     std_out_stream_handler = logging.StreamHandler(sys.stdout)
     logger.addHandler(std_out_stream_handler)
 
+# Python Logging Levels:
+# https://docs.python.org/3/library/logging.html#levels
+
+
+def debug(*argv):
+    """Debug level log"""
+    logger.debug(str(argv))
+
 
 def get_json_string(argv):
     if len(argv) == 1:

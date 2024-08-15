@@ -25,12 +25,6 @@ Install [GUI](https://github.com/argosopentech/argos-translate-gui):
 pip install argostranslategui
 ```
 
-### Installation for macOS
-
-1. Download the latest [macOS release.](https://github.com/argosopentech/argos-translate/releases/)
-2. Extract the archive.
-3. Copy the `.app` file to the Applications directory.
-
 ### Python source installation into virtualenv
 
 Download a copy of this repo and install with pip.
@@ -112,7 +106,6 @@ The GUI code is in a [separate repository](https://github.com/argosopentech/argo
 
 ![Screenshot](/img/Screenshot.png)
 ![Screenshot2](/img/Screenshot2.png)
-![Argos Translate macOS Screenshot](/img/ArgosTranslateMacOSScreenshot.png)
 
 
 ## [Packages](https://www.argosopentech.com/argospm/index/)

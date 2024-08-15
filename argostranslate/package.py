@@ -394,3 +394,27 @@ def uninstall(pkg):
     with package_lock:
         info("Uninstalled package", pkg)
         shutil.rmtree(pkg.package_path)
+
+def install_package_for_language_pair(from_code: str, to_code: str) -> bool:
+    """Installs the necessary package to translate between a pair of languages
+    Args:
+        from_code (str): The ISO 639 code for the language being translated from
+        to_code (str): The ISO 639 code for the language being translated to
+    Returns:
+        True if the package was installed successfully,
+        False if the installation failed or was not possible
+    """
+    available_packages = get_available_packages()
+    try:
+        package_to_install = next(
+            filter(
+                lambda x: x.from_code == from_code and x.to_code == to_code,
+                available_packages,
+            )
+        )
+    except StopIteration:
+        return False
+
+    install_from_path(package_to_install.download())
+    return True
+
