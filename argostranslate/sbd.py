@@ -19,6 +19,7 @@ class ISentenceBoundaryDetectionModel:
 # Spacy sentence boundary detection Sentencizer
 # https://community.libretranslate.com/t/sentence-boundary-detection-for-machine-translation/606/3
 
+
 # Download model:
 # python -m spacy download xx_sent_ud_sm
 class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
