@@ -3,6 +3,7 @@ import os
 import pathlib
 from enum import Enum
 from pathlib import Path
+from typing import Any, Dict
 
 """
 Argos Translate can be configured using either environment variables or json file
@@ -29,6 +30,12 @@ export ARGOS_DEVICE_TYPE="cpu"
 ```
 """
 
+"""
+Importing argostranslate.settings will create the Argos Translate data directory (~/.local/share/argos-translate),
+the Argos Translate config directory (~/.config/argos-translate),
+and the Argos Translate cache directory (~/.local/cache/argos-translate) if they do not already exist.
+"""
+
 home_dir = Path.home()
 
 data_dir = (
@@ -51,10 +58,28 @@ os.makedirs(cache_dir, exist_ok=True)
 settings_file = config_dir / "settings.json"
 
 
-settings_object = dict()
-if settings_file.exists():
-    with open(settings_file) as settings_file_data:
-        settings_object = json.load(open(settings_file))
+def load_settings_dict() -> dict:
+    settings_dict = dict()
+    if settings_file.exists():
+        with open(settings_file) as settings_file_data:
+            settings_dict = json.load(open(settings_file))
+            assert type(settings_dict) is dict
+
+
+def load_settings_dict() -> Dict[str, Any]:
+    settings_dict = dict()
+    if settings_file.exists():
+        try:
+            with open(settings_file, "r") as settings_file_data:
+                settings_dict = json.load(settings_file_data)
+            assert isinstance(
+                settings_dict, dict
+            ), "settings.json should contain a dictionary"
+        except FileNotFoundError as e:
+            print(f"{settings_file} not found : FileNotFoundError {e}")
+        except json.JSONDecodeError as e:
+            print(f"Error decoding {settings_file}: JSONDecodeError {e}")
+    return settings_dict
 
 
 def get_setting(key: str, default=None):
@@ -70,13 +95,26 @@ def get_setting(key: str, default=None):
         The setting value
     """
     value_from_environment = os.getenv(key)
-    value_from_file = settings_object.get(key)
+    value_from_file = load_settings_dict().get(key)
     if value_from_environment is not None:
         return value_from_environment
     else:
         if value_from_file is not None:
             return value_from_file
         return default
+
+
+def set_setting(key: str, value):
+    """Sets a setting in the settings.json file.
+
+    Args:
+        key (str): The key to set.
+        value: The value to set.
+    """
+    settings = load_settings_dict()
+    settings[key] = value
+    with open(settings_file, "w") as settings_file_data:
+        json.dump(settings, settings_file_data, indent=4)
 
 
 TRUE_VALUES = ["1", "TRUE", "True", "true", 1, True]
