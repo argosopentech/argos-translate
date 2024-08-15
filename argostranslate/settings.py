@@ -58,14 +58,6 @@ os.makedirs(cache_dir, exist_ok=True)
 settings_file = config_dir / "settings.json"
 
 
-def load_settings_dict() -> dict:
-    settings_dict = dict()
-    if settings_file.exists():
-        with open(settings_file) as settings_file_data:
-            settings_dict = json.load(open(settings_file))
-            assert type(settings_dict) is dict
-
-
 def load_settings_dict() -> Dict[str, Any]:
     settings_dict = dict()
     if settings_file.exists():
