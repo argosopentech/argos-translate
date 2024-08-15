@@ -180,6 +180,7 @@ argos_translate_about_text = (
     + "Technologies, LLC (www.argosopentech.com). "
 )
 
+# TODO is this being used?
 version_file = pathlib.Path(__file__).parent.resolve() / "__version__"
 with open(version_file) as version_file_data:
     argos_version = version_file_data.read().strip()
