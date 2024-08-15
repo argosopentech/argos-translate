@@ -100,3 +100,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 # Supported values: cpu and cuda
 device = os.environ.get("ARGOS_DEVICE_TYPE", "cpu")
+
+# https://opennmt.net/CTranslate2/python/ctranslate2.Translator.html
+inter_threads = int(os.environ.get("ARGOS_INTER_THREADS", "1"))
+intra_threads = int(os.environ.get("ARGOS_INTRA_THREADS", "0"))
