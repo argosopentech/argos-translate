@@ -16,11 +16,6 @@ if settings.is_debug:
 # https://docs.python.org/3/library/logging.html#levels
 
 
-def debug(*argv):
-    """Debug level log"""
-    logger.debug(str(argv))
-
-
 def get_json_string(argv):
     if len(argv) == 1:
         return json.dumps(str(argv[0]))

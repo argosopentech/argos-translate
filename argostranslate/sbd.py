@@ -85,7 +85,7 @@ def parse_fewshot_response(response_text: str) -> str | None:
     return response[-1]
 
 
-def process_seq2seq_sbd(input_text: str, sbd_translated_guess: str) -> int:
+def process_seq2seq_sbd(input_text: str, sbd_translated_guess: str) -> int | None:
     sbd_translated_guess_index = sbd_translated_guess.find(SENTENCE_BOUNDARY_TOKEN)
     if sbd_translated_guess_index != -1:
         sbd_translated_guess = sbd_translated_guess[:sbd_translated_guess_index]
@@ -107,7 +107,7 @@ def process_seq2seq_sbd(input_text: str, sbd_translated_guess: str) -> int:
 
 def detect_sentence(
     input_text: str, sbd_translation, sentence_guess_length: int = 150
-) -> int:
+) -> int | None:
     """Given input text, return the index after the end of the first sentence.
 
     Args:

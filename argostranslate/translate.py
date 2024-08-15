@@ -466,22 +466,6 @@ def get_installed_languages() -> list[Language]:
                 )
                 from_lang.translations_from.append(remote_translation)
                 to_lang.translations_to.append(remote_translation)
-    elif (
-        argostranslate.settings.model_provider
-        == argostranslate.settings.ModelProvider.OPENAI
-    ):
-        language_model = argostranslate.apis.OpenAIAPI(
-            argostranslate.settings.openai_api_key
-        )
-        # TODO
-        languages = [Language("en", "English"), Language("es", "Spanish")]
-        for from_lang in languages:
-            for to_lang in languages:
-                few_shot_translation = FewShotTranslation(
-                    from_lang, to_lang, language_model
-                )
-                from_lang.translations_from.append(few_shot_translation)
-                to_lang.translations_to.append(few_shot_translation)
 
     info("languages", languages)
 
