@@ -104,6 +104,10 @@ local_package_index = data_dir / "index.json"
 # Supported values: "cpu" and "cuda"
 device = get_setting("ARGOS_DEVICE_TYPE", "cpu")
 
+# https://opennmt.net/CTranslate2/python/ctranslate2.Translator.html
+inter_threads = int(get_setting("ARGOS_INTER_THREADS", "1"))
+intra_threads = int(get_setting("ARGOS_INTRA_THREADS", "0"))
+
 
 class ModelProvider(Enum):
     OPENNMT = 0

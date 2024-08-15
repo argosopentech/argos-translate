@@ -395,6 +395,7 @@ def uninstall(pkg):
         info("Uninstalled package", pkg)
         shutil.rmtree(pkg.package_path)
 
+
 def install_package_for_language_pair(from_code: str, to_code: str) -> bool:
     """Installs the necessary package to translate between a pair of languages
     Args:
@@ -417,4 +418,3 @@ def install_package_for_language_pair(from_code: str, to_code: str) -> bool:
 
     install_from_path(package_to_install.download())
     return True
-
