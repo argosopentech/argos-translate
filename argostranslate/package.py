@@ -11,8 +11,8 @@ from threading import Lock
 import packaging.version
 
 from argostranslate import networking, settings
-from argostranslate.utils import error, info
-from argostranslate.tokenizer import SentencePieceTokenizer, BPETokenizer
+from argostranslate.tokenizer import BPETokenizer, SentencePieceTokenizer
+from argostranslate.utils import error, info, warning
 
 """
 ## `package` module example usage
@@ -196,7 +196,7 @@ class Package(IPackage):
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
-        
+
         sp_model_path = package_path / "sentencepiece.model"
         bpe_model_path = package_path / "bpe.model"
 
@@ -387,6 +387,32 @@ def argospm_package_name(pkg: IPackage) -> str:
     if pkg.from_code and pkg.to_code:
         to_return += "-" + pkg.from_code + "_" + pkg.to_code
     return to_return
+
+
+def install_package_for_language_pair(from_code: str, to_code: str) -> bool:
+    """Installs the necessary package to translate between a pair of languages
+
+    Args:
+        from_code (str): The ISO 639 code for the language being translated from
+        to_code (str): The ISO 639 code for the language being translated to
+
+    Returns:
+        True if the package was installed successfully,
+        False if the installation failed or was not possible
+    """
+    available_packages = get_available_packages()
+    try:
+        package_to_install = next(
+            filter(
+                lambda x: x.from_code == from_code and x.to_code == to_code,
+                available_packages,
+            )
+        )
+    except StopIteration:
+        return False
+
+    install_from_path(package_to_install.download())
+    return True
 
 
 def load_available_packages() -> list[Package]:
