@@ -7,6 +7,8 @@ from typing import Any, Dict
 """
 Argos Translate can be configured using either environment variables or json file
 
+Configurations from environment variables supersede configurations from the JSON file.
+
 ### Environment variables
 ```
 export ARGOS_DEBUG="0"
@@ -212,7 +214,6 @@ argos_translate_about_text = (
 # Fix Intel bug
 # https://github.com/argosopentech/argos-translate/issues/40
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
-
 # Will search all of these directories for packages
 package_dirs = [package_data_dir]
 if "SNAP" in os.environ:
