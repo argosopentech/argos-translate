@@ -8,6 +8,8 @@ from typing import Any, Dict
 """
 Argos Translate can be configured using either environment variables or json file
 
+Configurations from environment variables supersede configurations from the JSON file.
+
 ### Environment variables
 ```
 export ARGOS_DEBUG="0"
@@ -130,6 +132,13 @@ os.makedirs(downloads_dir, exist_ok=True)
 remote_package_index = package_index + "index.json"
 
 local_package_index = data_dir / "index.json"
+
+# Supported values: "cpu" and "cuda"
+device = get_setting("ARGOS_DEVICE_TYPE", "cpu")
+
+# https://opennmt.net/CTranslate2/python/ctranslate2.Translator.html
+inter_threads = int(get_setting("ARGOS_INTER_THREADS", "1"))
+intra_threads = int(get_setting("ARGOS_INTRA_THREADS", "0"))
 
 # Supported values: "cpu" and "cuda"
 device = get_setting("ARGOS_DEVICE_TYPE", "cpu")
