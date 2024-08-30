@@ -4,3 +4,5 @@ stanza==1.1.1
 spacy
 packaging
 sacremoses==0.0.53
+IndicTransToolkit @ git+https://github.com/VarunGumma/IndicTransToolkit
+transformers

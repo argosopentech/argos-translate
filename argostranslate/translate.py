@@ -17,6 +17,9 @@ from argostranslate.package import Package
 from argostranslate.sbd import SpacySentencizerSmall
 from argostranslate.utils import error, info, warning
 
+import torch
+from IndicTransToolkit import IndicProcessor
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 class Hypothesis:
     """Represents a translation hypothesis
@@ -56,6 +59,8 @@ class Language:
             that translate from this language.
         translations_to: A list of the translations
             that translate to this language
+        indic: Boolean value
+            True: It is an Indian language.
 
     """
 
@@ -64,7 +69,7 @@ class Language:
     translations_from: List[ITranslation]
     translations_to: List[ITranslation]
 
-    def __init__(self, code: str, name: str):
+    def __init__(self, code: str, name: str, indic: bool = False):
         self.code = code
         self.name = name
         self.translators_from = list()
@@ -96,7 +101,30 @@ class Language:
                 return translation
         return None
 
-        # Pivot through intermediate languages to add translations
+class IndicTranslation(ITranslation):
+    """A custom translation class for translation from English to Indic languages."""
+
+    def __init__(self, to_lang: Language):
+        self.to_lang = to_lang
+        self.ip = IndicProcessor(inference=True)
+        self.tokenizer = AutoTokenizer.from_pretrained("ai4bharat/indictrans2-en-indic-dist-200M", trust_remote_code=True)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained("ai4bharat/indictrans2-en-indic-dist-200M", trust_remote_code=True)
+         
+
+    def translate_to_indic(self, text: str) -> str:
+        batch = self.ip.preprocess_batch([text], src_lang='eng_Latn', tgt_lang=self.to_lang)
+        batch = self.tokenizer(batch, padding="longest", truncation=True, max_length=256, return_tensors="pt")  
+        with torch.inference_mode():
+            outputs = self.model.generate(**batch, num_beams=5, num_return_sequences=1, max_length=256)
+        
+        with self.tokenizer.as_target_tokenizer():
+    # This scoping is absolutely necessary, as it will instruct the tokenizer to tokenize using the target vocabulary.
+    # Failure to use this scoping will result in gibberish/unexpected predictions as the output will be de-tokenized with the source vocabulary instead.
+            outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+        outputs = self.ip.postprocess_batch(outputs, lang=self.to_lang)
+
+        return outputs[0]
+                # Pivot through intermediate languages to add translations
         # that don't already exist
         # TODO
         """
@@ -506,7 +534,9 @@ def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation | N
     Returns:
         The translation object or None if no translation is available
     """
+
     from_lang = get_language_from_code(from_code)
+   
     to_lang = get_language_from_code(to_code)
     if from_lang is None or to_lang is None:
         warning(f"Translation from {from_code} to {to_code} not found")
@@ -525,6 +555,40 @@ def translate(q: str, from_code: str, to_code: str) -> str | None:
     Returns:
         The translated text or None if no translation is available
     """
+    indic = [
+  "asm_Beng",
+  "kas_Arab",
+  "pan_Guru",
+  "ben_Beng",
+  "kas_Deva",
+  "san_Deva",
+  "brx_Deva",
+  "mai_Deva",
+  "sat_Olck",
+  "doi_Deva",
+  "mal_Mlym",
+  "snd_Arab",
+  "mar_Deva",
+  "snd_Deva",
+  "gom_Deva",
+  "mni_Beng",
+  "tam_Taml",
+  "guj_Gujr",
+  "mni_Mtei",
+  "tel_Telu",
+  "hin_Deva",
+  "npi_Deva",
+  "urd_Arab",
+  "kan_Knda",
+  "ory_Orya"
+    ]
+    if to_code in indic and from_code == "en":
+        indic = IndicTranslation(to_code)
+        op = indic.translate_to_indic(q)
+        return op
+
+
+
     translation = get_translation_from_codes(from_code, to_code)
     if translation is None:
         warning(
