@@ -4,7 +4,6 @@ from typing import List
 
 import ctranslate2
 import sentencepiece as spm
-import stanza
 from ctranslate2 import Translator
 
 from argostranslate import apis, fewshot, package, sbd, settings
