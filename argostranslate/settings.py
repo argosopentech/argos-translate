@@ -48,9 +48,9 @@ data_dir = (
 )
 os.makedirs(data_dir, exist_ok=True)
 
-# ARGOS_TRANSLATE_PACKAGES_DIR deprecated 1.2.0
+# ARGOS_TRANSLATE_PACKAGE_DIR deprecated 1.2.0
 legacy_package_data_dir = Path(
-    os.getenv("ARGOS_TRANSLATE_PACKAGES_DIR", default=data_dir / "packages")
+    os.getenv("ARGOS_TRANSLATE_PACKAGE_DIR", default=data_dir / "packages")
 )
 
 config_dir = (

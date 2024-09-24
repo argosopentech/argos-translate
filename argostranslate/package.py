@@ -310,7 +310,7 @@ def get_installed_packages(path: Path = None) -> list[Package]:
 
     Looks for packages in <home>/.argos-translate/local/share/packages by
     default. Will also look in the directory specified
-    in the ARGOS_TRANSLATE_PACKAGE_DIR environment variable
+    in the ARGOS_PACKAGE_DIR environment variable
     if it is set.
 
     Args:
