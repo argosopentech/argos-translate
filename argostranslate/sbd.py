@@ -18,16 +18,18 @@ class ISentenceBoundaryDetectionModel:
 
 # Spacy sentence boundary detection Sentencizer
 # https://community.libretranslate.com/t/sentence-boundary-detection-for-machine-translation/606/3
+# https://spacy.io/usage/linguistic-features/#sbd
 
 # Download model:
 # python -m spacy download xx_sent_ud_sm
 class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
     def __init__(self):
         try:
-            self.nlp = spacy.load("xx_sent_ud_sm")
+            self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
         except OSError:
+            # Automatically download the model if it doesn't exist
             spacy.cli.download("xx_sent_ud_sm")
-            self.nlp = spacy.load("xx_sent_ud_sm")
+            self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
         self.nlp.add_pipe("sentencizer")
 
     def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
