@@ -153,6 +153,7 @@ rm -r ~/.local/share/argos-translate
 - [DesktopTranslator](https://github.com/ymoslem/DesktopTranslator) - [OpenNMT](https://opennmt.net/) based translation application
 - [LibreTranslate-rs](https://github.com/grantshandy/libretranslate-rs) - LibreTranslate Rust bindings
 - [LibreTranslate Go](https://github.com/SnakeSel/libretranslate) - LibreTranslate Golang bindings
+- [LibreTranslate Java](https://github.com/dynomake/libretranslate-java) - LibreTranslate Java bindings
 - [LibreTranslator](https://gitlab.com/BeowuIf/libretranslator) - LibreTranslate Android app
 - [LiTranslate](https://community.libretranslate.com/t/litranslate-ios-app/333) - iOS LibreTranslate client
 
