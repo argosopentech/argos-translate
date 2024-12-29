@@ -141,4 +141,7 @@ def main():
     remove_parser.add_argument("name", help="Package name")
 
     args = parser.parse_args()
-    args.callback(args)
+    if(hasattr(args, "callback")):
+        args.callback(args)
+    else:
+        parser.print_help()
