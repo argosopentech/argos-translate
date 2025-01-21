@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from difflib import SequenceMatcher
 from typing import List, Optional
-
+import stanza
 import spacy
 
-from argostranslate import package
+from argostranslate import package, settings
 from argostranslate.package import Package
 from argostranslate.utils import info
 
@@ -39,6 +39,26 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
     def __str__(self):
         return "Spacy xx_sent_ud_sm"
 
+# Stanza sentence boundary is actually a tokenizer, which explains the performances
+# For packages that include stanza sbd, define Sentencizer class identical to Spacy in its inputs and outputs
+
+class StanzaSentencizer(ISentenceBoundaryDetectionModel, pkg=Package):
+    # Initializes the stanza pipeline coded in the legacy translate.py
+    def __init__(self, pkg):
+        self.stanza_pipeline = stanza.Pipeline(
+            lang=pkg.from_code,
+            dir=str(pkg.package_path / "stanza"),
+            processors="tokenize",
+            use_gpu=settings.device == "cuda",
+            logging_level="WARNING",
+        )
+
+    def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
+        doc = self.stanza_pipeline(text)
+        return [sent.text for sent in doc.sentences]
+
+    def __str__(self):
+        return "Using Stanza library"
 
 # Few Shot Sentence Boundary Detection
 

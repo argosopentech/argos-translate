@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import List
 
 import ctranslate2
-import sentencepiece as spm
+# import sentencepiece as spm
 from ctranslate2 import Translator
 
 from argostranslate import apis, fewshot, package, sbd, settings
 from argostranslate.models import ILanguageModel
 from argostranslate.package import Package
-from argostranslate.sbd import SpacySentencizerSmall
+from argostranslate.sbd import SpacySentencizerSmall, StanzaSentencizer
 from argostranslate.utils import info
 
 
@@ -67,7 +67,7 @@ class ITranslation:
 
         Args:
             input_text: The text to be translated.
-            num_hypotheses: Number of hypothetic results expected
+            num_hypotheses: Number of hypothetical results expected
 
         Returns:
             List of translation hypotheses
@@ -113,7 +113,7 @@ class Language:
 
     Attributes:
         code: The code representing the language.
-        name: The human readable name of the language.
+        name: The human-readable name of the language.
         translations_from: A list of the translations
             that translate from this language.
         translations_to: A list of the translations
@@ -160,7 +160,25 @@ class PackageTranslation(ITranslation):
         self.to_lang = to_lang
         self.pkg = pkg
         self.translator = None
-        self.sentencizer = SpacySentencizerSmall()
+        self.sentencizer = None
+
+    @property
+    def sentencizer(self):
+        return self._sentencizer
+
+    @sentencizer.setter
+    def sentencizer(self, sentencizer):
+        """
+        Sentence boundary detection is package dependant
+        Package property "sbd_package" incur sentencizer class used, default is Spacy
+        """
+        if sentencizer is None:
+            if self.pkg.sbd_package == StanzaSentencizer:  # Stanza must be explicit
+                self._sentencizer = StanzaSentencizer(self.pkg)
+            elif self.pkg.sbd_package == SpacySentencizerSmall:  # Spacy may be explicit
+                self._sentencizer = SpacySentencizerSmall
+            else:  # Default to spacy if no sbd library within package
+                self._sentencizer = SpacySentencizerSmall
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
@@ -176,18 +194,12 @@ class PackageTranslation(ITranslation):
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraphs.append(
-                apply_packaged_translation(
-                    self.pkg,
-                    paragraph,
-                    self.translator,
-                    num_hypotheses,
-                    self.sentencizer,
-                )
+                apply_packaged_translation(self.pkg, paragraph, self.translator, self.sentencizer, num_hypotheses)
             )
         info("translated_paragraphs:", translated_paragraphs)
 
         # Construct new hypotheses using all paragraphs
-        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
+        hypotheses_to_return = [Hypothesis("", 0) in range(num_hypotheses)]
         for i in range(num_hypotheses):
             for translated_paragraph in translated_paragraphs:
                 value = ITranslation.combine_paragraphs(
@@ -297,7 +309,7 @@ class CachedTranslation(ITranslation):
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraph = self.cache.get(paragraph)
-            # If len() of our cached items are different than `num_hypotheses` it means that
+            # If len() of our cached items are different from `num_hypotheses` it means that
             # the search parameter is changed by caller, so we can't re-use cache, and should update it.
             if (
                 translated_paragraph is None
@@ -407,8 +419,8 @@ def apply_packaged_translation(
     pkg: Package,
     input_text: str,
     translator: Translator,
+    sentencizer,
     num_hypotheses: int = 4,
-    sentencizer: sbd.ISentenceBoundaryDetectionModel = SpacySentencizerSmall(),
 ) -> list[Hypothesis]:
     """Applies the translation in pkg to translate input_text.
 
@@ -416,16 +428,13 @@ def apply_packaged_translation(
         pkg: The package that provides the translation.
         input_text: The text to be translated.
         translator: The CTranslate2 Translator
+        sentencizer: The Sentence Boundary Detection package
         num_hypotheses: The number of hypotheses to generate
-
-    Returns:
-        A list of Hypothesis's for translating input_text
-
     """
 
     info("apply_packaged_translation", input_text)
 
-    # Sentence boundary detection
+    sentences = sentencizer.split_sentences(input_text)
     """
     # Argos Translate 1.9 Sentence Boundary Detection
     if pkg.type == "sbd":
@@ -466,7 +475,6 @@ def apply_packaged_translation(
             info(input_text[start_index:sbd_index])
             start_index = sbd_index
     """
-    sentences = sentencizer.split_sentences(input_text)
 
     info("sentences", sentences)
 

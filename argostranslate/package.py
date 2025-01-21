@@ -9,8 +9,10 @@ from pathlib import Path
 from threading import Lock
 
 import packaging.version
+#from spacy.lang.zh import Segmenter
 
 from argostranslate import networking, settings
+from argostranslate.sbd import SpacySentencizerSmall, StanzaSentencizer
 from argostranslate.tokenizer import BPETokenizer, SentencePieceTokenizer
 from argostranslate.utils import error, info, warning
 
@@ -59,7 +61,7 @@ class IPackage:
 
 
     Packages are a zip archive of a directory with metadata.json
-    in its root the .argosmodel file extension. By default a
+    in its root the .argosmodel file extension. By default, an
     OpenNMT CTranslate2 directory named model/ is expected in the root directory
     along with a sentencepiece model named sentencepiece.model or a bpe.model
     for tokenizing and Stanza data for sentence boundary detection.
@@ -196,6 +198,16 @@ class Package(IPackage):
         with open(metadata_path) as metadata_file:
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
+
+        """ As of spacy multilingual support, the sbd package shall depend on the package's content"""
+        stanza_dir: Path = package_path / "stanza"
+        spacy_model_path = package_path / "spacy" / "senter" / "model"
+
+        if stanza_dir.exists(): # Stanza tokenizer within the package
+            self.sbd_package = StanzaSentencizer(Package)
+        elif spacy_model_path.exists(): #Explicit spacy model within the package
+            self.sbd_package = SpacySentencizerSmall
+
 
         sp_model_path = package_path / "sentencepiece.model"
         bpe_model_path = package_path / "bpe.model"
