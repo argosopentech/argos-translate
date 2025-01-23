@@ -160,8 +160,8 @@ class PackageTranslation(ITranslation):
         self.to_lang = to_lang
         self.pkg = pkg
         self.translator = None
-        self.sentencizer = None
-
+        self.sentencizer = pkg.sbd_package
+'''
     @property
     def sentencizer(self):
         return self._sentencizer
@@ -179,7 +179,7 @@ class PackageTranslation(ITranslation):
                 self._sentencizer = SpacySentencizerSmall
             else:  # Default to spacy if no sbd library within package
                 self._sentencizer = SpacySentencizerSmall
-
+'''
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
             model_path = str(self.pkg.package_path / "model")

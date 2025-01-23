@@ -207,7 +207,8 @@ class Package(IPackage):
             self.sbd_package = StanzaSentencizer(Package)
         elif spacy_model_path.exists(): #Explicit spacy model within the package
             self.sbd_package = SpacySentencizerSmall
-
+        else: # Default to spacy if no sbd package included
+            self.sbd_package = SpacySentencizerSmall
 
         sp_model_path = package_path / "sentencepiece.model"
         bpe_model_path = package_path / "bpe.model"
