@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from difflib import SequenceMatcher
 
-from typing import List, Optional
+from typing import List
 import stanza
 import spacy
 
@@ -12,9 +12,9 @@ from argostranslate.utils import info
 from argostranslate.networking import get_spacy
 
 
-class ISentenceBoundaryDetectionModel:
+class ISentenceBoundaryDetectionModel(pkg=Package):
     # https://github.com/argosopentech/sbd/blob/main/main.py
-    def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
+    def split_sentences(self, text: str) -> List[str]:
         raise NotImplementedError
 
 
@@ -24,7 +24,7 @@ class ISentenceBoundaryDetectionModel:
 
 # Download model:
 # python -m spacy download xx_sent_ud_sm
-class SpacySentencizerSmall(ISentenceBoundaryDetectionModel, pkg=Package):
+class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
     def __init__(self, pkg):
         # Using pkg.sbd_model_path property allows specific spacy models
         # Thus improving performance over stanza across the board
@@ -37,7 +37,7 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel, pkg=Package):
             self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
         self.nlp.add_pipe("sentencizer")
 
-    def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
+    def split_sentences(self, text: str) -> List[str]:
         doc = self.nlp(text)
         return [sent.text for sent in doc.sents]
 
@@ -47,7 +47,7 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel, pkg=Package):
 # Stanza sentence boundary is actually a tokenizer, which explains the performances
 # For packages that include stanza sbd, define Sentencizer class identical to Spacy in its inputs and outputs
 
-class StanzaSentencizer(ISentenceBoundaryDetectionModel, pkg=Package):
+class StanzaSentencizer(ISentenceBoundaryDetectionModel):
     # Initializes the stanza pipeline, legacy coded in  translate.py
     def __init__(self, pkg):
          self.stanza_pipeline = stanza.Pipeline(
@@ -58,7 +58,7 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel, pkg=Package):
             logging_level="WARNING",
         )
 
-    def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
+    def split_sentences(self, text: str) -> List[str]:
         doc = self.stanza_pipeline(text)
         return [sent.text for sent in doc.sentences]
 
