@@ -26,12 +26,12 @@ class ISentenceBoundaryDetectionModel():
 
 # Download model:
 # python -m spacy download xx_sent_ud_sm
-class SpacySentencizerSmall(ISentenceBoundaryDetectionModel, pkg=Package):
-    def __init__(self, pkg):
+class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
+    def __init__(self, pkg: Package):
         # Using pkg.sbd_model_path property allows specific spacy models
         # Thus improving performance over stanza across the board
         if pkg.sbd_model_path.exists():
-            self.nlp = spacy.load(pkg.sdb_model_path, exclude=["parser"])
+            self.nlp = spacy.load(pkg.sbd_model_path, exclude=["parser"])
         # Case spacy is not cached
         else:
             # Automatically download the model if it doesn't exist
@@ -49,9 +49,9 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel, pkg=Package):
 # Stanza sentence boundary is actually a tokenizer, which explains the performances
 # For packages that include stanza sbd, define Sentencizer class identical to Spacy in its inputs and outputs
 
-class StanzaSentencizer(ISentenceBoundaryDetectionModel, pkg=Package):
+class StanzaSentencizer(ISentenceBoundaryDetectionModel):
     # Initializes the stanza pipeline, legacy coded in  translate.py
-    def __init__(self, pkg):
+    def __init__(self, pkg: Package):
          self.stanza_pipeline = stanza.Pipeline(
             lang=pkg.from_code,
             dir=str(pkg.sbd_model_path),
