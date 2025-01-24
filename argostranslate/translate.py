@@ -160,7 +160,11 @@ class PackageTranslation(ITranslation):
         self.to_lang = to_lang
         self.pkg = pkg
         self.translator = None
-        self.sentencizer = pkg.sbd_package
+        if 'stanza' in pkg.sbd_model_path:
+            self.sentencizer = StanzaSentencizer(pkg)
+        elif 'spacy' in pkg.sbd_model_path:
+            self.sentencizer = SpacySentencizerSmall(pkg)
+
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
@@ -209,7 +213,7 @@ class IdentityTranslation(ITranslation):
         self.to_lang = lang
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 4):
-        return [Hypothesis(input_text, 0) for i in range(num_hypotheses)]
+        return [Hypothesis(input_text, 0) in range(num_hypotheses)]
 
 
 class CompositeTranslation(ITranslation):
@@ -305,7 +309,7 @@ class CachedTranslation(ITranslation):
         self.cache = new_cache
 
         # Construct hypotheses
-        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
+        hypotheses_to_return = [Hypothesis("", 0) in range(num_hypotheses)]
         for i in range(num_hypotheses):
             for j in range(len(translated_paragraphs)):
                 value = ITranslation.combine_paragraphs(
@@ -529,7 +533,7 @@ def get_installed_languages() -> list[Language]:
 
     if settings.model_provider == settings.ModelProvider.OPENNMT:
         packages = package.get_installed_packages()
-
+        '''
         # If stanza not available filter for sbd available
         if not settings.stanza_available:
             sbd_packages = list(filter(lambda x: x.type == "sbd", packages))
@@ -539,7 +543,7 @@ def get_installed_languages() -> list[Language]:
             packages = list(
                 filter(lambda x: x.from_code in sbd_available_codes, packages)
             )
-
+        '''
         # Filter for translate packages
         packages = list(filter(lambda x: x.type == "translate", packages))
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from difflib import SequenceMatcher
-from pathlib import Path
 
 from typing import List, Optional
 import stanza
@@ -28,17 +27,12 @@ class ISentenceBoundaryDetectionModel:
 class SpacySentencizerSmall(ISentenceBoundaryDetectionModel, pkg=Package):
     def __init__(self, pkg):
         # Case of the explicit spacy (allows using specific Spacy models, improving performance over Stanza)
-        if pkg.sbd_path is not None:
-            self.sdb_path = pkg.sdb_path
-            self.nlp = spacy.load(pkg.sdb_path, exclude=["parser"])
+        if pkg.sbd_model_path:
+            self.nlp = spacy.load(pkg.sdb_model_path, exclude=["parser"])
         # Case of the generic spacy, loaded from cache or downloaded
         else:
-            try:
-                self.sbd_path = Path(settings.cache_dir / 'spacy' / 'senter' / 'model')
-                self.nlp = spacy.load(self.sbd_path, exclude=["parser"])
-            except OSError:
                 # Automatically download the model if it doesn't exist
-                self.sbd_path = get_spacy()
+                self.sbd_model_path = get_spacy()
                 self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
         self.nlp.add_pipe("sentencizer")
 
@@ -55,10 +49,9 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel, pkg=Package):
 class StanzaSentencizer(ISentenceBoundaryDetectionModel, pkg=Package):
     # Initializes the stanza pipeline, legacy coded in  translate.py
     def __init__(self, pkg):
-        self.sbd_path = pkg.sbd_path
-        self.stanza_pipeline = stanza.Pipeline(
+         self.stanza_pipeline = stanza.Pipeline(
             lang=pkg.from_code,
-            dir=str(self.sbd_path),
+            dir=str(pkg.sbd_model_path),
             processors="tokenize",
             use_gpu=settings.device == "cuda",
             logging_level="WARNING",
