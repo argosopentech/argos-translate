@@ -12,10 +12,10 @@ from argostranslate.utils import info
 from argostranslate.networking import get_spacy
 
 
-class ISentenceBoundaryDetectionModel(pkg=Package):
+class ISentenceBoundaryDetectionModel():
     # https://github.com/argosopentech/sbd/blob/main/main.py
-    def __init__(self, pkg):
-        self.pkg = pkg
+    pkg: Package
+
     def split_sentences(self, text: str) -> List[str]:
         raise NotImplementedError
 
@@ -26,9 +26,8 @@ class ISentenceBoundaryDetectionModel(pkg=Package):
 
 # Download model:
 # python -m spacy download xx_sent_ud_sm
-class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
+class SpacySentencizerSmall(ISentenceBoundaryDetectionModel, pkg=Package):
     def __init__(self, pkg):
-        super().__init__(pkg)
         # Using pkg.sbd_model_path property allows specific spacy models
         # Thus improving performance over stanza across the board
         if pkg.sbd_model_path.exists():
@@ -50,10 +49,9 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
 # Stanza sentence boundary is actually a tokenizer, which explains the performances
 # For packages that include stanza sbd, define Sentencizer class identical to Spacy in its inputs and outputs
 
-class StanzaSentencizer(ISentenceBoundaryDetectionModel):
+class StanzaSentencizer(ISentenceBoundaryDetectionModel, pkg=Package):
     # Initializes the stanza pipeline, legacy coded in  translate.py
     def __init__(self, pkg):
-         super().__init__(pkg)
          self.stanza_pipeline = stanza.Pipeline(
             lang=pkg.from_code,
             dir=str(pkg.sbd_model_path),
