@@ -204,11 +204,14 @@ class Package(IPackage):
         spacy_model_path = package_path / "spacy" / "senter" / "model"
 
         if stanza_dir.exists(): # Stanza tokenizer within the package
+            self.sbd_path = Path(stanza_dir)
             self.sbd_package = StanzaSentencizer(Package)
         elif spacy_model_path.exists(): #Explicit spacy model within the package
-            self.sbd_package = SpacySentencizerSmall
+            self.sbd_path = Path(spacy_model_path)
+            self.sbd_package = SpacySentencizerSmall(Package)
         else: # Default to spacy if no sbd package included
-            self.sbd_package = SpacySentencizerSmall
+            self.sbd_path = None
+            self.sbd_package = SpacySentencizerSmall(Package)
 
         sp_model_path = package_path / "sentencepiece.model"
         bpe_model_path = package_path / "bpe.model"
@@ -274,7 +277,7 @@ class AvailablePackage(IPackage):
     def download(self) -> Path:
         """Downloads the AvailablePackage and returns its path"""
         filename = argospm_package_name(self) + ".argosmodel"
-
+        '''
         # Install sbd package if needed
         if self.type == "translate" and not settings.stanza_available:
             if (
@@ -288,7 +291,7 @@ class AvailablePackage(IPackage):
                 for sbd_package in sbd_packages:
                     download_path = sbd_package.download()
                     install_from_path(download_path)
-
+        '''
         filepath = settings.downloads_dir / filename
         if not filepath.exists():
             data = networking.get_from(self.links)

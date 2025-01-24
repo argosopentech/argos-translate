@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from difflib import SequenceMatcher
+from pathlib import Path
+
 from typing import List, Optional
 import stanza
 import spacy
@@ -8,6 +10,7 @@ import spacy
 from argostranslate import package, settings
 from argostranslate.package import Package
 from argostranslate.utils import info
+from argostranslate.networking import get_spacy
 
 
 class ISentenceBoundaryDetectionModel:
@@ -22,14 +25,21 @@ class ISentenceBoundaryDetectionModel:
 
 # Download model:
 # python -m spacy download xx_sent_ud_sm
-class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
-    def __init__(self):
-        try:
-            self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
-        except OSError:
-            # Automatically download the model if it doesn't exist
-            spacy.cli.download("xx_sent_ud_sm")
-            self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
+class SpacySentencizerSmall(ISentenceBoundaryDetectionModel, pkg=Package):
+    def __init__(self, pkg):
+        # Case of the explicit spacy (allows using specific Spacy models, improving performance over Stanza)
+        if pkg.sbd_path is not None:
+            self.sdb_path = pkg.sdb_path
+            self.nlp = spacy.load(pkg.sdb_path, exclude=["parser"])
+        # Case of the generic spacy, loaded from cache or downloaded
+        else:
+            try:
+                self.sbd_path = Path(settings.cache_dir / 'spacy' / 'senter' / 'model')
+                self.nlp = spacy.load(self.sbd_path, exclude=["parser"])
+            except OSError:
+                # Automatically download the model if it doesn't exist
+                self.sbd_path = get_spacy()
+                self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
         self.nlp.add_pipe("sentencizer")
 
     def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
@@ -43,11 +53,12 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
 # For packages that include stanza sbd, define Sentencizer class identical to Spacy in its inputs and outputs
 
 class StanzaSentencizer(ISentenceBoundaryDetectionModel, pkg=Package):
-    # Initializes the stanza pipeline coded in the legacy translate.py
+    # Initializes the stanza pipeline, legacy coded in  translate.py
     def __init__(self, pkg):
+        self.sbd_path = pkg.sbd_path
         self.stanza_pipeline = stanza.Pipeline(
             lang=pkg.from_code,
-            dir=str(pkg.package_path / "stanza"),
+            dir=str(self.sbd_path),
             processors="tokenize",
             use_gpu=settings.device == "cuda",
             logging_level="WARNING",

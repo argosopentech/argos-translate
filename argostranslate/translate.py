@@ -161,25 +161,7 @@ class PackageTranslation(ITranslation):
         self.pkg = pkg
         self.translator = None
         self.sentencizer = pkg.sbd_package
-'''
-    @property
-    def sentencizer(self):
-        return self._sentencizer
 
-    @sentencizer.setter
-    def sentencizer(self, sentencizer):
-        """
-        Sentence boundary detection is package dependant
-        Package property "sbd_package" incur sentencizer class used, default is Spacy
-        """
-        if sentencizer is None:
-            if self.pkg.sbd_package == StanzaSentencizer:  # Stanza must be explicit
-                self._sentencizer = StanzaSentencizer(self.pkg)
-            elif self.pkg.sbd_package == SpacySentencizerSmall:  # Spacy may be explicit
-                self._sentencizer = SpacySentencizerSmall
-            else:  # Default to spacy if no sbd library within package
-                self._sentencizer = SpacySentencizerSmall
-'''
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
             model_path = str(self.pkg.package_path / "model")
