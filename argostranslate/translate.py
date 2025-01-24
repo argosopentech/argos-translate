@@ -160,9 +160,9 @@ class PackageTranslation(ITranslation):
         self.to_lang = to_lang
         self.pkg = pkg
         self.translator = None
-        if 'stanza' in pkg.sbd_model_path:
+        if 'stanza' in str(pkg.sbd_model_path):
             self.sentencizer = StanzaSentencizer(pkg)
-        elif 'spacy' in pkg.sbd_model_path:
+        elif 'spacy' in str(pkg.sbd_model_path):
             self.sentencizer = SpacySentencizerSmall(pkg)
 
 
