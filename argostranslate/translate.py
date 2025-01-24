@@ -180,12 +180,18 @@ class PackageTranslation(ITranslation):
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraphs.append(
-                apply_packaged_translation(self.pkg, paragraph, self.translator, self.sentencizer, num_hypotheses)
+                apply_packaged_translation(
+                    self.pkg,
+                    paragraph,
+                    self.translator,
+                    self.sentencizer,
+                    num_hypotheses,
+                )
             )
         info("translated_paragraphs:", translated_paragraphs)
 
         # Construct new hypotheses using all paragraphs
-        hypotheses_to_return = [Hypothesis("", 0) in range(num_hypotheses)]
+        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
         for i in range(num_hypotheses):
             for translated_paragraph in translated_paragraphs:
                 value = ITranslation.combine_paragraphs(
@@ -213,7 +219,7 @@ class IdentityTranslation(ITranslation):
         self.to_lang = lang
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 4):
-        return [Hypothesis(input_text, 0) in range(num_hypotheses)]
+        return [Hypothesis(input_text, 0) for i in range(num_hypotheses)]
 
 
 class CompositeTranslation(ITranslation):
@@ -309,7 +315,7 @@ class CachedTranslation(ITranslation):
         self.cache = new_cache
 
         # Construct hypotheses
-        hypotheses_to_return = [Hypothesis("", 0) in range(num_hypotheses)]
+        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
         for i in range(num_hypotheses):
             for j in range(len(translated_paragraphs)):
                 value = ITranslation.combine_paragraphs(
@@ -405,7 +411,7 @@ def apply_packaged_translation(
     pkg: Package,
     input_text: str,
     translator: Translator,
-    sentencizer,
+    sentencizer: sbd.ISentenceBoundaryDetectionModel,
     num_hypotheses: int = 4,
 ) -> list[Hypothesis]:
     """Applies the translation in pkg to translate input_text.
@@ -416,6 +422,9 @@ def apply_packaged_translation(
         translator: The CTranslate2 Translator
         sentencizer: The Sentence Boundary Detection package
         num_hypotheses: The number of hypotheses to generate
+
+    Returns:
+        A list of Hypotheses objects for translated input_text.
     """
 
     info("apply_packaged_translation", input_text)
