@@ -205,7 +205,7 @@ class Package(IPackage):
 
         if stanza_dir.exists(): # Stanza tokenizer within the package
             self.sbd_model_path = stanza_dir
-        elif spacy_model_path.exists(): #Explicit spacy model within the package
+        elif spacy_model_path.exists(): #Explicit/language specific spacy model within the package
             self.sbd_model_path = spacy_model_path
         else: # Default to spacy (cached) if no sbd package included
             self.sbd_model_path = spacy_cache_path
