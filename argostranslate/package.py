@@ -12,7 +12,6 @@ import packaging.version
 #from spacy.lang.zh import Segmenter
 
 from argostranslate import networking, settings
-from argostranslate.sbd import SpacySentencizerSmall, StanzaSentencizer
 from argostranslate.tokenizer import BPETokenizer, SentencePieceTokenizer
 from argostranslate.utils import error, info, warning
 
@@ -202,13 +201,14 @@ class Package(IPackage):
         """ As of spacy multilingual support, the sbd package shall depend on the package's content"""
         stanza_dir: Path = package_path / "stanza"
         spacy_model_path = package_path / "spacy" / "senter" / "model"
+        spacy_cache_path = settings.cache_dir / "spacy" / "senter" / "model"
 
         if stanza_dir.exists(): # Stanza tokenizer within the package
-            self.sbd_package = StanzaSentencizer(Package)
-        elif spacy_model_path.exists(): #Explicit spacy model within the package
-            self.sbd_package = SpacySentencizerSmall
-        else: # Default to spacy if no sbd package included
-            self.sbd_package = SpacySentencizerSmall
+            self.sbd_model_path = stanza_dir
+        elif spacy_model_path.exists(): #Explicit/language specific spacy model within the package
+            self.sbd_model_path = spacy_model_path
+        else: # Default to spacy (cached) if no sbd package included
+            self.sbd_model_path = spacy_cache_path
 
         sp_model_path = package_path / "sentencepiece.model"
         bpe_model_path = package_path / "bpe.model"
@@ -274,7 +274,7 @@ class AvailablePackage(IPackage):
     def download(self) -> Path:
         """Downloads the AvailablePackage and returns its path"""
         filename = argospm_package_name(self) + ".argosmodel"
-
+        '''
         # Install sbd package if needed
         if self.type == "translate" and not settings.stanza_available:
             if (
@@ -288,7 +288,7 @@ class AvailablePackage(IPackage):
                 for sbd_package in sbd_packages:
                     download_path = sbd_package.download()
                     install_from_path(download_path)
-
+        '''
         filepath = settings.downloads_dir / filename
         if not filepath.exists():
             data = networking.get_from(self.links)
@@ -364,7 +364,7 @@ def get_available_packages() -> list[AvailablePackage]:
             for metadata in index:
                 package = AvailablePackage(metadata)
                 packages.append(package)
-
+            '''
             # If stanza not available filter for sbd available
             if not settings.stanza_available:
                 installed_and_available_packages = packages + get_installed_packages()
@@ -380,7 +380,7 @@ def get_available_packages() -> list[AvailablePackage]:
                     filter(lambda x: x.from_code in sbd_available_codes, packages)
                 )
                 return packages + sbd_packages
-
+            '''
             return packages
     except FileNotFoundError:
         update_package_index()

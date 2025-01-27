@@ -160,26 +160,12 @@ class PackageTranslation(ITranslation):
         self.to_lang = to_lang
         self.pkg = pkg
         self.translator = None
-        self.sentencizer = pkg.sbd_package
-'''
-    @property
-    def sentencizer(self):
-        return self._sentencizer
+        if 'stanza' in str(pkg.sbd_model_path):
+            self.sentencizer = StanzaSentencizer(pkg)
+        elif 'spacy' in str(pkg.sbd_model_path):
+            self.sentencizer = SpacySentencizerSmall(pkg)
 
-    @sentencizer.setter
-    def sentencizer(self, sentencizer):
-        """
-        Sentence boundary detection is package dependant
-        Package property "sbd_package" incur sentencizer class used, default is Spacy
-        """
-        if sentencizer is None:
-            if self.pkg.sbd_package == StanzaSentencizer:  # Stanza must be explicit
-                self._sentencizer = StanzaSentencizer(self.pkg)
-            elif self.pkg.sbd_package == SpacySentencizerSmall:  # Spacy may be explicit
-                self._sentencizer = SpacySentencizerSmall
-            else:  # Default to spacy if no sbd library within package
-                self._sentencizer = SpacySentencizerSmall
-'''
+
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
             model_path = str(self.pkg.package_path / "model")
@@ -194,12 +180,18 @@ class PackageTranslation(ITranslation):
         translated_paragraphs = []
         for paragraph in paragraphs:
             translated_paragraphs.append(
-                apply_packaged_translation(self.pkg, paragraph, self.translator, self.sentencizer, num_hypotheses)
+                apply_packaged_translation(
+                    self.pkg,
+                    paragraph,
+                    self.translator,
+                    self.sentencizer,
+                    num_hypotheses,
+                )
             )
         info("translated_paragraphs:", translated_paragraphs)
 
         # Construct new hypotheses using all paragraphs
-        hypotheses_to_return = [Hypothesis("", 0) in range(num_hypotheses)]
+        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
         for i in range(num_hypotheses):
             for translated_paragraph in translated_paragraphs:
                 value = ITranslation.combine_paragraphs(
@@ -318,6 +310,7 @@ class CachedTranslation(ITranslation):
                 translated_paragraph = self.underlying.hypotheses(
                     paragraph, num_hypotheses
                 )
+                print(translated_paragraph)
             new_cache[paragraph] = translated_paragraph
             translated_paragraphs.append(translated_paragraph)
         self.cache = new_cache
@@ -419,7 +412,7 @@ def apply_packaged_translation(
     pkg: Package,
     input_text: str,
     translator: Translator,
-    sentencizer,
+    sentencizer: sbd.ISentenceBoundaryDetectionModel,
     num_hypotheses: int = 4,
 ) -> list[Hypothesis]:
     """Applies the translation in pkg to translate input_text.
@@ -430,6 +423,9 @@ def apply_packaged_translation(
         translator: The CTranslate2 Translator
         sentencizer: The Sentence Boundary Detection package
         num_hypotheses: The number of hypotheses to generate
+
+    Returns:
+        A list of Hypotheses objects for translated input_text.
     """
 
     info("apply_packaged_translation", input_text)
@@ -547,7 +543,7 @@ def get_installed_languages() -> list[Language]:
 
     if settings.model_provider == settings.ModelProvider.OPENNMT:
         packages = package.get_installed_packages()
-
+        '''
         # If stanza not available filter for sbd available
         if not settings.stanza_available:
             sbd_packages = list(filter(lambda x: x.type == "sbd", packages))
@@ -557,7 +553,7 @@ def get_installed_languages() -> list[Language]:
             packages = list(
                 filter(lambda x: x.from_code in sbd_available_codes, packages)
             )
-
+        '''
         # Filter for translate packages
         packages = list(filter(lambda x: x.type == "translate", packages))
 
