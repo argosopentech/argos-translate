@@ -310,6 +310,7 @@ class CachedTranslation(ITranslation):
                 translated_paragraph = self.underlying.hypotheses(
                     paragraph, num_hypotheses
                 )
+                print(translated_paragraph)
             new_cache[paragraph] = translated_paragraph
             translated_paragraphs.append(translated_paragraph)
         self.cache = new_cache
