@@ -3,11 +3,13 @@ from __future__ import annotations
 import random
 import urllib.request
 
+from spacy.cli import download as spacy_download
+from spacy import load as spacy_load
 from os import makedirs
 from pathlib import Path
 from argostranslate.utils import error, info
 from argostranslate import settings
-import spacy
+
 
 USER_AGENT = "ArgosTranslate"
 
@@ -34,7 +36,7 @@ supported_protocols = {"http", "https"}
 
 
 def get(url: str, retry_count: int = 3) -> bytes | None:
-    """Downloads data from a url and returns it
+    """Downloads data from an url and returns it
 
     Args:
         url: The url to download (http, https)
@@ -86,12 +88,15 @@ def get_spacy():
     spacy_cache = Path(settings.cache_dir / "spacy")
     makedirs(spacy_cache, exist_ok=True)
     info("Downloading spacy model")
-    while True:
-        try:
-            spacy.cli.download("xx_sent_ud_sm")
-            nlp = spacy.load("xx_sent_ud_sm")
-            nlp.to_disk(spacy_cache)
-            return Path(spacy_cache / "senter" / "model")
-        except Exception as e:
-            print(f'{str(e)}.')
-            return None
+    spacy_model = Path(spacy_cache / "senter" / "model")
+    if not spacy_model.exists():
+        while True:
+            try:
+                spacy_download("xx_sent_ud_sm")
+                nlp = spacy_load("xx_sent_ud_sm", exclude=["parser"])
+                nlp.to_disk(spacy_cache)
+                return spacy_cache
+            except Exception as e:
+                print(f'{str(e)}.')
+                return None
+    else: return spacy_cache
