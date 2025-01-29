@@ -30,13 +30,13 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
     def __init__(self, pkg: Package):
         # Using pkg.sbd_model_path property allows specific spacy models
         # Thus improving performance over stanza across the board
-        if pkg.sbd_model_path.exists():
+        if pkg.sbd_model_path is not None:
             self.nlp = spacy.load(pkg.sbd_model_path, exclude=["parser"])
-        # Case spacy is not cached
+        # Case sbd is not packaged
         else:
             # Automatically download the model if it doesn't exist
-            get_spacy()
-            self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
+            spacy_cache = get_spacy()
+            self.nlp = spacy.load(spacy_cache, exclude=["parser"])
         self.nlp.add_pipe("sentencizer")
 
     def split_sentences(self, text: str) -> List[str]:

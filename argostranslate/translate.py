@@ -162,8 +162,11 @@ class PackageTranslation(ITranslation):
         self.translator = None
         if 'stanza' in str(pkg.sbd_model_path):
             self.sentencizer = StanzaSentencizer(pkg)
-        elif 'spacy' in str(pkg.sbd_model_path):
+        elif pkg.sbd_model_path is None or 'spacy' in str(pkg.sbd_model_path):
             self.sentencizer = SpacySentencizerSmall(pkg)
+        else:
+            # Any other SBD dependency should be defined as a class in the SBD module.
+            raise NotImplementedError()
 
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
@@ -310,7 +313,6 @@ class CachedTranslation(ITranslation):
                 translated_paragraph = self.underlying.hypotheses(
                     paragraph, num_hypotheses
                 )
-                print(translated_paragraph)
             new_cache[paragraph] = translated_paragraph
             translated_paragraphs.append(translated_paragraph)
         self.cache = new_cache
