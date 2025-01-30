@@ -432,9 +432,11 @@ def apply_packaged_translation(
 
     info("apply_packaged_translation", input_text)
 
+    #Sentence boundary detection
     sentences = sentencizer.split_sentences(input_text)
+    info("sentences", sentences)
     """
-    # Argos Translate 1.9 Sentence Boundary Detection
+    # Argos Translate 1.9 Sentence Boundary Detection (legacy)
     if pkg.type == "sbd":
         sentences = [input_text]
     elif settings.stanza_available:
@@ -473,8 +475,6 @@ def apply_packaged_translation(
             info(input_text[start_index:sbd_index])
             start_index = sbd_index
     """
-
-    info("sentences", sentences)
 
     # Tokenization
     tokenized = [pkg.tokenizer.encode(sentence) for sentence in sentences]
@@ -546,6 +546,7 @@ def get_installed_languages() -> list[Language]:
     if settings.model_provider == settings.ModelProvider.OPENNMT:
         packages = package.get_installed_packages()
         '''
+        # Legacy sbd package search (environment-dependant)
         # If stanza not available filter for sbd available
         if not settings.stanza_available:
             sbd_packages = list(filter(lambda x: x.type == "sbd", packages))

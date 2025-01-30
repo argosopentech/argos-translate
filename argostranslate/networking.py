@@ -10,7 +10,6 @@ from pathlib import Path
 from argostranslate.utils import error, info
 from argostranslate import settings
 
-
 USER_AGENT = "ArgosTranslate"
 
 
@@ -83,20 +82,23 @@ def get_from(urls: list[str], retry_count: int = 3) -> bytes | None:
             return attempt
     return None
 
+
 def get_spacy():
     """ Downloads spacy multilingual model and saves it the cache directory for further use"""
     spacy_cache = Path(settings.cache_dir / "spacy")
     makedirs(spacy_cache, exist_ok=True)
-    info("Downloading spacy model")
+    info("Looking for cached Spacy xx_sent_ud_sm.")
     spacy_model = Path(spacy_cache / "senter" / "model")
     if not spacy_model.exists():
         while True:
             try:
+                info("Downloading Spacy xx_sent_ud_sm.")
                 spacy_download("xx_sent_ud_sm")
                 nlp = spacy_load("xx_sent_ud_sm", exclude=["parser"])
                 nlp.to_disk(spacy_cache)
+                info("Spacy xx_sent_ud_sm successfully cached.")
                 return spacy_cache
             except Exception as e:
-                print(f'{str(e)}.')
+                error(str(e))
                 return None
-    else: return spacy_cache
+    else:   return spacy_cache
