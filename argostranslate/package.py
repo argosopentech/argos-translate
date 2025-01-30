@@ -201,9 +201,9 @@ class Package(IPackage):
         stanza_pack: Path = package_path / "stanza"
         spacy_pack = package_path / "spacy"
 
-        if stanza_dir.exists(): # Stanza tokenizer within the package
+        if stanza_pack.exists(): # Stanza tokenizer within the package
             self.sbd_model_path = stanza_pack
-        elif spacy_dir.exists(): #Explicit/language-specific spacy model within the package
+        elif spacy_pack.exists(): #Explicit/language-specific spacy model within the package
             self.sbd_model_path = spacy_pack
         else: # None if no sbd package embedded in the argos package (will default to cache)
             self.sbd_model_path = None
