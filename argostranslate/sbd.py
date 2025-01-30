@@ -34,9 +34,9 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
             self.nlp = spacy.load(pkg.sbd_model_path, exclude=["parser"])
         # Case sbd is not packaged
         else:
-            # Automatically download the model if it doesn't exist
-            spacy_cache = get_spacy()
-            self.nlp = spacy.load(spacy_cache, exclude=["parser"])
+            # Automatically download/use the model in cache if not in package
+            cached_spacy = get_spacy()
+            self.nlp = spacy.load(cached_spacy, exclude=["parser"])
         self.nlp.add_pipe("sentencizer")
 
     def split_sentences(self, text: str) -> List[str]:
@@ -44,7 +44,7 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
         return [sent.text for sent in doc.sents]
 
     def __str__(self):
-        return "Spacy xx_sent_ud_sm"
+            return "Using Spacy model."
 
 # Stanza sentence boundary is actually a tokenizer, which explains the performances
 # For packages that include stanza sbd, define Sentencizer class identical to Spacy in its inputs and outputs

@@ -9,7 +9,6 @@ from pathlib import Path
 from threading import Lock
 
 import packaging.version
-#from spacy.lang.zh import Segmenter
 
 from argostranslate import networking, settings
 from argostranslate.tokenizer import BPETokenizer, SentencePieceTokenizer
@@ -198,14 +197,14 @@ class Package(IPackage):
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
 
-        """ As of spacy multilingual support, the sbd package shall depend on the package's content"""
-        stanza_dir: Path = package_path / "stanza"
-        spacy_model_path = package_path / "spacy"
+        """ As of spacy multilingual support, the sbd package shall depend on the Argos package's content"""
+        stanza_pack: Path = package_path / "stanza"
+        spacy_pack = package_path / "spacy"
 
         if stanza_dir.exists(): # Stanza tokenizer within the package
-            self.sbd_model_path = stanza_dir
-        elif spacy_model_path.exists(): #Explicit/language-specific spacy model within the package
-            self.sbd_model_path = spacy_model_path
+            self.sbd_model_path = stanza_pack
+        elif spacy_dir.exists(): #Explicit/language-specific spacy model within the package
+            self.sbd_model_path = spacy_pack
         else: # None if no sbd package embedded in the argos package (will default to cache)
             self.sbd_model_path = None
 
