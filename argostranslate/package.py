@@ -59,7 +59,7 @@ class IPackage:
 
 
     Packages are a zip archive of a directory with metadata.json
-    in its root the .argosmodel file extension. By default a
+    in its root the .argosmodel file extension. By default, an
     OpenNMT CTranslate2 directory named model/ is expected in the root directory
     along with a sentencepiece model named sentencepiece.model or a bpe.model
     for tokenizing and Stanza data for sentence boundary detection.
@@ -197,6 +197,17 @@ class Package(IPackage):
             metadata = json.load(metadata_file)
             self.load_metadata_from_json(metadata)
 
+        """ As of spacy multilingual support, the sbd package shall depend on the Argos package's content"""
+        stanza_package = package_path / "stanza"
+        spacy_package = package_path / "spacy"
+
+        if stanza_package.exists(): # Stanza tokenizer within the package
+            self.packaged_sbd_path = stanza_package
+        elif spacy_package.exists(): #Explicit/language-specific spacy model within the package
+            self.packaged_sbd_path = spacy_package
+        else: # None if no sbd package embedded in the argos package (will default to cache)
+            self.packaged_sbd_path = None
+
         sp_model_path = package_path / "sentencepiece.model"
         bpe_model_path = package_path / "bpe.model"
 
@@ -261,7 +272,7 @@ class AvailablePackage(IPackage):
     def download(self) -> Path:
         """Downloads the AvailablePackage and returns its path"""
         filename = argospm_package_name(self) + ".argosmodel"
-
+        '''
         # Install sbd package if needed
         if self.type == "translate" and not settings.stanza_available:
             if (
@@ -275,7 +286,7 @@ class AvailablePackage(IPackage):
                 for sbd_package in sbd_packages:
                     download_path = sbd_package.download()
                     install_from_path(download_path)
-
+        '''
         filepath = settings.downloads_dir / filename
         if not filepath.exists():
             data = networking.get_from(self.links)
@@ -351,7 +362,7 @@ def get_available_packages() -> list[AvailablePackage]:
             for metadata in index:
                 package = AvailablePackage(metadata)
                 packages.append(package)
-
+            '''
             # If stanza not available filter for sbd available
             if not settings.stanza_available:
                 installed_and_available_packages = packages + get_installed_packages()
@@ -367,7 +378,7 @@ def get_available_packages() -> list[AvailablePackage]:
                     filter(lambda x: x.from_code in sbd_available_codes, packages)
                 )
                 return packages + sbd_packages
-
+            '''
             return packages
     except FileNotFoundError:
         update_package_index()
