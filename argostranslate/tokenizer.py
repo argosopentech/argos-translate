@@ -27,9 +27,12 @@ class SentencePieceTokenizer(Tokenizer):
         return tokens
 
     def decode(self, tokens: List[str]) -> str:
+        """
+        # Returns not decoded byte-fallback tokens, quite detrimental to Asian languages translations
         detokenized = "".join(tokens)
         return detokenized.replace("▁", " ")
-
+        """
+        return self.lazy_processor().decode_pieces(tokens).replace("_", " ")
 
 class BPETokenizer(Tokenizer):
     def __init__(self, model_file: Path, from_code: str, to_code: str):
@@ -39,6 +42,7 @@ class BPETokenizer(Tokenizer):
         self.tokenizer = None
         self.detokenizer = None
         self.bpe_source = None
+        self.normalizer = None
 
     def lazy_load(self):
         if self.tokenizer is None:
