@@ -90,15 +90,14 @@ def cache_spacy():
     info("Looking for cached Spacy xx_sent_ud_sm.")
     spacy_model = Path(spacy_cache / "senter" / "model")
     if not spacy_model.exists():
-        while True:
-            try:
-                info("Downloading Spacy xx_sent_ud_sm.")
-                spacy_download("xx_sent_ud_sm")
-                nlp = spacy_load("xx_sent_ud_sm", exclude=["parser"])
-                nlp.to_disk(spacy_cache)
-                info("Spacy xx_sent_ud_sm successfully cached.")
-                return spacy_cache
-            except Exception as e:
-                error(str(e))
-                return None
+        try:
+            info("Downloading Spacy xx_sent_ud_sm.")
+            spacy_download("xx_sent_ud_sm")
+            nlp = spacy_load("xx_sent_ud_sm", exclude=["parser"])
+            nlp.to_disk(spacy_cache)
+            info("Spacy xx_sent_ud_sm successfully cached.")
+            return spacy_cache
+        except Exception as e:
+            error(str(e))
+            return None
     else:   return spacy_cache
