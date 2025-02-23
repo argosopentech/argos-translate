@@ -2,4 +2,4 @@ ctranslate2>=4.0,<5
 sentencepiece==0.2.0
 spacy
 packaging
-sacremoses==0.0.53
+sacremoses>=0.0.53,<0.2
