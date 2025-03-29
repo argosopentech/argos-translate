@@ -1,4 +1,4 @@
-Argos Translate Documentation
+Argos Translate - Documentação
 ===========================================
 
 
@@ -15,7 +15,7 @@ Argos Translate supports installing language model packages which are zip archiv
 
 Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct translation between them installed. For example, if you have a es ➔ en and en ➔ fr translation installed you are able to translate from es ➔ fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
 
-Python Example
+Python - Exemplo
 --------------
 .. code-block:: python
 
