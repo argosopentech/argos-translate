@@ -7,6 +7,8 @@ Argos Translate uses [OpenNMT](https://opennmt.net/) for translations and can be
 
 Argos Translate also manages automatically pivoting through intermediate languages to translate between languages that don't have a direct translation between them installed. For example, if you have a es → en and en → fr translation installed you are able to translate from es → fr as if you had that translation installed. This allows for translating between a wide variety of languages at the cost of some loss of translation quality.
 
+The [argospm-index](https://github.com/argosopentech/argospm-index) contains metadata and download links to access pre-trained Argos Translate models.
+
 ### Supported languages
 Arabic, Azerbaijani, Catalan, Chinese, Czech, Danish, Dutch, English, Esperanto, Finnish, French, German, Greek, Hebrew, Hindi, Hungarian, Indonesian, Irish, Italian, Japanese, Korean, Malay, Persian, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian, and more
 
