@@ -1,44 +1,70 @@
 from __future__ import annotations
 
 from difflib import SequenceMatcher
-from typing import List, Optional
 
+from typing import List
+import stanza
 import spacy
 
-from argostranslate import package
+from argostranslate import package, settings
 from argostranslate.package import Package
 from argostranslate.utils import info
+from argostranslate.networking import cache_spacy
 
 
-class ISentenceBoundaryDetectionModel:
+class ISentenceBoundaryDetectionModel():
     # https://github.com/argosopentech/sbd/blob/main/main.py
-    def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
+    pkg: Package
+
+    def split_sentences(self, text: str) -> List[str]:
         raise NotImplementedError
 
 
 # Spacy sentence boundary detection Sentencizer
 # https://community.libretranslate.com/t/sentence-boundary-detection-for-machine-translation/606/3
 # https://spacy.io/usage/linguistic-features/#sbd
-
 # Download model:
 # python -m spacy download xx_sent_ud_sm
 class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
-    def __init__(self):
-        try:
-            self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
-        except OSError:
-            # Automatically download the model if it doesn't exist
-            spacy.cli.download("xx_sent_ud_sm")
-            self.nlp = spacy.load("xx_sent_ud_sm", exclude=["parser"])
+    def __init__(self, pkg: Package):
+        '''
+        Packaging specific spacy when "xx_sent_ud_sm" doesn't cover the language improves performances over stanza.
+        Please use small models ".._core/web_sm" for consistency.
+        '''
+        if pkg.packaged_sbd_path is not None:
+            self.nlp = spacy.load(pkg.packaged_sbd_path, exclude=["parser"])
+        # Case sbd is not packaged, use cached Spacy multilingual (xx_ud_sent_sm)
+        else:
+            cached_spacy = cache_spacy()
+            self.nlp = spacy.load(cached_spacy, exclude=["parser"])
         self.nlp.add_pipe("sentencizer")
 
-    def split_sentences(self, text: str, lang_code: Optional[str] = None) -> List[str]:
+    def split_sentences(self, text: str) -> List[str]:
         doc = self.nlp(text)
         return [sent.text for sent in doc.sents]
 
     def __str__(self):
-        return "Spacy xx_sent_ud_sm"
+            return "Using Spacy model."
 
+# Stanza sentence boundary detection Sentencizer (legacy, but quite a few languages need it)
+class StanzaSentencizer(ISentenceBoundaryDetectionModel):
+    # Initializes the stanza pipeline, formerly coded in translate.py (commented lines 438-477)
+    # which is actually a tokenizer, hence the slow-motion when running it
+    def __init__(self, pkg: Package):
+         self.stanza_pipeline = stanza.Pipeline(
+            lang=pkg.from_code,
+            dir=str(pkg.packaged_sbd_path),
+            processors="tokenize",
+            use_gpu=settings.device == "cuda",
+            logging_level="WARNING",
+        )
+
+    def split_sentences(self, text: str) -> List[str]:
+        doc = self.stanza_pipeline(text)
+        return [sent.text for sent in doc.sentences]
+
+    def __str__(self):
+        return "Using Stanza library"
 
 # Few Shot Sentence Boundary Detection
 
