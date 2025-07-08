@@ -176,6 +176,7 @@ Custom models trained on your own data are available for $1000/language (negotia
 If you find this software useful donations are greatly appreciated and help to make this project sustainable.
 - [GitHub Sponsor](https://github.com/sponsors/argosopentech)
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
+- [Venmo @pjfinlay](https://venmo.com/u/pjfinlay)
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
 - Ethereum: argosopentech.eth
 - Litecoin: MCwu7RRWeCRJdsv2bXGj2nnL1xYxDBvwW5
