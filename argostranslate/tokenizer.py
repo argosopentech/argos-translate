@@ -32,7 +32,8 @@ class SentencePieceTokenizer(Tokenizer):
         detokenized = "".join(tokens)
         return detokenized.replace("▁", " ")
         """
-        return self.lazy_processor().decode_pieces(tokens).replace("_", " ")
+        # Replace SentencePiece space marker ▁ (U+2581) and regular underscores with spaces
+        return self.lazy_processor().decode_pieces(tokens).replace("▁", " ").replace("_", " ")
 
 
 class BPETokenizer(Tokenizer):
