@@ -150,14 +150,14 @@ def process_seq2seq_sbd(input_text: str, sbd_translated_guess: str) -> int:
     if sbd_translated_guess_index != -1:
         sbd_translated_guess = sbd_translated_guess[:sbd_translated_guess_index]
         info("sbd_translated_guess:", sbd_translated_guess)
-        best_index = None
+        best_index = 0
         best_ratio = 0.0
         for i in range(len(input_text)):
             candidate_sentence = input_text[:i]
             sm = SequenceMatcher()
             sm.set_seqs(candidate_sentence, sbd_translated_guess)
             ratio = sm.ratio()
-            if best_index is None or ratio > best_ratio:
+            if i == 0 or ratio > best_ratio:
                 best_index = i
                 best_ratio = ratio
         return best_index
