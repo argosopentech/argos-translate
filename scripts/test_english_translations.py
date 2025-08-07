@@ -49,7 +49,23 @@ def test_english_translations():
     print(f"Found {len(translation_pairs)} languages with English translation pairs")
     print(f"Bidirectional pairs: {bidirectional_count}, Single-direction: {len(translation_pairs) - bidirectional_count}")
     
-    test_phrases = ["Hello world", "Good morning"]
+    test_phrases = {
+        # Basic phrases
+        "simple_hello": "Hello world",
+        "simple_greeting": "Good morning",
+        
+        # SBD stress test phrases - multiple sentences
+        "two_sentences": "Hello world. How are you today?",
+        "exclamation_period": "Good morning! Nice to see you.",
+        "question_statement": "What time is it? It is three thirty.",
+        "abbreviations": "Dr. Smith went to the U.S.A. yesterday.",
+        "quoted_speech": "He said, 'Hello there.' Then he left.",
+        
+        # Longer coherent text
+        "quick_brown_fox": "The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet.",
+        "longer_paragraph": "Once upon a time, there was a small village. The people were very friendly. They welcomed all visitors with open arms. Everyone lived in harmony together.",
+        "complex_punctuation": "What a beautiful day! Isn't it wonderful? Yes, I think so too.",
+    }
     successful_languages = []
     failed_languages = []
     
@@ -70,15 +86,16 @@ def test_english_translations():
         print(f"  Test type: {test_type}")
         lang_success = True
         
-        for phrase in test_phrases:
+        for test_name, phrase in test_phrases.items():
             try:
+                print(f"  [{test_name}]")
                 if test_type == "bidirectional":
                     # Test full roundtrip
                     forward_result = en_to_x_translation.translate(phrase)
-                    print(f"  EN->({lang_code}): '{phrase}' -> '{forward_result}'")
+                    print(f"    EN->({lang_code}): '{phrase}' -> '{forward_result}'")
                     
                     backward_result = x_to_en_translation.translate(forward_result)
-                    print(f"  ({lang_code})->EN: '{forward_result}' -> '{backward_result}'")
+                    print(f"    ({lang_code})->EN: '{forward_result}' -> '{backward_result}'")
                     
                     # Smoke test assertions
                     if not (forward_result and len(forward_result.strip()) > 0):
@@ -86,31 +103,30 @@ def test_english_translations():
                     if not (backward_result and len(backward_result.strip()) > 0):
                         raise Exception(f"Backward translation failed for {lang_code}")
                     
-                    print(f"  ✓ Roundtrip successful: '{phrase}' -> '{forward_result}' -> '{backward_result}'")
+                    print(f"    ✓ Roundtrip successful")
                     
                 elif test_type == "EN->X only":
                     # Test only EN->X translation
                     forward_result = en_to_x_translation.translate(phrase)
-                    print(f"  EN->({lang_code}): '{phrase}' -> '{forward_result}'")
+                    print(f"    EN->({lang_code}): '{phrase}' -> '{forward_result}'")
                     
                     if not (forward_result and len(forward_result.strip()) > 0):
                         raise Exception(f"Forward translation failed for {lang_code}")
                     
-                    print(f"  ✓ One-way translation successful: '{phrase}' -> '{forward_result}'")
+                    print(f"    ✓ One-way translation successful")
                     
                 else:  # X->EN only
-                    # Test only X->EN translation (use a simple foreign phrase)
-                    test_input = "Hello"  # Simple test since we don't have EN->X
-                    backward_result = x_to_en_translation.translate(test_input)
-                    print(f"  ({lang_code})->EN: '{test_input}' -> '{backward_result}'")
+                    # For X->EN only, use the phrase as if it's in the source language
+                    backward_result = x_to_en_translation.translate(phrase)
+                    print(f"    ({lang_code})->EN: '{phrase}' -> '{backward_result}'")
                     
                     if not (backward_result and len(backward_result.strip()) > 0):
                         raise Exception(f"Backward translation failed for {lang_code}")
                     
-                    print(f"  ✓ One-way translation successful: '{test_input}' -> '{backward_result}'")
+                    print(f"    ✓ One-way translation successful")
                 
             except Exception as e:
-                print(f"  ✗ Translation failed for {lang_code} with phrase '{phrase}': {e}")
+                print(f"    ✗ Translation failed for {lang_code} with test '{test_name}': {e}")
                 lang_success = False
                 break  # Skip remaining phrases for this language
                 
