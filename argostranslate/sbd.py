@@ -12,7 +12,7 @@ from argostranslate.utils import info
 from argostranslate.networking import cache_spacy
 
 
-class ISentenceBoundaryDetectionModel():
+class ISentenceBoundaryDetectionModel:
     # https://github.com/argosopentech/sbd/blob/main/main.py
     pkg: Package
 
@@ -27,10 +27,10 @@ class ISentenceBoundaryDetectionModel():
 # python -m spacy download xx_sent_ud_sm
 class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
     def __init__(self, pkg: Package):
-        '''
+        """
         Packaging specific spacy when "xx_sent_ud_sm" doesn't cover the language improves performances over stanza.
         Please use small models ".._core/web_sm" for consistency.
-        '''
+        """
         if pkg.packaged_sbd_path is not None:
             self.nlp = spacy.load(pkg.packaged_sbd_path, exclude=["parser"])
         # Case sbd is not packaged, use cached Spacy multilingual (xx_ud_sent_sm)
@@ -44,27 +44,58 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
         return [sent.text for sent in doc.sents]
 
     def __str__(self):
-            return "Using Spacy model."
+        return "Using Spacy model."
 
-# Stanza sentence boundary detection Sentencizer (legacy, but quite a few languages need it)
 class StanzaSentencizer(ISentenceBoundaryDetectionModel):
     # Initializes the stanza pipeline, formerly coded in translate.py (commented lines 438-477)
     # which is actually a tokenizer, hence the slow-motion when running it
+    LANGUAGE_CODE_MAPPING = {
+        "zt": "zh-hant",
+        "pb": "pt",
+    }
+
+    def _init_spacy_fallback(self):
+        """Initialize SpaCy fallback using cached multilingual model."""
+        cached_spacy = cache_spacy()
+        self.nlp = spacy.load(cached_spacy, exclude=["parser"])
+        self.nlp.add_pipe("sentencizer")
+
     def __init__(self, pkg: Package):
-         self.stanza_pipeline = stanza.Pipeline(
-            lang=pkg.from_code,
-            dir=str(pkg.packaged_sbd_path),
-            processors="tokenize",
-            use_gpu=settings.device == "cuda",
-            logging_level="WARNING",
-        )
+        try:
+            stanza_lang_code = self.LANGUAGE_CODE_MAPPING.get(
+                pkg.from_code, pkg.from_code
+            )
+
+            self.stanza_pipeline = stanza.Pipeline(
+                lang=stanza_lang_code,
+                processors="tokenize",
+                use_gpu=settings.device == "cuda",
+                logging_level="WARNING",
+                tokenize_pretokenized=True,
+            )
+            self.fallback_to_spacy = False
+        except Exception as e:
+            info(f"Stanza pipeline failed for language '{pkg.from_code}': {e}")
+            info(
+                f"Falling back to SpaCy sentence boundary detection for {pkg.from_code}"
+            )
+            self.stanza_pipeline = None
+            self.fallback_to_spacy = True
+            self._init_spacy_fallback()
 
     def split_sentences(self, text: str) -> List[str]:
-        doc = self.stanza_pipeline(text)
-        return [sent.text for sent in doc.sentences]
+        if self.fallback_to_spacy:
+            doc = self.nlp(text)
+            return [sent.text for sent in doc.sents]
+        else:
+            doc = self.stanza_pipeline(text)
+            return [sent.text for sent in doc.sentences]
 
     def __str__(self):
-        return "Using Stanza library"
+        if self.fallback_to_spacy:
+            return "Using Stanza library (fallback to SpaCy)"
+        else:
+            return "Using Stanza library"
 
 # Few Shot Sentence Boundary Detection
 
