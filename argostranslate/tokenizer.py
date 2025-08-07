@@ -34,6 +34,7 @@ class SentencePieceTokenizer(Tokenizer):
         """
         return self.lazy_processor().decode_pieces(tokens).replace("_", " ")
 
+
 class BPETokenizer(Tokenizer):
     def __init__(self, model_file: Path, from_code: str, to_code: str):
         self.model_file = model_file

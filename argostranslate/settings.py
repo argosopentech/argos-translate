@@ -159,10 +159,10 @@ remote_package_index = package_index + "index.json"
 local_package_index = data_dir / "index.json"
 
 experimental_enabled = os.getenv("ARGOS_EXPERIMENTAL_ENABLED") in TRUE_VALUES
-'''
+"""
 # Legacy environment variable for sentence boundary detection
 stanza_available = os.getenv("ARGOS_STANZA_AVAILABLE") in (TRUE_VALUES + [None])
-'''
+"""
 # Supported values: "cpu" and "cuda"
 device = get_setting("ARGOS_DEVICE_TYPE", "cpu")
 

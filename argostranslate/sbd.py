@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from difflib import SequenceMatcher
-
 from typing import List
-import stanza
+
 import spacy
+import stanza
 
 from argostranslate import package, settings
+from argostranslate.networking import cache_spacy
 from argostranslate.package import Package
 from argostranslate.utils import info
-from argostranslate.networking import cache_spacy
 
 
 class ISentenceBoundaryDetectionModel:
@@ -45,6 +45,7 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
 
     def __str__(self):
         return "Using Spacy model."
+
 
 class StanzaSentencizer(ISentenceBoundaryDetectionModel):
     # Initializes the stanza pipeline, formerly coded in translate.py (commented lines 438-477)
@@ -96,6 +97,7 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
             return "Using Stanza library (fallback to SpaCy)"
         else:
             return "Using Stanza library"
+
 
 # Few Shot Sentence Boundary Detection
 
