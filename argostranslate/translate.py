@@ -160,14 +160,13 @@ class PackageTranslation(ITranslation):
         self.to_lang = to_lang
         self.pkg = pkg
         self.translator = None
-        if 'stanza' in str(pkg.packaged_sbd_path):
+        if "stanza" in str(pkg.packaged_sbd_path):
             self.sentencizer = StanzaSentencizer(pkg)
-        elif pkg.packaged_sbd_path is None or 'spacy' in str(pkg.packaged_sbd_path):
+        elif pkg.packaged_sbd_path is None or "spacy" in str(pkg.packaged_sbd_path):
             self.sentencizer = SpacySentencizerSmall(pkg)
         else:
             # Any other SBD dependency should be defined as a class in the SBD module.
             raise NotImplementedError()
-
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
@@ -432,7 +431,7 @@ def apply_packaged_translation(
 
     info("apply_packaged_translation", input_text)
 
-    #Sentence boundary detection
+    # Sentence boundary detection
     sentences = sentencizer.split_sentences(input_text)
     info("sentences", sentences)
     """
@@ -545,7 +544,7 @@ def get_installed_languages() -> list[Language]:
 
     if settings.model_provider == settings.ModelProvider.OPENNMT:
         packages = package.get_installed_packages()
-        '''
+        """
         # Legacy sbd package search (environment-dependant)
         # If stanza not available filter for sbd available
         if not settings.stanza_available:
@@ -556,7 +555,7 @@ def get_installed_languages() -> list[Language]:
             packages = list(
                 filter(lambda x: x.from_code in sbd_available_codes, packages)
             )
-        '''
+        """
         # Filter for translate packages
         packages = list(filter(lambda x: x.type == "translate", packages))
 
