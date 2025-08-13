@@ -262,9 +262,10 @@ def install_from_path(path: Path):
             raise Exception("Not a valid Argos Model (must be a zip archive)")
         with zipfile.ZipFile(path, "r") as zipf:
             zipf.extractall(path=settings.package_data_dir)
-        
+
         # Clear language cache after package installation
         from argostranslate.translate import get_installed_languages
+
         get_installed_languages.cache_clear()
 
 
@@ -320,9 +321,10 @@ def uninstall(pkg: Package):
     """
     with package_lock:
         shutil.rmtree(pkg.package_path)
-        
+
         # Clear language cache after package uninstallation
         from argostranslate.translate import get_installed_languages
+
         get_installed_languages.cache_clear()
 
 

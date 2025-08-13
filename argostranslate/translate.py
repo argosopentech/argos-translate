@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import List
 import functools
+from typing import List
 
 import ctranslate2
 # import sentencepiece as spm
