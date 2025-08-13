@@ -11,9 +11,9 @@ from argostranslate.networking import cache_spacy
 from argostranslate.package import Package
 from argostranslate.utils import info
 
-# Cache SpaCy model once at module level unless in STANZA_ONLY mode
+# Cache SpaCy model once at module level unless in STANZA mode
 _cached_spacy_path: str | None = (
-    cache_spacy() if settings.chunk_type != settings.ChunkType.STANZA_ONLY else None
+    cache_spacy() if settings.chunk_type != settings.ChunkType.STANZA else None
 )
 
 
@@ -69,9 +69,9 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
         self.nlp.add_pipe("sentencizer")
 
     def __init__(self, pkg: Package):
-        if settings.chunk_type == settings.ChunkType.SPACY_ONLY:
+        if settings.chunk_type == settings.ChunkType.SPACY:
             raise NotImplementedError(
-                f"SPACY_ONLY mode: StanzaSentencizer should not be used"
+                f"SPACY mode: StanzaSentencizer should not be used"
             )
 
         try:
@@ -89,9 +89,9 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
             self.fallback_to_spacy = False
         except Exception as e:
             info(f"Stanza pipeline failed for language '{pkg.from_code}': {e}")
-            if settings.chunk_type == settings.ChunkType.STANZA_ONLY:
+            if settings.chunk_type == settings.ChunkType.STANZA:
                 raise NotImplementedError(
-                    f"STANZA_ONLY mode: Stanza not available for {pkg.from_code}"
+                    f"STANZA mode: Stanza not available for {pkg.from_code}"
                 )
             info(
                 f"Falling back to SpaCy sentence boundary detection for {pkg.from_code}"

@@ -161,11 +161,11 @@ class PackageTranslation(ITranslation):
         self.pkg = pkg
         self.translator = None
 
-        if settings.chunk_type != settings.ChunkType.SPACY_ONLY and "stanza" in str(
+        if settings.chunk_type != settings.ChunkType.SPACY and "stanza" in str(
             pkg.packaged_sbd_path
         ):
             self.sentencizer = StanzaSentencizer(pkg)
-        elif settings.chunk_type != settings.ChunkType.STANZA_ONLY:
+        elif settings.chunk_type != settings.ChunkType.STANZA:
             self.sentencizer = SpacySentencizerSmall(pkg)
         else:
             # Any other SBD dependency should be defined as a class in the SBD module.

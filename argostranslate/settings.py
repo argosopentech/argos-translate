@@ -190,16 +190,16 @@ class ChunkType(Enum):
     DEFAULT = 0
     ARGOSTRANSLATE = 1
     NONE = 2  # No sentence splitting
-    STANZA_ONLY = 3  # Use only Stanza
-    SPACY_ONLY = 4  # Use only SpaCy
+    STANZA = 3  # Use only Stanza
+    SPACY = 4  # Use only SpaCy
 
 
 chunk_type_mapping = {
     "DEFAULT": ChunkType.DEFAULT,
     "ARGOSTRANSLATE": ChunkType.ARGOSTRANSLATE,
     "NONE": ChunkType.NONE,
-    "STANZA_ONLY": ChunkType.STANZA_ONLY,
-    "SPACY_ONLY": ChunkType.SPACY_ONLY,
+    "STANZA": ChunkType.STANZA,
+    "SPACY": ChunkType.SPACY,
 }
 chunk_type = chunk_type_mapping[get_setting("ARGOS_CHUNK_TYPE", default="DEFAULT")]
 if chunk_type == ChunkType.DEFAULT:
