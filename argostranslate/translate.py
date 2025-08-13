@@ -160,9 +160,12 @@ class PackageTranslation(ITranslation):
         self.to_lang = to_lang
         self.pkg = pkg
         self.translator = None
-        if "stanza" in str(pkg.packaged_sbd_path):
+
+        if settings.chunk_type != settings.ChunkType.SPACY_ONLY and "stanza" in str(
+            pkg.packaged_sbd_path
+        ):
             self.sentencizer = StanzaSentencizer(pkg)
-        elif pkg.packaged_sbd_path is None or "spacy" in str(pkg.packaged_sbd_path):
+        elif settings.chunk_type != settings.ChunkType.STANZA_ONLY:
             self.sentencizer = SpacySentencizerSmall(pkg)
         else:
             # Any other SBD dependency should be defined as a class in the SBD module.
@@ -575,13 +578,17 @@ def get_installed_languages() -> list[Language]:
             )
             translation_to_add: CachedTranslation
             if len(contain) == 0:
-                translation_to_add = CachedTranslation(
-                    PackageTranslation(from_lang, to_lang, pkg)
-                )
-                saved_cache = InstalledTranslate()
-                saved_cache.package_key = package_key
-                saved_cache.cached_translation = translation_to_add
-                installed_translates.append(saved_cache)
+                try:
+                    translation_to_add = CachedTranslation(
+                        PackageTranslation(from_lang, to_lang, pkg)
+                    )
+                    saved_cache = InstalledTranslate()
+                    saved_cache.package_key = package_key
+                    saved_cache.cached_translation = translation_to_add
+                    installed_translates.append(saved_cache)
+                except NotImplementedError as e:
+                    info(f"Skipping package {package_key}: {e}")
+                    continue
             else:
                 translation_to_add = contain[0].cached_translation
 

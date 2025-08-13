@@ -11,6 +11,11 @@ from argostranslate.networking import cache_spacy
 from argostranslate.package import Package
 from argostranslate.utils import info
 
+# Cache SpaCy model once at module level unless in STANZA_ONLY mode
+_cached_spacy_path: str | None = (
+    cache_spacy() if settings.chunk_type != settings.ChunkType.STANZA_ONLY else None
+)
+
 
 class ISentenceBoundaryDetectionModel:
     # https://github.com/argosopentech/sbd/blob/main/main.py
@@ -31,12 +36,13 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
         Packaging specific spacy when "xx_sent_ud_sm" doesn't cover the language improves performances over stanza.
         Please use small models ".._core/web_sm" for consistency.
         """
-        if pkg.packaged_sbd_path is not None:
+        if pkg.packaged_sbd_path is not None and "spacy" in str(pkg.packaged_sbd_path):
             self.nlp = spacy.load(pkg.packaged_sbd_path, exclude=["parser"])
         # Case sbd is not packaged, use cached Spacy multilingual (xx_ud_sent_sm)
         else:
-            cached_spacy = cache_spacy()
-            self.nlp = spacy.load(cached_spacy, exclude=["parser"])
+            if _cached_spacy_path is None:
+                raise RuntimeError("SpaCy cache not initialized")
+            self.nlp = spacy.load(_cached_spacy_path, exclude=["parser"])
         self.nlp.add_pipe("sentencizer")
 
     def split_sentences(self, text: str) -> List[str]:
@@ -57,11 +63,17 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
 
     def _init_spacy_fallback(self):
         """Initialize SpaCy fallback using cached multilingual model."""
-        cached_spacy = cache_spacy()
-        self.nlp = spacy.load(cached_spacy, exclude=["parser"])
+        if _cached_spacy_path is None:
+            raise RuntimeError("SpaCy cache not initialized")
+        self.nlp = spacy.load(_cached_spacy_path, exclude=["parser"])
         self.nlp.add_pipe("sentencizer")
 
     def __init__(self, pkg: Package):
+        if settings.chunk_type == settings.ChunkType.SPACY_ONLY:
+            raise NotImplementedError(
+                f"SPACY_ONLY mode: StanzaSentencizer should not be used"
+            )
+
         try:
             stanza_lang_code = self.LANGUAGE_CODE_MAPPING.get(
                 pkg.from_code, pkg.from_code
@@ -77,6 +89,10 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
             self.fallback_to_spacy = False
         except Exception as e:
             info(f"Stanza pipeline failed for language '{pkg.from_code}': {e}")
+            if settings.chunk_type == settings.ChunkType.STANZA_ONLY:
+                raise NotImplementedError(
+                    f"STANZA_ONLY mode: Stanza not available for {pkg.from_code}"
+                )
             info(
                 f"Falling back to SpaCy sentence boundary detection for {pkg.from_code}"
             )
