@@ -480,7 +480,6 @@ def apply_packaged_translation(
     info("tokenized", tokenized)
 
     # Translation
-    BATCH_SIZE = 32
     target_prefix = None
 
     if pkg.target_prefix != "":
@@ -490,8 +489,8 @@ def apply_packaged_translation(
         tokenized,
         target_prefix=target_prefix,
         replace_unknowns=True,
-        max_batch_size=BATCH_SIZE,
-        beam_size=max(num_hypotheses, 4),
+        max_batch_size=settings.batch_size,
+        beam_size=min(max(num_hypotheses, 1), 4),
         num_hypotheses=num_hypotheses,
         length_penalty=0.2,
         return_scores=True,
@@ -504,7 +503,7 @@ def apply_packaged_translation(
         translated_tokens = []
         cumulative_score = 0
         for translated_batch in translated_batches:
-            translated_tokens += translated_batch.hypotheses[i]
+            translated_tokens.extend(translated_batch.hypotheses[i])
             cumulative_score += translated_batch.scores[i]
 
         value = pkg.tokenizer.decode(translated_tokens)
