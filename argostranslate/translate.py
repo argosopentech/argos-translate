@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import List
+import functools
 
 import ctranslate2
 # import sentencepiece as spm
@@ -536,6 +537,7 @@ class InstalledTranslate:
 installed_translates: List[InstalledTranslate] = []
 
 
+@functools.lru_cache()
 def get_installed_languages() -> list[Language]:
     """Returns a list of Languages installed from packages"""
 
