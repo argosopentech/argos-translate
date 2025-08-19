@@ -180,6 +180,7 @@ class PackageTranslation(ITranslation):
                 device=settings.device,
                 inter_threads=settings.inter_threads,
                 intra_threads=settings.intra_threads,
+                compute_type=settings.compute_type,
             )
         paragraphs = ITranslation.split_into_paragraphs(input_text)
         info("paragraphs:", paragraphs)
