@@ -157,7 +157,6 @@ rm -r ~/.local/share/argos-translate
 - [LibreTranslate Go](https://github.com/SnakeSel/libretranslate) - LibreTranslate Golang bindings
 - [LibreTranslate Java](https://github.com/dynomake/libretranslate-java) - LibreTranslate Java bindings
 - [LibreTranslator](https://gitlab.com/BeowuIf/libretranslator) - LibreTranslate Android app
-- [LiTranslate](https://community.libretranslate.com/t/litranslate-ios-app/333) - iOS LibreTranslate client
 
 ## Contributing
 Contributions are welcome! Available issues are on the [GitHub issues page](https://github.com/argosopentech/argos-translate/issues). Contributions of code, data, and pre-trained models can all be accepted.
