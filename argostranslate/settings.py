@@ -171,6 +171,7 @@ inter_threads = int(get_setting("ARGOS_INTER_THREADS", "1"))
 intra_threads = int(get_setting("ARGOS_INTRA_THREADS", "0"))
 batch_size = int(get_setting("ARGOS_BATCH_SIZE", "32"))
 compute_type = get_setting("ARGOS_COMPUTE_TYPE", "auto")
+beam_size = int(get_setting("ARGOS_BEAM_SIZE", "4"))
 
 
 class ModelProvider(Enum):
