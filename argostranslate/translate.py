@@ -495,6 +495,7 @@ def apply_packaged_translation(
         target_prefix=target_prefix,
         replace_unknowns=True,
         max_batch_size=settings.batch_size,
+        batch_type="tokens",
         beam_size=max(num_hypotheses, settings.beam_size),
         num_hypotheses=num_hypotheses,
         length_penalty=0.2,
