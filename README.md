@@ -10,6 +10,9 @@ Argos Translate also manages automatically pivoting through intermediate languag
 The [argospm-index](https://github.com/argosopentech/argospm-index) contains metadata and download links to access pre-trained Argos Translate models.
 
 ### Supported languages
+
+##### [Browse Package Index](https://www.argosopentech.com/argospm/index/)
+
 Arabic, Azerbaijani, Basque, Catalan, Chinese, Czech, Danish, Dutch, English, Esperanto, Finnish, French, Galician, German, Greek, Hebrew, Hindi, Hungarian, Indonesian, Irish, Italian, Japanese, Kyrgyz, Korean, Malay, Persian, Polish, Portuguese, Portuguese (Brazil), Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian, Urdu, and more
 
 [Request a language](https://github.com/argosopentech/argos-translate/discussions/91)
