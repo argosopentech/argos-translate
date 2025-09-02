@@ -263,6 +263,11 @@ def install_from_path(path: Path):
         with zipfile.ZipFile(path, "r") as zipf:
             zipf.extractall(path=settings.package_data_dir)
 
+        # Clear language cache after package installation
+        from argostranslate.translate import get_installed_languages
+
+        get_installed_languages.cache_clear()
+
 
 class AvailablePackage(IPackage):
     """A package available for download and installation"""
@@ -316,6 +321,11 @@ def uninstall(pkg: Package):
     """
     with package_lock:
         shutil.rmtree(pkg.package_path)
+
+        # Clear language cache after package uninstallation
+        from argostranslate.translate import get_installed_languages
+
+        get_installed_languages.cache_clear()
 
 
 def get_installed_packages(path: Path = None) -> list[Package]:
