@@ -11,6 +11,15 @@ from argostranslate.networking import cache_spacy
 from argostranslate.package import Package
 from argostranslate.utils import info
 
+
+def get_stanza_processors(lang_code: str, resources: dict) -> str:
+    """Get appropriate processors for a language, including MWT if available."""
+    try:
+        return "tokenize,mwt" if resources[lang_code].get("mwt") else "tokenize"
+    except (KeyError, TypeError):
+        return "tokenize"
+
+
 # Cache SpaCy model once at module level unless in STANZA mode
 _cached_spacy_path: str | None = (
     cache_spacy() if settings.chunk_type != settings.ChunkType.STANZA else None
@@ -79,12 +88,18 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
                 pkg.from_code, pkg.from_code
             )
 
+            try:
+                resources = stanza.resources.common.load_resources_json()
+            except Exception:
+                resources = {}
+
             self.stanza_pipeline = stanza.Pipeline(
                 lang=stanza_lang_code,
-                processors="tokenize",
+                processors=get_stanza_processors(stanza_lang_code, resources),
                 use_gpu=settings.device == "cuda",
                 logging_level="WARNING",
-                tokenize_pretokenized=True,
+                tokenize_pretokenized=False,
+                download_method=stanza.DownloadMethod.REUSE_RESOURCES,
             )
             self.fallback_to_spacy = False
         except Exception as e:
