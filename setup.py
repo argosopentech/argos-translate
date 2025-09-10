@@ -24,8 +24,13 @@ setup(
     python_requires=">=3.5",
     packages=find_packages(),
     install_requires=required_packages,
+    entry_points={
+        "console_scripts": [
+            "argos-translate = argostranslate.cli:main",
+            "argospm = argostranslate.argospm:main",
+        ]
+    },
     include_package_data=True,
-    scripts=["bin/argos-translate", "bin/argospm"],
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",

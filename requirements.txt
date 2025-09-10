@@ -1,5 +1,5 @@
 ctranslate2>=4.0,<5
-sentencepiece==0.2.0
+sentencepiece>=0.2.0,<0.3
 spacy
 stanza==1.10.1
 packaging
