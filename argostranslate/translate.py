@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 from typing import List
 
 import ctranslate2
@@ -179,6 +180,7 @@ class PackageTranslation(ITranslation):
                 device=settings.device,
                 inter_threads=settings.inter_threads,
                 intra_threads=settings.intra_threads,
+                compute_type=settings.compute_type,
             )
         paragraphs = ITranslation.split_into_paragraphs(input_text)
         info("paragraphs:", paragraphs)
@@ -483,7 +485,6 @@ def apply_packaged_translation(
     info("tokenized", tokenized)
 
     # Translation
-    BATCH_SIZE = 32
     target_prefix = None
 
     if pkg.target_prefix != "":
@@ -493,8 +494,9 @@ def apply_packaged_translation(
         tokenized,
         target_prefix=target_prefix,
         replace_unknowns=True,
-        max_batch_size=BATCH_SIZE,
-        beam_size=max(num_hypotheses, 4),
+        max_batch_size=settings.batch_size,
+        batch_type="tokens",
+        beam_size=max(num_hypotheses, settings.beam_size),
         num_hypotheses=num_hypotheses,
         length_penalty=0.2,
         return_scores=True,
@@ -507,7 +509,7 @@ def apply_packaged_translation(
         translated_tokens = []
         cumulative_score = 0
         for translated_batch in translated_batches:
-            translated_tokens += translated_batch.hypotheses[i]
+            translated_tokens.extend(translated_batch.hypotheses[i])
             cumulative_score += translated_batch.scores[i]
 
         value = pkg.tokenizer.decode(translated_tokens)
@@ -540,6 +542,7 @@ class InstalledTranslate:
 installed_translates: List[InstalledTranslate] = []
 
 
+@functools.lru_cache()
 def get_installed_languages() -> list[Language]:
     """Returns a list of Languages installed from packages"""
 
