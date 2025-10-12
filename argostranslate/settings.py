@@ -200,7 +200,7 @@ class ChunkType(Enum):
 chunk_type_mapping = {
     "DEFAULT": ChunkType.DEFAULT,
     "ARGOSTRANSLATE": ChunkType.ARGOSTRANSLATE,
-    "NONE": ChunkType.NONE,
+    "NONE": ChunkType.NONE,  # TODO: Currently not supported, this should do no SBD (good for short passages)
     "STANZA": ChunkType.STANZA,
     "SPACY": ChunkType.SPACY,
 }
