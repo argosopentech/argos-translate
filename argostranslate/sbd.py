@@ -21,9 +21,7 @@ def get_stanza_processors(lang_code: str, resources: dict) -> str:
 
 
 # Cache SpaCy model once at module level
-_cached_spacy_path: str | None = (
-    cache_spacy()
-)
+_cached_spacy_path: str | None = cache_spacy()
 
 
 class ISentenceBoundaryDetectionModel:
@@ -101,7 +99,9 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
             self.fallback_to_spacy = False
         except Exception as e:
             info(f"Stanza pipeline failed for language '{pkg.from_code}': {e}")
-            info(f"Falling back to SpaCy sentence boundary detection for {pkg.from_code}")
+            info(
+                f"Falling back to SpaCy sentence boundary detection for {pkg.from_code}"
+            )
             self.stanza_pipeline = None
             self.fallback_to_spacy = True
             self._init_spacy_fallback()
@@ -121,6 +121,7 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
             return "StanzaSentencizer falling back to Spacy "
         else:
             return "StanzaSentencizer"
+
 
 ###############################################
 #### Few Shot Sentence Boundary Detection ####
