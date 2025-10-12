@@ -84,8 +84,8 @@ def get_from(urls: list[str], retry_count: int = 3) -> bytes | None:
     return None
 
 
-def cache_spacy():
-    """Downloads spacy multilingual model and saves it the cache directory for further use"""
+def cache_spacy() -> Path | None:
+    """Downloads Spacy multilingual model and saves it the cache directory for further use"""
     spacy_cache = Path(settings.cache_dir / "spacy")
     makedirs(spacy_cache, exist_ok=True)
     info("Looking for cached Spacy xx_sent_ud_sm.")

@@ -9,7 +9,7 @@ import stanza
 from argostranslate import package, settings
 from argostranslate.networking import cache_spacy
 from argostranslate.package import Package
-from argostranslate.utils import info
+from argostranslate.utils import info, warning
 
 
 def get_stanza_processors(lang_code: str, resources: dict) -> str:
@@ -20,9 +20,9 @@ def get_stanza_processors(lang_code: str, resources: dict) -> str:
         return "tokenize"
 
 
-# Cache SpaCy model once at module level unless in STANZA mode
+# Cache SpaCy model once at module level
 _cached_spacy_path: str | None = (
-    cache_spacy() if settings.chunk_type != settings.ChunkType.STANZA else None
+    cache_spacy()
 )
 
 
@@ -45,6 +45,7 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
         Packaging specific spacy when "xx_sent_ud_sm" doesn't cover the language improves performances over stanza.
         Please use small models ".._core/web_sm" for consistency.
         """
+        self.pkg = pkg
         if pkg.packaged_sbd_path is not None and "spacy" in str(pkg.packaged_sbd_path):
             self.nlp = spacy.load(pkg.packaged_sbd_path, exclude=["parser"])
         # Case sbd is not packaged, use cached Spacy multilingual (xx_ud_sent_sm)
@@ -55,6 +56,7 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
         self.nlp.add_pipe("sentencizer")
 
     def split_sentences(self, text: str) -> List[str]:
+        info(f"Splitting sentences using SBD Model: ({self.pkg.from_code}) {str(self)}")
         doc = self.nlp(text)
         return [sent.text for sent in doc.sents]
 
@@ -63,8 +65,6 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
 
 
 class StanzaSentencizer(ISentenceBoundaryDetectionModel):
-    # Initializes the stanza pipeline, formerly coded in translate.py (commented lines 438-477)
-    # which is actually a tokenizer, hence the slow-motion when running it
     LANGUAGE_CODE_MAPPING = {
         "zt": "zh-hant",
         "pb": "pt",
@@ -78,11 +78,7 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
         self.nlp.add_pipe("sentencizer")
 
     def __init__(self, pkg: Package):
-        if settings.chunk_type == settings.ChunkType.SPACY:
-            raise NotImplementedError(
-                f"SPACY mode: StanzaSentencizer should not be used"
-            )
-
+        self.pkg = pkg
         try:
             stanza_lang_code = self.LANGUAGE_CODE_MAPPING.get(
                 pkg.from_code, pkg.from_code
@@ -91,6 +87,7 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
             try:
                 resources = stanza.resources.common.load_resources_json()
             except Exception:
+                warning(f"Could not load Stanza resources for package {str(pkg)}")
                 resources = {}
 
             self.stanza_pipeline = stanza.Pipeline(
@@ -104,18 +101,14 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
             self.fallback_to_spacy = False
         except Exception as e:
             info(f"Stanza pipeline failed for language '{pkg.from_code}': {e}")
-            if settings.chunk_type == settings.ChunkType.STANZA:
-                raise NotImplementedError(
-                    f"STANZA mode: Stanza not available for {pkg.from_code}"
-                )
-            info(
-                f"Falling back to SpaCy sentence boundary detection for {pkg.from_code}"
-            )
+            info(f"Falling back to SpaCy sentence boundary detection for {pkg.from_code}")
             self.stanza_pipeline = None
             self.fallback_to_spacy = True
             self._init_spacy_fallback()
 
     def split_sentences(self, text: str) -> List[str]:
+        # TODO do Spacy SBD using a SpacySentencizerSmall object instead of duplicating code
+        info(f"Splitting sentences using SBD Model: ({self.pkg.from_code}) {str(self)}")
         if self.fallback_to_spacy:
             doc = self.nlp(text)
             return [sent.text for sent in doc.sents]
@@ -125,12 +118,15 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
 
     def __str__(self):
         if self.fallback_to_spacy:
-            return "Using Stanza library (fallback to SpaCy)"
+            return "StanzaSentencizer falling back to Spacy "
         else:
-            return "Using Stanza library"
+            return "StanzaSentencizer"
 
+###############################################
+#### Few Shot Sentence Boundary Detection ####
+###############################################
 
-# Few Shot Sentence Boundary Detection
+# The Few Shot SBD code mostly isn't used currently
 
 fewshot_prompt = """<detect-sentence-boundaries> I walked down to the river. Then I went to the
 I walked down to the river. <sentence-boundary>
