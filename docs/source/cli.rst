@@ -35,6 +35,15 @@ Note: If you do not have the language pair that you are calling installed, you w
     Hola Mundo
 
 
+
+Translate with shorter flag namesj
+
+
+    argos-translate -f en -t es "Hello World."
+    Hola Mundo
+
+
+
 Translate longer text piped into `argos-translate`.::
 
 
