@@ -1,3 +1,6 @@
+1.10:
+- Spacy support
+
 1.9:
 - Add support for Byte Pair Encoding
 
