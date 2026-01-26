@@ -138,21 +138,26 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
 
     def __init__(self, pkg: Package):
         self.pkg = pkg
-        stanza_lang_code = self.LANGUAGE_CODE_MAPPING.get(
+        self.stanza_lang_code = self.LANGUAGE_CODE_MAPPING.get(
             pkg.from_code, pkg.from_code
         )
 
-        self.stanza_pipeline = stanza.Pipeline(
-            lang=stanza_lang_code,
-            dir=str(pkg.package_path / "stanza"),
-            processors="tokenize",
-            use_gpu=settings.device == "cuda",
-            logging_level="WARNING",
-        )
+        self.stanza_pipeline = None
+    
+    def lazy_pipeline(self):
+        if self.stanza_pipeline is None:
+            self.stanza_pipeline = stanza.Pipeline(
+                lang=self.stanza_lang_code,
+                dir=str(self.pkg.package_path / "stanza"),
+                processors="tokenize",
+                use_gpu=settings.device == "cuda",
+                logging_level="WARNING",
+            )
+        return self.stanza_pipeline
 
     def split_sentences(self, text: str) -> List[str]:
         info(f"Splitting sentences using SBD Model: ({self.pkg.from_code}) {str(self)}")
-        doc = self.stanza_pipeline(text)
+        doc = self.lazy_pipeline()(text)
         return [sent.text for sent in doc.sentences]
 
     def __str__(self):
