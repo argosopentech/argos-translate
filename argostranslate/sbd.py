@@ -17,7 +17,7 @@ from argostranslate.networking import cache_spacy
 from argostranslate.package import Package
 from argostranslate.utils import info, warning
 
-minisbd_models.cache_dir = str(settings.cache_dir / "minisbd")
+minisbd_models.cache_dir = str(settings.data_dir / "minisbd")
 
 def get_stanza_processors(lang_code: str, resources: dict) -> str:
     """Get appropriate processors for a language, including MWT if available."""
@@ -53,6 +53,9 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
         Please use small models ".._core/web_sm" for consistency.
         """
         self.pkg = pkg
+        if spacy is None:
+            raise RuntimeError("SpaCy is not installed. Install spacy or change ChunkType settings")
+
         if pkg.packaged_sbd_path is not None and "spacy" in str(pkg.packaged_sbd_path):
             self.nlp = spacy.load(pkg.packaged_sbd_path, exclude=["parser"])
         # Case sbd is not packaged, use cached Spacy multilingual (xx_ud_sent_sm)
@@ -76,6 +79,14 @@ class MiniSBDSentencizer(ISentenceBoundaryDetectionModel):
         "zt": "zh-hant",
         "zh": "zh-hans",
         "pb": "pt",
+
+        # Fallback languages, a model for these is not available
+        # so we map to a close language
+        "az": "tr",
+        "bn": "hi",
+        "eo": "en",
+        "ms": "en",
+        "tl": "en",
     }
 
     def __init__(self, pkg: Package):
