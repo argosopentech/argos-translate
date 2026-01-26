@@ -198,10 +198,13 @@ class Package(IPackage):
             self.load_metadata_from_json(metadata)
 
         """ As of spacy multilingual support, the sbd package shall depend on the Argos package's content"""
+        minisbd_package = package_path / "minisbd"
         stanza_package = package_path / "stanza"
         spacy_package = package_path / "spacy"
 
-        if stanza_package.exists():  # Stanza tokenizer within the package
+        if minisbd_package.exists(): # MiniSBD model within the package (prioritize over stanza if both are there)
+            self.packaged_sbd_path = minisbd_package
+        elif stanza_package.exists():  # Stanza tokenizer within the package
             self.packaged_sbd_path = stanza_package
         elif (
             spacy_package.exists()

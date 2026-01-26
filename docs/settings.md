@@ -52,5 +52,6 @@ export ARGOS_CHUNK_TYPE="DEFAULT"       # Default behavior
 export ARGOS_CHUNK_TYPE="ARGOSTRANSLATE" # Use Argos Translate's SBD
 export ARGOS_CHUNK_TYPE="STANZA"        # Use Stanza for sentence splitting
 export ARGOS_CHUNK_TYPE="SPACY"         # Use SpaCy for sentence splitting
+export ARGOS_CHUNK_TYPE="MINISBD"         # Use MiniSBD for sentence splitting
 export ARGOS_CHUNK_TYPE="NONE"          # No sentence splitting
 ```

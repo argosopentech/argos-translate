@@ -195,6 +195,7 @@ class ChunkType(Enum):
     NONE = 2  # No sentence splitting
     STANZA = 3  # Use only Stanza
     SPACY = 4  # Use only SpaCy
+    MINISBD = 5 # Use only MiniSBD
 
 
 chunk_type_mapping = {
@@ -203,6 +204,7 @@ chunk_type_mapping = {
     "NONE": ChunkType.NONE,  # TODO: Currently not supported, this should do no SBD (good for short passages)
     "STANZA": ChunkType.STANZA,
     "SPACY": ChunkType.SPACY,
+    "MINISBD": ChunkType.MINISBD,
 }
 chunk_type = chunk_type_mapping[get_setting("ARGOS_CHUNK_TYPE", default="DEFAULT")]
 if chunk_type == ChunkType.DEFAULT:
