@@ -10,7 +10,7 @@ from ctranslate2 import Translator
 from argostranslate import apis, fewshot, package, sbd, settings
 from argostranslate.models import ILanguageModel
 from argostranslate.package import Package
-from argostranslate.sbd import SpacySentencizerSmall, StanzaSentencizer
+from argostranslate.sbd import SpacySentencizerSmall, StanzaSentencizer, MiniSBDSentencizer
 from argostranslate.utils import info
 
 
@@ -162,12 +162,23 @@ class PackageTranslation(ITranslation):
         self.pkg = pkg
         self.translator = None
 
-        if settings.chunk_type != settings.ChunkType.SPACY and "stanza" in str(
-            pkg.packaged_sbd_path
-        ):
-            self.sentencizer = StanzaSentencizer(pkg)
-        elif settings.chunk_type != settings.ChunkType.STANZA:
-            self.sentencizer = SpacySentencizerSmall(pkg)
+        Sentencizer = None
+        if settings.chunk_type in [settings.ChunkType.ARGOSTRANSLATE, settings.ChunkType.DEFAULT]:
+            if "stanza" in str(pkg.packaged_sbd_path):
+                Sentencizer = StanzaSentencizer
+            elif "minisbd" in str(pkg.packaged_sbd_path):
+                Sentencizer = MiniSBDSentencizer
+            else:
+                Sentencizer = MiniSBDSentencizer # Default to MiniSBD if no stanza model is available
+        elif settings.chunk_type == settings.ChunkType.STANZA:
+            Sentencizer = StanzaSentencizer
+        elif settings.chunk_type == settings.ChunkType.MINISBD:
+            Sentencizer = MiniSBDSentencizer
+        elif settings.chunk_type == settings.ChunkType.SPACY:
+            Sentencizer = SpacySentencizerSmall
+            
+        if Sentencizer is not None:
+            self.sentencizer = Sentencizer(pkg)
         else:
             # Any other SBD dependency should be defined as a class in the SBD module.
             raise NotImplementedError()

@@ -1,16 +1,23 @@
 from __future__ import annotations
 
+import os
 from difflib import SequenceMatcher
 from typing import List
 
-import spacy
+try:
+    import spacy
+except ImportError:
+    spacy = None
+
 import stanza
+from minisbd import SBDetect, models as minisbd_models
 
 from argostranslate import package, settings
 from argostranslate.networking import cache_spacy
 from argostranslate.package import Package
 from argostranslate.utils import info, warning
 
+minisbd_models.cache_dir = str(settings.data_dir / "minisbd")
 
 def get_stanza_processors(lang_code: str, resources: dict) -> str:
     """Get appropriate processors for a language, including MWT if available."""
@@ -20,8 +27,10 @@ def get_stanza_processors(lang_code: str, resources: dict) -> str:
         return "tokenize"
 
 
-# Cache SpaCy model once at module level
-_cached_spacy_path: str | None = cache_spacy()
+# Cache SpaCy model once at module level (if enabled)
+_cached_spacy_path = None
+if settings.chunk_type == settings.ChunkType.SPACY and spacy is not None:
+    _cached_spacy_path = cache_spacy()
 
 
 class ISentenceBoundaryDetectionModel:
@@ -44,6 +53,9 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
         Please use small models ".._core/web_sm" for consistency.
         """
         self.pkg = pkg
+        if spacy is None:
+            raise RuntimeError("SpaCy is not installed. Install spacy or change ChunkType settings")
+
         if pkg.packaged_sbd_path is not None and "spacy" in str(pkg.packaged_sbd_path):
             self.nlp = spacy.load(pkg.packaged_sbd_path, exclude=["parser"])
         # Case sbd is not packaged, use cached Spacy multilingual (xx_ud_sent_sm)
@@ -62,65 +74,94 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
         return "Using Spacy model."
 
 
+class MiniSBDSentencizer(ISentenceBoundaryDetectionModel):
+    LANGUAGE_CODE_MAPPING = {
+        "zt": "zh-hant",
+        "zh": "zh-hans",
+        "pb": "pt",
+
+        # Fallback languages, a model for these is not available
+        # so we map to a close language
+        "az": "tr",
+        "bn": "hi",
+        "eo": "en",
+        "ms": "en",
+        "tl": "en",
+    }
+
+    def __init__(self, pkg: Package):
+        self.pkg = pkg
+
+        sbd_path = pkg.package_path / "minisbd"
+        model_file = None
+
+        if sbd_path.exists():
+            model_files = [f for f in os.listdir(sbd_path) if f.endswith('.onnx')]
+            if model_files:
+                model_file = str(sbd_path / model_files[0])
+        
+        if model_file is not None:
+            # Use provided model
+            lang = model_file
+        else:
+            # Download/use cached models from MiniSBD
+            lang = self.LANGUAGE_CODE_MAPPING.get(
+                pkg.from_code, pkg.from_code
+            )
+
+            # Fallback to English
+            if lang not in minisbd_models.list_models():
+                warning(f"{self.pkg.from_code} is not available in MiniSBD, falling back to en")
+                lang = "en"
+        
+        self.lang = lang
+        self.detector = None
+
+    def lazy_detector(self):
+        if self.detector is None:
+            self.detector = SBDetect(self.lang, use_gpu=settings.device == "cuda")
+        return self.detector
+
+    def split_sentences(self, text: str) -> List[str]:
+        info(f"Splitting sentences using SBD Model: ({self.pkg.from_code}) {str(self)}")
+        return self.lazy_detector().sentences(text)
+
+    def __str__(self):
+        return "MiniSBDSentencizer"
+
+
 class StanzaSentencizer(ISentenceBoundaryDetectionModel):
     LANGUAGE_CODE_MAPPING = {
         "zt": "zh-hant",
         "pb": "pt",
     }
 
-    def _init_spacy_fallback(self):
-        """Initialize SpaCy fallback using cached multilingual model."""
-        if _cached_spacy_path is None:
-            raise RuntimeError("SpaCy cache not initialized")
-        self.nlp = spacy.load(_cached_spacy_path, exclude=["parser"])
-        self.nlp.add_pipe("sentencizer")
-
     def __init__(self, pkg: Package):
         self.pkg = pkg
-        try:
-            stanza_lang_code = self.LANGUAGE_CODE_MAPPING.get(
-                pkg.from_code, pkg.from_code
-            )
+        self.stanza_lang_code = self.LANGUAGE_CODE_MAPPING.get(
+            pkg.from_code, pkg.from_code
+        )
 
-            try:
-                resources = stanza.resources.common.load_resources_json()
-            except Exception:
-                warning(f"Could not load Stanza resources for package {str(pkg)}")
-                resources = {}
-
+        self.stanza_pipeline = None
+    
+    def lazy_pipeline(self):
+        if self.stanza_pipeline is None:
             self.stanza_pipeline = stanza.Pipeline(
-                lang=stanza_lang_code,
-                processors=get_stanza_processors(stanza_lang_code, resources),
+                lang=self.stanza_lang_code,
+                dir=str(self.pkg.package_path / "stanza"),
+                processors="tokenize",
                 use_gpu=settings.device == "cuda",
                 logging_level="WARNING",
-                tokenize_pretokenized=False,
-                download_method=stanza.DownloadMethod.REUSE_RESOURCES,
             )
-            self.fallback_to_spacy = False
-        except Exception as e:
-            info(f"Stanza pipeline failed for language '{pkg.from_code}': {e}")
-            info(
-                f"Falling back to SpaCy sentence boundary detection for {pkg.from_code}"
-            )
-            self.stanza_pipeline = None
-            self.fallback_to_spacy = True
-            self._init_spacy_fallback()
+        return self.stanza_pipeline
 
     def split_sentences(self, text: str) -> List[str]:
-        # TODO do Spacy SBD using a SpacySentencizerSmall object instead of duplicating code
         info(f"Splitting sentences using SBD Model: ({self.pkg.from_code}) {str(self)}")
-        if self.fallback_to_spacy:
-            doc = self.nlp(text)
-            return [sent.text for sent in doc.sents]
-        else:
-            doc = self.stanza_pipeline(text)
-            return [sent.text for sent in doc.sentences]
+        doc = self.lazy_pipeline()(text)
+        return [sent.text for sent in doc.sentences]
 
     def __str__(self):
-        if self.fallback_to_spacy:
-            return "StanzaSentencizer falling back to Spacy "
-        else:
-            return "StanzaSentencizer"
+        return "StanzaSentencizer"
 
 
 ###############################################
