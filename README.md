@@ -180,9 +180,6 @@ If you find this software useful donations are greatly appreciated and help to m
 - [PayPal](https://www.paypal.com/biz/fund?id=MCCFG437JP9PJ)
 - [Venmo @pjfinlay](https://venmo.com/u/pjfinlay)
 - Bitcoin: 16UJrmSEGojFPaqjTGpuSMNhNRSsnspFJT
-- Ethereum: argosopentech.eth
-- Litecoin: MCwu7RRWeCRJdsv2bXGj2nnL1xYxDBvwW5
-- BCH: bitcoincash:qzvpxe8y5kq45kahqkyv3p88sjrhlymj2v6xdrj3cv
 
 Paid supporters receive priority support.
 
