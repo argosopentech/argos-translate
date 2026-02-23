@@ -186,13 +186,15 @@ class PackageTranslation(ITranslation):
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
             model_path = str(self.pkg.package_path / "model")
-            self.translator = ctranslate2.Translator(
-                model_path,
-                device=settings.device,
-                inter_threads=settings.inter_threads,
-                intra_threads=settings.intra_threads,
-                compute_type=settings.compute_type,
-            )
+            params = {
+                "model_path": model_path,
+                "device": settings.device,
+                "inter_threads": settings.inter_threads,
+                "intra_threads": settings.intra_threads,
+            }
+            if settings.compute_type != "auto":
+                params["compute_type"] = settings.compute_type
+            self.translator = ctranslate2.Translator(**params)
         paragraphs = ITranslation.split_into_paragraphs(input_text)
         info("paragraphs:", paragraphs)
         translated_paragraphs = []
