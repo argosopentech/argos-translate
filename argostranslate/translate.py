@@ -18,6 +18,19 @@ from argostranslate.sbd import SpacySentencizerSmall
 from argostranslate.utils import error, info, warning
 
 
+def _resolve_device(device_setting: str) -> str:
+    """Resolve 'auto' to the best available device (cuda > mps > cpu)."""
+    if device_setting != "auto":
+        return device_setting
+    for candidate in ("cuda", "mps"):
+        try:
+            if ctranslate2.get_supported_compute_types(candidate):
+                return candidate
+        except Exception:
+            pass
+    return "cpu"
+
+
 class Hypothesis:
     """Represents a translation hypothesis
 
@@ -283,7 +296,7 @@ def chunk(from_text, from_code):
 
         model_path = str(chunk_package.package_path / "model")
         ctranslate2_translator = ctranslate2.Translator(
-            model_path, device=argostranslate.settings.device
+            model_path, device=_resolve_device(argostranslate.settings.device)
         )
         sp_model_path = str(chunk_package.package_path / "sentencepiece.model")
         sp_processor = sentencepiece.SentencePieceProcessor(
@@ -329,7 +342,7 @@ class Translator:
         ]
         self.model_path = self.pkg.package_path / "model"
         self.translator = ctranslate2.Translator(
-            str(self.model_path), device=argostranslate.settings.device
+            str(self.model_path), device=_resolve_device(argostranslate.settings.device)
         )
         self.sp_model_path = self.pkg.package_path / "sentencepiece.model"
         self.sp_processor = sentencepiece.SentencePieceProcessor(

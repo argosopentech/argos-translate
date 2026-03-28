@@ -35,3 +35,5 @@ Set device
 
   export ARGOS_DEVICE_TYPE="cpu"
   export ARGOS_DEVICE_TYPE="cuda"
+  export ARGOS_DEVICE_TYPE="auto"
+  export ARGOS_DEVICE_TYPE="mps"

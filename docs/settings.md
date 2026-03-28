@@ -23,4 +23,6 @@ export ARGOS_PACKAGES_DIR="/home/user/.local/share/argos-translate/packages/"
 ```
 export ARGOS_DEVICE_TYPE="cpu"
 export ARGOS_DEVICE_TYPE="cuda"
+export ARGOS_DEVICE_TYPE="auto"
+export ARGOS_DEVICE_TYPE="mps"
 ```

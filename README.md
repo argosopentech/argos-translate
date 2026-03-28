@@ -117,14 +117,14 @@ The GUI code is in a [separate repository](https://github.com/argosopentech/argo
 
 ### GPU Acceleration
 
-To enable GPU support, you need to set the `ARGOS_DEVICE_TYPE` env variable to `cuda` or `auto`.
+To enable GPU support, you need to set the `ARGOS_DEVICE_TYPE` env variable to `cuda`, `auto`, or `mps`.
 
 ```
 $ ARGOS_DEVICE_TYPE=cuda argos-translate --from-lang en --to-lang es "Hello World"
 Hola Mundo
 ```
 
-The above env variable passes the device type to [CTranslate2](https://github.com/OpenNMT/CTranslate2).
+The above env variable passes the device type to [CTranslate2](https://github.com/OpenNMT/CTranslate2) and SBD models. Use `mps` for Apple Silicon GPU acceleration.
 
 ### HTML Translation
 The [translate-html](https://github.com/argosopentech/translate-html) library is built on top of Argos Translate and [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/) and parses and translates HTML. The LibreTranslate API also has support for translating HTML.
