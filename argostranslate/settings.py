@@ -133,15 +133,8 @@ remote_package_index = package_index + "index.json"
 
 local_package_index = data_dir / "index.json"
 
-# Supported values: "cpu" and "cuda"
-device = get_setting("ARGOS_DEVICE_TYPE", "cpu")
-
-# https://opennmt.net/CTranslate2/python/ctranslate2.Translator.html
-inter_threads = int(get_setting("ARGOS_INTER_THREADS", "1"))
-intra_threads = int(get_setting("ARGOS_INTRA_THREADS", "0"))
-
-# Supported values: "cpu" and "cuda"
-device = get_setting("ARGOS_DEVICE_TYPE", "cpu")
+# Supported values: "cpu", "cuda", "auto", "mps"
+device = get_setting("ARGOS_DEVICE_TYPE", "auto")
 
 # https://opennmt.net/CTranslate2/python/ctranslate2.Translator.html
 inter_threads = int(get_setting("ARGOS_INTER_THREADS", "1"))
