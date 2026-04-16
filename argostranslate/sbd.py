@@ -6,7 +6,7 @@ from typing import List
 
 try:
     import spacy
-except ImportError:
+except Exception:
     spacy = None
 
 import stanza
