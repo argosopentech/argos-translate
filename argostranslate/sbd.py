@@ -152,6 +152,7 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
                 processors="tokenize",
                 use_gpu=settings.device == "cuda",
                 logging_level="WARNING",
+                download_method=stanza.DownloadMethod.REUSE_RESOURCES,
             )
         return self.stanza_pipeline
 
