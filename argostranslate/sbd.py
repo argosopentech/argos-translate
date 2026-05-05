@@ -9,7 +9,6 @@ try:
 except ImportError:
     spacy = None
 
-import stanza
 from minisbd import SBDetect, models as minisbd_models
 
 from argostranslate import package, settings
@@ -145,6 +144,8 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
         self.stanza_pipeline = None
     
     def lazy_pipeline(self):
+        import stanza
+
         if self.stanza_pipeline is None:
             self.stanza_pipeline = stanza.Pipeline(
                 lang=self.stanza_lang_code,
