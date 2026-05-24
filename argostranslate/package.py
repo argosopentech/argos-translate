@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import shutil
 import urllib.request
 import zipfile
@@ -264,6 +265,14 @@ def install_from_path(path: Path):
         if not zipfile.is_zipfile(path):
             raise Exception("Not a valid Argos Model (must be a zip archive)")
         with zipfile.ZipFile(path, "r") as zipf:
+            for member in zipf.namelist():
+                member_path = (settings.package_data_dir / member).resolve()
+                if not str(member_path).startswith(
+                    str(settings.package_data_dir.resolve()) + os.sep
+                ) and member_path != settings.package_data_dir.resolve():
+                    raise Exception(
+                        f"Zip entry '{member}' would extract outside target directory"
+                    )
             zipf.extractall(path=settings.package_data_dir)
 
         # Clear language cache after package installation
