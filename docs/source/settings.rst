@@ -15,7 +15,7 @@ Reads package index at https://raw.githubusercontent.com/argosopentech/argospm-i
 View debugging information
 --------------------------
 
-Argos Translate prints more verbose logging 
+Argos Translate prints more verbose logging
 
 .. code-block:: sh
 

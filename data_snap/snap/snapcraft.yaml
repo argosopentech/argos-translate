@@ -21,4 +21,4 @@ slots:
     content: argos-packages
     source:
       read:
-        - $SNAP/packages 
+        - $SNAP/packages

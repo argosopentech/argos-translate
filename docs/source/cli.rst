@@ -5,13 +5,13 @@ Command Line Interface
 
   argos-translate --from-lang en --to-lang es "Hello World"
   Hola Mundo
-  
+
   echo "Text to translate" | argos-translate --from-lang en --to-lang es
   Texto para traducir
 
   argospm --help
   usage: argospm [-h] {update,search,install,list,remove} ...
-  
+
   positional arguments:
     {update,search,install,list,remove}
                           Available commands.
@@ -20,10 +20,10 @@ Command Line Interface
       install             Install package.
       list                List installed packages.
       remove              Remove installed package.
-  
+
   optional arguments:
     -h, --help            show this help message and exit
-    
+
 
 
 Translate a string from English to Spanish.
@@ -59,14 +59,14 @@ Downloads remote package index.
 .. code-block:: sh
 
   argospm update
-		
+
 Search
 ------
 Search package from remote index.
 
 .. code-block:: sh
 
-  argospm search --from-lang en --to-lang es		
+  argospm search --from-lang en --to-lang es
 
 Install
 ------
@@ -75,7 +75,7 @@ Install package.
 .. code-block:: sh
 
   argospm install translate-en_es
-		
+
 List
 ------
 List installed packages.
@@ -83,7 +83,7 @@ List installed packages.
 .. code-block:: sh
 
   argospm list
-		
+
 Remove
 ------
 Remove installed package.
@@ -91,15 +91,15 @@ Remove installed package.
 .. code-block:: sh
 
   argospm remove translate-en_es
-		
+
 Enable tab completion for Bash
 ------------------------------
 
 .. code-block:: bash
 
   curl -sSL https://raw.githubusercontent.com/argosopentech/argos-translate/master/scripts/completion.bash > /etc/bash_completion.d/argospm.bash
-  
-  
+
+
 Importing new pairs through the CLI
 ------
 
@@ -112,7 +112,7 @@ For example, install Turkish to English pair: `argospm install translate-tr_en`
 Optionally, you could install all language pairs using BASH.::
 
     for i in $(argospm search | sed 's/:.*$//g'); do argospm install $i ; done
-    
+
 
 
 Removing a pair through the CLI

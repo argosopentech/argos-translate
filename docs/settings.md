@@ -8,7 +8,7 @@ export ARGOS_PACKAGE_INDEX="https://raw.githubusercontent.com/argosopentech/argo
 
 #### View debugging information
 
-Argos Translate prints more verbose logging 
+Argos Translate prints more verbose logging
 
 ```
 export ARGOS_DEBUG=1
