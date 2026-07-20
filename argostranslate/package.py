@@ -264,6 +264,27 @@ def install_from_path(path: Path):
         if not zipfile.is_zipfile(path):
             raise Exception("Not a valid Argos Model (must be a zip archive)")
         with zipfile.ZipFile(path, "r") as zipf:
+            # Guard against Zip Slip (CWE-22): ensure every member extracts
+            # inside settings.package_data_dir and reject absolute paths,
+            # traversal segments, and symlink entries.
+            dest_dir = Path(settings.package_data_dir).resolve()
+            for member in zipf.infolist():
+                member_path = Path(member.filename)
+                if member_path.is_absolute() or ".." in member_path.parts:
+                    raise Exception(
+                        f"Unsafe path in Argos Model archive: {member.filename!r}"
+                    )
+                resolved = (dest_dir / member_path).resolve()
+                if dest_dir != resolved and dest_dir not in resolved.parents:
+                    raise Exception(
+                        f"Unsafe path in Argos Model archive: {member.filename!r}"
+                    )
+                # Reject symlinks (external_attr high bits encode file mode)
+                mode = member.external_attr >> 16
+                if mode and (mode & 0o170000) == 0o120000:
+                    raise Exception(
+                        f"Symlink entries are not allowed in Argos Model archive: {member.filename!r}"
+                    )
             zipf.extractall(path=settings.package_data_dir)
 
         # Clear language cache after package installation
