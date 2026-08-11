@@ -24,6 +24,9 @@ def main():
     parser.add_argument(
         "--to-lang", "-t", help="The code for the language to translate to (ISO 639-1)"
     )
+    parser.add_argument(
+        "--interactive", "-i", action="store_true", help="Run in interactive mode"
+    )
     args = parser.parse_args()
 
     from_and_to_lang_provided = args.from_lang is not None and args.to_lang is not None
@@ -32,9 +35,12 @@ def main():
     if args.text:
         # argos-translate-cli --from-lang en --to-lang es "Text to translate"
         text_to_translate = args.text
-    elif from_and_to_lang_provided:
+    elif from_and_to_lang_provided and not args.interactive:
         # echo "Text to translate" | argos-translate-cli --from-lang en --to-lang es
         text_to_translate = "".join(sys.stdin)
+    elif args.interactive:
+        # argos-translate-cli --from-lang en --to-lang es --interactive
+        text_to_translate = ""
     else:
         # argos-translate
         parser.print_help()
@@ -56,6 +62,30 @@ def main():
             parser.error(
                 f"No translation installed from {args.from_lang} to {args.to_lang}"
             )
+
+        if args.interactive:
+            print("You are in interactive mode. Press CTRL-C to quit.\n")
+
+            src_prompt = f"{args.from_lang}: "
+            dst_prompt = f"{args.to_lang}: "
+
+            # If the user passed some text, also translate it
+            if text_to_translate != "":
+                print("{}{}".format(src_prompt, text_to_translate))
+                print(
+                    "{}{}\n".format(
+                        dst_prompt, translation.translate(text_to_translate)
+                    )
+                )
+
+            while True:
+                try:
+                    src = input(src_prompt)
+                except (EOFError, KeyboardInterrupt):
+                    return
+
+                print("{}{}\n".format(dst_prompt, translation.translate(src)))
+
     else:
         translation = translate.IdentityTranslation("")
 
