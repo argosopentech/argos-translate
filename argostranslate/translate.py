@@ -180,7 +180,14 @@ class PackageTranslation(ITranslation):
             Sentencizer = SpacySentencizerSmall
             
         if Sentencizer is not None:
-            self.sentencizer = Sentencizer(pkg)
+            try:
+                self.sentencizer = Sentencizer(pkg)
+            except KeyError as e:
+                # Fallback to MiniSBD if Stanza fails (e.g., missing language resources)
+                if Sentencizer == StanzaSentencizer:
+                    self.sentencizer = MiniSBDSentencizer(pkg)
+                else:
+                    raise
         else:
             # Any other SBD dependency should be defined as a class in the SBD module.
             raise NotImplementedError()
