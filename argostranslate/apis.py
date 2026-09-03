@@ -79,7 +79,7 @@ class LibreTranslateAPI:
 
         url_params = parse.urlencode(params)
 
-        req = request.Request(url, data=url_params.encode())
+        req = request.Request(url, data=url_params.encode(), method="GET")
 
         response = request.urlopen(req)
 
