@@ -46,6 +46,12 @@ export ARGOS_INTRA_THREADS=0       # Threads per translator (default: 0 = auto-d
 export ARGOS_BATCH_SIZE=32         # Translation batch size (default: 32)
 ```
 
+#### Resident model cap
+```
+export ARGOS_MAX_LOADED_MODELS=0   # Keep every model loaded (default)
+export ARGOS_MAX_LOADED_MODELS=n   # Evict least recently used models past n (eg. 8)
+```
+
 #### Sentence boundary detection
 ```
 export ARGOS_CHUNK_TYPE="DEFAULT"       # Default behavior

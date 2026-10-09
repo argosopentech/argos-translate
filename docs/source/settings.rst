@@ -80,3 +80,14 @@ Set device
 
   export ARGOS_DEVICE_TYPE="cpu"
   export ARGOS_DEVICE_TYPE="cuda"
+
+Set max loaded models
+---------------------
+
+Cap on the number of resident translation models. 0 (default) keeps every
+model loaded; a positive value evicts the least recently used model when
+the cap is exceeded.
+
+.. code-block:: sh
+
+  export ARGOS_MAX_LOADED_MODELS="0"

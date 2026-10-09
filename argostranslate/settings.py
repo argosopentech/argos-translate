@@ -15,6 +15,7 @@ export ARGOS_DEBUG="0"
 export ARGOS_PACKAGE_INDEX="https://raw.githubusercontent.com/argosopentech/argospm-index/main/"
 export ARGOS_PACKAGES_DIR="/home/<username>/.local/share/argos-translate/packages/"
 export ARGOS_DEVICE_TYPE="cpu"
+export ARGOS_MAX_LOADED_MODELS="0"
 
 ```
 
@@ -26,7 +27,8 @@ export ARGOS_DEVICE_TYPE="cpu"
     "ARGOS_DEBUG": "0",
     "ARGOS_PACKAGES_INDEX": "https://raw.githubusercontent.com/argosopentech/argospm-index/main/",
     "ARGOS_PACKAGE_DIR": "/home/<username>/.local/share/argos-translate/packages/",
-    "ARGOS_DEVICE_TYPE": "cpu"
+    "ARGOS_DEVICE_TYPE": "cpu",
+    "ARGOS_MAX_LOADED_MODELS": "0"
 }
 ```
 """
@@ -173,6 +175,11 @@ batch_size = int(get_setting("ARGOS_BATCH_SIZE", "32"))
 compute_type = get_setting("ARGOS_COMPUTE_TYPE", "auto")
 beam_size = int(get_setting("ARGOS_BEAM_SIZE", "4"))
 
+# Max limit for ctranslate2.Translator objects (LRU eviction). 0 = unlimited.
+# This setting puts a limit on memory usage.
+# Changing this could reduce performance by 30% or more, depending on the value entered.
+max_loaded_models = int(get_setting("ARGOS_MAX_LOADED_MODELS", "0"))
+
 
 class ModelProvider(Enum):
     OPENNMT = 0
@@ -195,7 +202,7 @@ class ChunkType(Enum):
     NONE = 2  # No sentence splitting
     STANZA = 3  # Use only Stanza
     SPACY = 4  # Use only SpaCy
-    MINISBD = 5 # Use only MiniSBD
+    MINISBD = 5  # Use only MiniSBD
 
 
 chunk_type_mapping = {
