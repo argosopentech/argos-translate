@@ -140,9 +140,6 @@ package_data_dir = Path(
 os.makedirs(package_data_dir, exist_ok=True)
 
 
-downloads_dir = cache_dir / "downloads"
-os.makedirs(downloads_dir, exist_ok=True)
-
 if not dev_mode:
     remote_repo = os.getenv(
         "ARGOS_PACKAGE_INDEX",
