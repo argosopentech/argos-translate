@@ -132,3 +132,53 @@ class TestCompositeTranslation:
 
 class TestCachedTranslation:
     NotImplemented
+
+
+def test_package_changes_rebuild_models_and_pivot_routes(tmp_path, monkeypatch):
+    import json
+    import zipfile
+    from argostranslate import package, settings
+
+    monkeypatch.setattr(settings, "package_data_dir", tmp_path / "packages")
+    settings.package_data_dir.mkdir()
+    monkeypatch.setattr(settings, "package_dirs", [settings.package_data_dir])
+    monkeypatch.setattr(settings, "model_provider", settings.ModelProvider.OPENNMT)
+
+    class VersionTranslation(translate.ITranslation):
+        def __init__(self, source, target, pkg):
+            self.from_lang, self.to_lang, self.pkg = source, target, pkg
+
+        def hypotheses(self, text, num_hypotheses=4):
+            return [translate.Hypothesis(self.pkg.package_version, 0)
+                    for _ in range(num_hypotheses)]
+
+    monkeypatch.setattr(translate, "PackageTranslation", VersionTranslation)
+
+    def install(source, target, version):
+        archive = tmp_path / "model.argosmodel"
+        with zipfile.ZipFile(archive, "w") as model:
+            model.writestr(f"{source}_{target}/metadata.json", json.dumps({
+                "from_code": source, "from_name": source,
+                "to_code": target, "to_name": target,
+                "package_version": version,
+            }))
+        package.install_from_path(archive)
+
+    translate.get_installed_languages.cache_clear()
+    try:
+        install("en", "es", "1")
+        assert translate.translate("hello", "en", "es") == "1"
+        install("en", "es", "2")
+        assert translate.translate("hello", "en", "es") == "2"
+        install("es", "fr", "1")
+        assert translate.get_translation_from_codes("en", "fr") is not None
+        languages = translate.get_installed_languages()
+        for language in languages:
+            for translation in language.translations_from:
+                assert translation.from_lang is language
+                assert translation.to_lang in languages
+        package.uninstall(package.Package(settings.package_data_dir / "es_fr"))
+        assert translate.get_language_from_code("fr") is None
+        assert [t.to_lang.code for t in translate.get_language_from_code("en").translations_from] == ["es", "en"]
+    finally:
+        translate.get_installed_languages.cache_clear()
