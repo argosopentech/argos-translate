@@ -155,6 +155,9 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
                 dir=str(self.pkg.package_path / "stanza"),
                 processors="tokenize",
                 use_gpu=settings.device == "cuda",
+                # Argos packages local SBD models; offline translation must not
+                # fetch or refresh Stanza resources.
+                download_method=None,
                 logging_level="WARNING",
             )
         return self.stanza_pipeline
