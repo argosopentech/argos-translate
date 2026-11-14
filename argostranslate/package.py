@@ -356,47 +356,25 @@ def get_installed_packages(path: Path = None) -> list[Package]:
 def update_package_index():
     """Downloads remote package index"""
     with package_lock:
-        try:
-            response = urllib.request.urlopen(settings.remote_package_index)
-        except Exception as err:
-            error(err)
-            return
-        data = response.read()
+        with urllib.request.urlopen(settings.remote_package_index) as response:
+            data = response.read()
         with open(settings.local_package_index, "wb") as f:
             f.write(data)
 
 
 def get_available_packages() -> list[AvailablePackage]:
-    """Returns a list of AvailablePackages from the package index."""
+    """Returns available packages, fetching a missing index once.
 
+    Download and index parsing errors are propagated to the caller.
+    """
     try:
         with open(settings.local_package_index) as index_file:
             index = json.load(index_file)
-            packages = []
-            for metadata in index:
-                package = AvailablePackage(metadata)
-                packages.append(package)
-            """
-            # If stanza not available filter for sbd available
-            if not settings.stanza_available:
-                installed_and_available_packages = packages + get_installed_packages()
-                sbd_packages = list(
-                    filter(lambda x: x.type == "sbd", installed_and_available_packages)
-                )
-                sbd_available_codes = set()
-                for sbd_package in sbd_packages:
-                    sbd_available_codes = sbd_available_codes.union(
-                        sbd_package.from_codes
-                    )
-                packages = list(
-                    filter(lambda x: x.from_code in sbd_available_codes, packages)
-                )
-                return packages + sbd_packages
-            """
-            return packages
     except FileNotFoundError:
         update_package_index()
-        return get_available_packages()
+        with open(settings.local_package_index) as index_file:
+            index = json.load(index_file)
+    return [AvailablePackage(metadata) for metadata in index]
 
 
 def argospm_package_name(pkg: IPackage) -> str:
