@@ -134,3 +134,43 @@ def test_get_installed_packages_uses_configured_directories(tmp_path, monkeypatc
     monkeypatch.setattr(settings, "package_dirs", [tmp_path, Path("tests/data")])
     assert len(package.get_installed_packages()) == 1
     assert package.get_installed_packages(tmp_path) == []
+
+
+def test_metadata_keeps_source_and_target_languages_separate():
+    pkg = package.IPackage()
+    pkg.load_metadata_from_json({
+        "from_code": "en", "from_name": "English",
+        "to_code": "es", "to_name": "Spanish",
+    })
+    assert pkg.source_languages == [{"code": "en", "name": "English"}]
+    assert pkg.target_languages == [{"code": "es", "name": "Spanish"}]
+
+
+def test_metadata_language_lists_are_not_mutated_or_duplicated():
+    import copy
+
+    metadata = {
+        "from_code": "en", "from_name": "English",
+        "to_code": "es", "to_name": "Spanish",
+        "source_languages": [{"code": "de"}],
+        "target_languages": [{"code": "fr"}],
+        "languages": [{"code": "it"}],
+    }
+    original = copy.deepcopy(metadata)
+    pkg = package.IPackage()
+    for _ in range(2):
+        pkg.load_metadata_from_json(metadata)
+        assert pkg.source_languages == [
+            {"code": "de"}, {"code": "en", "name": "English"}, {"code": "it"},
+        ]
+        assert pkg.target_languages == [
+            {"code": "fr"}, {"code": "es", "name": "Spanish"}, {"code": "it"},
+        ]
+        assert metadata == original
+
+
+def test_metadata_without_pair_does_not_add_empty_languages():
+    pkg = package.IPackage()
+    pkg.load_metadata_from_json({"languages": [{"code": "en"}]})
+    assert pkg.source_languages == [{"code": "en"}]
+    assert pkg.target_languages == [{"code": "en"}]

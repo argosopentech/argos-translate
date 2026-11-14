@@ -117,26 +117,26 @@ class IPackage:
         self.type = metadata.get("type", "translate")
         self.languages = metadata.get("languages", list())
         self.dependencies = metadata.get("dependencies", list())
-        self.source_languages = metadata.get("source_languages", list())
-        self.target_languages = metadata.get("target_languages", list())
+        self.source_languages = copy.deepcopy(metadata.get("source_languages", []))
+        self.target_languages = copy.deepcopy(metadata.get("target_languages", []))
         self.target_prefix = metadata.get("target_prefix", "")
 
         # Add all package source and target languages to
         # source_languages and target_languages
-        if self.from_code is not None or self.from_name is not None:
+        if self.from_code or self.from_name:
             from_lang = dict()
             if self.from_code is not None:
                 from_lang["code"] = self.from_code
             if self.from_name is not None:
                 from_lang["name"] = self.from_name
             self.source_languages.append(from_lang)
-        if self.to_code is not None or self.to_name is not None:
+        if self.to_code or self.to_name:
             to_lang = dict()
             if self.to_code is not None:
                 to_lang["code"] = self.to_code
             if self.to_name is not None:
                 to_lang["name"] = self.to_name
-            self.source_languages.append(to_lang)
+            self.target_languages.append(to_lang)
         self.source_languages += copy.deepcopy(self.languages)
         self.target_languages += copy.deepcopy(self.languages)
 
