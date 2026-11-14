@@ -16,10 +16,14 @@ import sphinx_rtd_theme
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import ast
+from pathlib import Path
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../'))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+# Documentation builds must not initialize downloadable sentence splitters.
+os.environ["ARGOS_CHUNK_TYPE"] = "NONE"
 
 
 # -- Project information -----------------------------------------------------
@@ -29,7 +33,16 @@ copyright = '2020, Argos Open Technologies, LLC'
 author = 'Argos Open Technologies, LLC'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+# Read the version from source so branch builds do not report an installed release.
+setup_tree = ast.parse((ROOT / "setup.py").read_text())
+release = next(
+    keyword.value.value
+    for node in ast.walk(setup_tree)
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+    and node.func.id == "setup"
+    for keyword in node.keywords if keyword.arg == "version"
+)
+version = release
 
 
 # -- General configuration ---------------------------------------------------
@@ -39,11 +52,12 @@ release = '1.0'
 # ones.
 extensions = [
     "sphinx_rtd_theme",
-    'sphinx.ext.autodoc'
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = []
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -62,4 +76,8 @@ html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []
+
+linkcheck_timeout = 15
+linkcheck_retries = 2
+linkcheck_anchors = False

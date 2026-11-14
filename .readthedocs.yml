@@ -3,10 +3,11 @@ version: 2
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.9"
+    python: "3.11"
 
 sphinx:
   configuration: docs/conf.py
+  fail_on_warning: true
 
 formats: all
 
@@ -14,8 +15,6 @@ python:
   install:
     - method: pip
       path: .
-      extra_requirements:
-        - all
     - requirements: docs/requirements.txt
 
 submodules:
