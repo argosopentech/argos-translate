@@ -75,3 +75,41 @@ class TestPackage:
 
     def test_get_description(self):
         self.package.get_description() == self.readme
+
+
+def test_missing_index_download_failure_is_not_retried(tmp_path, monkeypatch):
+    from urllib.error import URLError
+    from unittest.mock import Mock
+    from argostranslate import argospm, settings
+
+    monkeypatch.setattr(settings, "local_package_index", tmp_path / "index.json")
+    download = Mock(side_effect=URLError("offline"))
+    monkeypatch.setattr(package.urllib.request, "urlopen", download)
+    with pytest.raises(URLError, match="offline"):
+        argospm.get_available_packages()
+    assert download.call_count == 1
+
+
+def test_missing_index_is_downloaded_once(tmp_path, monkeypatch):
+    from io import BytesIO
+    from unittest.mock import Mock
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "local_package_index", tmp_path / "index.json")
+    download = Mock(return_value=BytesIO(b'[{"from_code": "en", "to_code": "es"}]'))
+    monkeypatch.setattr(package.urllib.request, "urlopen", download)
+    assert package.get_available_packages()[0].to_code == "es"
+    assert package.get_available_packages()[0].from_code == "en"
+    assert download.call_count == 1
+
+
+def test_missing_index_after_update_does_not_recurse(tmp_path, monkeypatch):
+    from unittest.mock import Mock
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "local_package_index", tmp_path / "index.json")
+    update = Mock()
+    monkeypatch.setattr(package, "update_package_index", update)
+    with pytest.raises(FileNotFoundError):
+        package.get_available_packages()
+    assert update.call_count == 1

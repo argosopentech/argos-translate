@@ -25,13 +25,7 @@ def get_available_packages() -> list[AvailablePackage]:
     Returns:
         The list of available packages
     """
-    try:
-        available_packages = package.get_available_packages()
-    except:
-        update_index()
-        available_packages = package.get_available_packages()
-
-    return available_packages
+    return package.get_available_packages()
 
 
 def install_package_print_path(available_package: AvailablePackage):
