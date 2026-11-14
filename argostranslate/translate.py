@@ -212,15 +212,15 @@ class PackageTranslation(ITranslation):
         info("translated_paragraphs:", translated_paragraphs)
 
         # Construct new hypotheses using all paragraphs
-        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
-        for i in range(num_hypotheses):
-            for translated_paragraph in translated_paragraphs:
-                value = ITranslation.combine_paragraphs(
-                    [hypotheses_to_return[i].value, translated_paragraph[i].value]
-                )
-                score = hypotheses_to_return[i].score + translated_paragraph[i].score
-                hypotheses_to_return[i] = Hypothesis(value, score)
-            hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip("\n")
+        hypotheses_to_return = [
+            Hypothesis(
+                ITranslation.combine_paragraphs(
+                    [paragraph[i].value for paragraph in translated_paragraphs]
+                ),
+                sum(paragraph[i].score for paragraph in translated_paragraphs),
+            )
+            for i in range(num_hypotheses)
+        ]
         info("hypotheses_to_return:", hypotheses_to_return)
         return hypotheses_to_return
 
@@ -336,17 +336,15 @@ class CachedTranslation(ITranslation):
         self.cache = new_cache
 
         # Construct hypotheses
-        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
-        for i in range(num_hypotheses):
-            for j in range(len(translated_paragraphs)):
-                value = ITranslation.combine_paragraphs(
-                    [hypotheses_to_return[i].value, translated_paragraphs[j][i].value]
-                )
-                score = (
-                    hypotheses_to_return[i].score + translated_paragraphs[j][i].score
-                )
-                hypotheses_to_return[i] = Hypothesis(value, score)
-            hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip("\n")
+        hypotheses_to_return = [
+            Hypothesis(
+                ITranslation.combine_paragraphs(
+                    [paragraph[i].value for paragraph in translated_paragraphs]
+                ),
+                sum(paragraph[i].score for paragraph in translated_paragraphs),
+            )
+            for i in range(num_hypotheses)
+        ]
         return hypotheses_to_return
 
 
