@@ -177,6 +177,8 @@ class PackageTranslation(ITranslation):
             Sentencizer = MiniSBDSentencizer
         elif settings.chunk_type == settings.ChunkType.SPACY:
             Sentencizer = SpacySentencizerSmall
+        elif settings.chunk_type == settings.ChunkType.NONE:
+            Sentencizer = sbd.NoSentenceBoundaryDetection
             
         if Sentencizer is not None:
             self.sentencizer = Sentencizer(pkg)
@@ -664,8 +666,7 @@ def load_installed_languages() -> list[Language]:
 def get_language_from_code(code: str) -> Language | None:
     """Gets a language object from a code
 
-    An exception will be thrown if an installed language with this
-    code can not be found.
+    Returns None if no installed language has this code.
 
     Args:
         code: The ISO 639 code of the language
@@ -679,8 +680,9 @@ def get_language_from_code(code: str) -> Language | None:
 def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation:
     """Gets a translation object from codes for from and to languages
 
-    An exception will be thrown if an installed translation between the from lang
-    and to lang can not be found.
+    Returns None if the source language exists but no translation route is found.
+    A missing source language raises AttributeError; check installed languages
+    before calling this helper.
 
     Args:
         from_code: The ISO 639 code of the source language
@@ -703,7 +705,11 @@ def translate(q: str, from_code: str, to_code: str) -> str:
         to_code: The ISO 639 code of the target language
 
     Returns:
-        The translated text
+        The translated text.
+
+    Raises:
+        AttributeError: If the source language or translation route is missing.
+            Check installed languages and routes before calling.
     """
     translation = get_translation_from_codes(from_code, to_code)
     return translation.translate(q)
