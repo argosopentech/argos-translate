@@ -345,7 +345,7 @@ def get_installed_packages(path: Path = None) -> list[Package]:
     """
     with package_lock:
         to_return = []
-        packages_path = settings.package_dirs if path is None else path
+        packages_path = settings.package_dirs if path is None else [Path(path)]
         for directory in packages_path:
             for path in directory.iterdir():
                 if path.is_dir():

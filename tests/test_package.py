@@ -113,3 +113,24 @@ def test_missing_index_after_update_does_not_recurse(tmp_path, monkeypatch):
     with pytest.raises(FileNotFoundError):
         package.get_available_packages()
     assert update.call_count == 1
+
+
+@pytest.mark.parametrize("as_string", [False, True])
+def test_get_installed_packages_explicit_directory(as_string, monkeypatch):
+    from pathlib import Path
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "package_dirs", [])
+    directory = Path("tests/data")
+    packages = package.get_installed_packages(str(directory) if as_string else directory)
+    assert len(packages) == 1
+    assert packages[0].package_path == directory / "package"
+
+
+def test_get_installed_packages_uses_configured_directories(tmp_path, monkeypatch):
+    from pathlib import Path
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "package_dirs", [tmp_path, Path("tests/data")])
+    assert len(package.get_installed_packages()) == 1
+    assert package.get_installed_packages(tmp_path) == []
