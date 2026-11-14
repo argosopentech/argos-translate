@@ -20,11 +20,14 @@ jobs:
       ARGOS_DEVICE_TYPE: cpu
       # Avoid SpaCy's import-time model download, even if defaults change.
       ARGOS_CHUNK_TYPE: ARGOSTRANSLATE
-      XDG_DATA_HOME: ${{ runner.temp }}/argos-unit-tests/data
-      XDG_CONFIG_HOME: ${{ runner.temp }}/argos-unit-tests/config
-      XDG_CACHE_HOME: ${{ runner.temp }}/argos-unit-tests/cache
 
     steps:
+      - name: Configure isolated Argos directories
+        # Runner paths are only available after the job starts.
+        run: |
+          echo "XDG_DATA_HOME=$RUNNER_TEMP/argos-unit-tests/data" >> "$GITHUB_ENV"
+          echo "XDG_CONFIG_HOME=$RUNNER_TEMP/argos-unit-tests/config" >> "$GITHUB_ENV"
+          echo "XDG_CACHE_HOME=$RUNNER_TEMP/argos-unit-tests/cache" >> "$GITHUB_ENV"
       - uses: actions/checkout@v7
         with:
           persist-credentials: false

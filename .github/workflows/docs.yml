@@ -15,10 +15,13 @@ jobs:
     timeout-minutes: 15
     env:
       ARGOS_CHUNK_TYPE: NONE
-      XDG_DATA_HOME: ${{ runner.temp }}/argos-docs/data
-      XDG_CONFIG_HOME: ${{ runner.temp }}/argos-docs/config
-      XDG_CACHE_HOME: ${{ runner.temp }}/argos-docs/cache
     steps:
+      - name: Configure isolated Argos directories
+        # Runner paths are only available after the job starts.
+        run: |
+          echo "XDG_DATA_HOME=$RUNNER_TEMP/argos-docs/data" >> "$GITHUB_ENV"
+          echo "XDG_CONFIG_HOME=$RUNNER_TEMP/argos-docs/config" >> "$GITHUB_ENV"
+          echo "XDG_CACHE_HOME=$RUNNER_TEMP/argos-docs/cache" >> "$GITHUB_ENV"
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
