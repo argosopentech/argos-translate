@@ -77,7 +77,7 @@ class TestPackage:
         assert self.package.get_description() == self.readme
 
 
-def test_missing_index_download_failure_is_not_retried(tmp_path, monkeypatch):
+def test_missing_index_download_failure_has_bounded_retries(tmp_path, monkeypatch):
     from urllib.error import URLError
     from unittest.mock import Mock
     from argostranslate import argospm, settings
@@ -87,7 +87,42 @@ def test_missing_index_download_failure_is_not_retried(tmp_path, monkeypatch):
     monkeypatch.setattr(package.urllib.request, "urlopen", download)
     with pytest.raises(URLError, match="offline"):
         argospm.get_available_packages()
-    assert download.call_count == 1
+    assert download.call_count == 4
+
+
+@pytest.mark.parametrize("failures", [1, 3])
+def test_missing_index_download_recovers_after_retries(tmp_path, monkeypatch, failures):
+    from io import BytesIO
+    from urllib.error import URLError
+    from unittest.mock import Mock
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "local_package_index", tmp_path / "index.json")
+    response = BytesIO(b'[{"from_code": "en", "to_code": "es"}]')
+    download = Mock(side_effect=[URLError("offline")] * failures + [response])
+    monkeypatch.setattr(package.urllib.request, "urlopen", download)
+    assert package.get_available_packages()[0].to_code == "es"
+    assert download.call_count == failures + 1
+    assert response.closed
+
+
+def test_index_response_read_failure_is_retried(tmp_path, monkeypatch):
+    from http.client import IncompleteRead
+    from io import BytesIO
+    from unittest.mock import MagicMock, Mock
+    from argostranslate import settings
+
+    index_path = tmp_path / "index.json"
+    monkeypatch.setattr(settings, "local_package_index", index_path)
+    failed_response = MagicMock()
+    failed_response.__enter__.return_value = failed_response
+    failed_response.read.side_effect = IncompleteRead(b"partial")
+    download = Mock(side_effect=[failed_response, BytesIO(b"[]")])
+    monkeypatch.setattr(package.urllib.request, "urlopen", download)
+    package.update_package_index()
+    assert index_path.read_bytes() == b"[]"
+    assert download.call_count == 2
+    failed_response.__exit__.assert_called_once()
 
 
 def test_missing_index_is_downloaded_once(tmp_path, monkeypatch):

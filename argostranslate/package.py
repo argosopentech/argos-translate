@@ -5,6 +5,7 @@ import json
 import shutil
 import urllib.request
 import zipfile
+from http.client import HTTPException
 from pathlib import Path
 from threading import Lock
 
@@ -356,16 +357,26 @@ def get_installed_packages(path: Path = None) -> list[Package]:
 
 
 def update_package_index():
-    """Downloads remote package index"""
+    """Downloads the remote package index, retrying download failures three times.
+
+    After four failed attempts, the last download error is propagated.
+    """
     with package_lock:
-        with urllib.request.urlopen(settings.remote_package_index) as response:
-            data = response.read()
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(settings.remote_package_index) as response:
+                    data = response.read()
+                break
+            except (OSError, HTTPException) as err:
+                if attempt == 3:
+                    raise
+                error(err)
         with open(settings.local_package_index, "wb") as f:
             f.write(data)
 
 
 def get_available_packages() -> list[AvailablePackage]:
-    """Returns available packages, fetching a missing index once.
+    """Returns available packages, fetching a missing index with bounded retries.
 
     Download and index parsing errors are propagated to the caller.
     """
