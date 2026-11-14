@@ -99,8 +99,33 @@ class TestLanguage:
         assert es.get_translation(en) == en
 
 
-class TestPackageTranslation:
-    NotImplemented
+@pytest.mark.parametrize("text", ["Hello. Another sentence!", "", "First. Second!\nThird?", "\n\n"])
+def test_none_chunk_type_translates_whole_paragraphs(text, monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "chunk_type", settings.ChunkType.NONE)
+    # Any attempt to initialize an SBD model should fail this test.
+    for name in ("MiniSBDSentencizer", "StanzaSentencizer", "SpacySentencizerSmall"):
+        monkeypatch.setattr(translate, name, Mock(side_effect=AssertionError("SBD loaded")))
+    tokenizer = SimpleNamespace(encode=lambda value: [value], decode=lambda tokens: "".join(tokens))
+    pkg = SimpleNamespace(tokenizer=tokenizer, target_prefix="")
+    model = Mock()
+    model.translate_batch.side_effect = lambda batches, **kwargs: [
+        SimpleNamespace(hypotheses=[tokens], scores=[-1.0]) for tokens in batches
+    ]
+    lang = translate.Language("en", "English")
+    translation = translate.PackageTranslation(lang, lang, pkg)
+    translation.translator = model
+
+    result = translation.hypotheses(text, 1)
+
+    assert result[0].value == text
+    assert result[0].score == -len(text.split("\n"))
+    assert [call.args[0] for call in model.translate_batch.call_args_list] == [
+        [[paragraph]] for paragraph in text.split("\n")
+    ]
 
 
 class TestIdentityTranslation:

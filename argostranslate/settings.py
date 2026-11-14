@@ -24,8 +24,8 @@ export ARGOS_DEVICE_TYPE="cpu"
 ```
 {
     "ARGOS_DEBUG": "0",
-    "ARGOS_PACKAGES_INDEX": "https://raw.githubusercontent.com/argosopentech/argospm-index/main/",
-    "ARGOS_PACKAGE_DIR": "/home/<username>/.local/share/argos-translate/packages/",
+    "ARGOS_PACKAGE_INDEX": "https://raw.githubusercontent.com/argosopentech/argospm-index/main/",
+    "ARGOS_PACKAGES_DIR": "/home/<username>/.local/share/argos-translate/packages/",
     "ARGOS_DEVICE_TYPE": "cpu"
 }
 ```
@@ -154,7 +154,7 @@ else:
         default="https://raw.githubusercontent.com/argosopentech/argospm-index-dev/main",
     )
 
-remote_package_index = package_index + "index.json"
+remote_package_index = package_index.rstrip("/") + "/index.json"
 
 local_package_index = data_dir / "index.json"
 
@@ -201,7 +201,7 @@ class ChunkType(Enum):
 chunk_type_mapping = {
     "DEFAULT": ChunkType.DEFAULT,
     "ARGOSTRANSLATE": ChunkType.ARGOSTRANSLATE,
-    "NONE": ChunkType.NONE,  # TODO: Currently not supported, this should do no SBD (good for short passages)
+    "NONE": ChunkType.NONE,
     "STANZA": ChunkType.STANZA,
     "SPACY": ChunkType.SPACY,
     "MINISBD": ChunkType.MINISBD,

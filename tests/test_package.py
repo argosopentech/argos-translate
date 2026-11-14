@@ -174,3 +174,15 @@ def test_metadata_without_pair_does_not_add_empty_languages():
     pkg.load_metadata_from_json({"languages": [{"code": "en"}]})
     assert pkg.source_languages == [{"code": "en"}]
     assert pkg.target_languages == [{"code": "en"}]
+
+
+@pytest.mark.parametrize("suffix", ["", "/", "///"])
+def test_package_index_base_url_accepts_optional_trailing_slash(tmp_path, monkeypatch, suffix):
+    import runpy
+    from argostranslate import settings
+
+    for directory in ("DATA", "CONFIG", "CACHE"):
+        monkeypatch.setenv(f"XDG_{directory}_HOME", str(tmp_path / directory))
+    monkeypatch.setenv("ARGOS_PACKAGE_INDEX", "https://example.com/models" + suffix)
+    loaded = runpy.run_path(settings.__file__)
+    assert loaded["remote_package_index"] == "https://example.com/models/index.json"
