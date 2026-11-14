@@ -62,21 +62,23 @@ class IPackage:
     in its root the .argosmodel file extension. By default, an
     OpenNMT CTranslate2 directory named model/ is expected in the root directory
     along with a sentencepiece model named sentencepiece.model or a bpe.model
-    for tokenizing and Stanza data for sentence boundary detection.
+    for tokenizing. Sentence boundary detection data may also be included,
+    for example in a minisbd/ or stanza/ directory.
     Packages may also optionally have a README.md in the root.
 
     from_code and to_code should be ISO 639 codes if applicable.
 
-    Example metadata.json
-    {
-        "package_version": "1.0",
-        "argos_version": "1.0",
-        "from_code": "en",
-        "from_name": "English",
-        "to_code": "es",
-        "to_name": "Spanish",
-        "links": ["https://example.com/en_es.argosmodel"]
-    }
+    Example ``metadata.json``::
+
+        {
+            "package_version": "1.0",
+            "argos_version": "1.0",
+            "from_code": "en",
+            "from_name": "English",
+            "to_code": "es",
+            "to_name": "Spanish",
+            "links": ["https://example.com/en_es.argosmodel"]
+        }
     """
 
     code: str
@@ -333,10 +335,10 @@ def uninstall(pkg: Package):
 def get_installed_packages(path: Path = None) -> list[Package]:
     """Return a list of installed Packages
 
-    Looks for packages in <home>/.argos-translate/local/share/packages by
-    default. Will also look in the directory specified
-    in the ARGOS_PACKAGE_DIR environment variable
-    if it is set.
+    Searches the configured package directories by default, normally
+    ``~/.local/share/argos-translate/packages``. ``ARGOS_PACKAGES_DIR``
+    overrides the installed package directory; XDG data overrides also apply.
+    An explicit path searches only that directory.
 
     Args:
         path: Path to look for installed package directories in.

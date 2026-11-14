@@ -1,18 +1,21 @@
 Graphical User Interface
-======================
+==========================
 
-Run the GUI version of Argos Translate.
+The GUI is maintained in a `separate repository
+<https://github.com/argosopentech/argos-translate-gui>`_. Install and launch it:
 
+.. code-block:: sh
 
-argos-translate-gui
+   python -m pip install argostranslategui
+   argos-translate-gui
 
 
 Installing a language
-------
+-----------------------
 
-When installing with snap a .desktop file should also be installed which will make Argos Translate available from the desktop menu.
+For platform-specific installation instructions, see the GUI repository.
 
-Languages are chosen as drop down choices. More languages pairs can be installed.
+Languages are chosen as drop down choices. More language pairs can be installed.
 
 The left text box translates into the right box.
 
@@ -20,18 +23,19 @@ Example workflow translating from Vietnamese into English:
 
 * Set the left drop down to `Vietnamese` and the right drop down to `English`.
 * Replace the default text `Text to translate from` in the left text box with some text in Vietnamese. A quick way to do this is to click in the left text box and press the keyboard shortcut `CTRL+a` to select all and then `CTRL+v` to paste.
-* Wait patiently.
+* Wait for the model to load and the translation to finish.
 * When text appears in the right text box, read the translation!
 
 If the output looks similar to the input, try changing the origin language as some languages appear similar if you are unfamiliar with them.
 
 Adding language pair models from the graphical interface
-------
+----------------------------------------------------------
 
-Language pairs are on average 100MB each.
+Model sizes vary. Downloads require internet access; see :doc:`troubleshooting`
+for preparing sentence-splitting resources before offline use.
 
 Installing new pairs through the GUI
-------
+--------------------------------------
 
 * Open Argos Translate: `argos-translate-gui`
 * Click on the `Manage Packages` menu item.
@@ -42,10 +46,11 @@ Installing new pairs through the GUI
 * Click on the `X` in the top right to close the `Download packages` window.
 * Click on the `X` in the top right to close the `Manage Packages` window.
 
-Note: The `Download packages` screen does not seem to have a scroll bar so you will probably need to follow the next set of instructions to import new pairs through the GUI.
+Menu details can vary by GUI release. You can also import a downloaded package
+file using the instructions below.
 
 Importing new pairs through the GUI
-------
+-------------------------------------
 
 * Download or make new pairs.  Model links can be downloaded from https://www.argosopentech.com/argospm/index/ or https://raw.githubusercontent.com/argosopentech/argospm-index/main/index.json
 * Open Argos Translate: `argos-translate-gui`
@@ -56,7 +61,7 @@ Importing new pairs through the GUI
 * Click on the `X` in the top right to close the `Manage Packages` window.
 
 Removing a pair through the GUI
-------
+---------------------------------
 
 * Open Argos Translate: `argos-translate-gui`
 * Click on the `Manage Packages` menu item.
