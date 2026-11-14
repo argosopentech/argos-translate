@@ -74,7 +74,7 @@ class TestPackage:
         assert self.package.get_readme() == self.readme
 
     def test_get_description(self):
-        self.package.get_description() == self.readme
+        assert self.package.get_description() == self.readme
 
 
 def test_missing_index_download_failure_is_not_retried(tmp_path, monkeypatch):
