@@ -182,3 +182,27 @@ def test_package_changes_rebuild_models_and_pivot_routes(tmp_path, monkeypatch):
         assert [t.to_lang.code for t in translate.get_language_from_code("en").translations_from] == ["es", "en"]
     finally:
         translate.get_installed_languages.cache_clear()
+
+
+@pytest.mark.parametrize("text", ["", "\n", "\n\nHello", "Hello\n", "Hello\n\nworld", "\nHello\n"])
+@pytest.mark.parametrize("cached", [False, True])
+def test_paragraph_assembly_preserves_newlines_and_scores(text, cached, monkeypatch):
+    from types import SimpleNamespace
+
+    lang = translate.Language("en", "English")
+    translator = translate.PackageTranslation.__new__(translate.PackageTranslation)
+    translator.from_lang = translator.to_lang = lang
+    translator.pkg = SimpleNamespace()
+    translator.translator = object()
+    translator.sentencizer = object()
+
+    def apply(pkg, paragraph, model, sentencizer, count):
+        return [translate.Hypothesis(paragraph, -i) for i in range(count)]
+
+    monkeypatch.setattr(translate, "apply_packaged_translation", apply)
+    if cached:
+        translator = translate.CachedTranslation(translator)
+    for _ in range(2):
+        hypotheses = translator.hypotheses(text, 2)
+        assert [h.value for h in hypotheses] == [text, text]
+        assert [h.score for h in hypotheses] == [0, -len(text.split("\n"))]
