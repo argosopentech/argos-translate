@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict
@@ -168,7 +169,12 @@ device = get_setting("ARGOS_DEVICE_TYPE", "cpu")
 
 # https://opennmt.net/CTranslate2/python/ctranslate2.Translator.html
 inter_threads = int(get_setting("ARGOS_INTER_THREADS", "1"))
-intra_threads = int(get_setting("ARGOS_INTRA_THREADS", "0"))
+# On macOS no-OpenMP CTranslate2 wheels, the backend default can fan out into
+# many CPU worker threads for small translation batches. Default to one backend
+# compute thread on Darwin while still allowing explicit user overrides.
+intra_threads = int(
+    get_setting("ARGOS_INTRA_THREADS", "1" if sys.platform == "darwin" else "0")
+)
 batch_size = int(get_setting("ARGOS_BATCH_SIZE", "32"))
 compute_type = get_setting("ARGOS_COMPUTE_TYPE", "auto")
 beam_size = int(get_setting("ARGOS_BEAM_SIZE", "4"))
