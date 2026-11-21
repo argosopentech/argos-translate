@@ -1,3 +1,2 @@
-Sphinx>=5,<7
-sphinx_rtd_theme>=1.2.0,<2
-Jinja2<3.1
+Sphinx>=7,<9
+sphinx_rtd_theme>=2,<4

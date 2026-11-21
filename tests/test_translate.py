@@ -99,8 +99,33 @@ class TestLanguage:
         assert es.get_translation(en) == en
 
 
-class TestPackageTranslation:
-    NotImplemented
+@pytest.mark.parametrize("text", ["Hello. Another sentence!", "", "First. Second!\nThird?", "\n\n"])
+def test_none_chunk_type_translates_whole_paragraphs(text, monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "chunk_type", settings.ChunkType.NONE)
+    # Any attempt to initialize an SBD model should fail this test.
+    for name in ("MiniSBDSentencizer", "StanzaSentencizer", "SpacySentencizerSmall"):
+        monkeypatch.setattr(translate, name, Mock(side_effect=AssertionError("SBD loaded")))
+    tokenizer = SimpleNamespace(encode=lambda value: [value], decode=lambda tokens: "".join(tokens))
+    pkg = SimpleNamespace(tokenizer=tokenizer, target_prefix="")
+    model = Mock()
+    model.translate_batch.side_effect = lambda batches, **kwargs: [
+        SimpleNamespace(hypotheses=[tokens], scores=[-1.0]) for tokens in batches
+    ]
+    lang = translate.Language("en", "English")
+    translation = translate.PackageTranslation(lang, lang, pkg)
+    translation.translator = model
+
+    result = translation.hypotheses(text, 1)
+
+    assert result[0].value == text
+    assert result[0].score == -len(text.split("\n"))
+    assert [call.args[0] for call in model.translate_batch.call_args_list] == [
+        [[paragraph]] for paragraph in text.split("\n")
+    ]
 
 
 class TestIdentityTranslation:
@@ -132,3 +157,77 @@ class TestCompositeTranslation:
 
 class TestCachedTranslation:
     NotImplemented
+
+
+def test_package_changes_rebuild_models_and_pivot_routes(tmp_path, monkeypatch):
+    import json
+    import zipfile
+    from argostranslate import package, settings
+
+    monkeypatch.setattr(settings, "package_data_dir", tmp_path / "packages")
+    settings.package_data_dir.mkdir()
+    monkeypatch.setattr(settings, "package_dirs", [settings.package_data_dir])
+    monkeypatch.setattr(settings, "model_provider", settings.ModelProvider.OPENNMT)
+
+    class VersionTranslation(translate.ITranslation):
+        def __init__(self, source, target, pkg):
+            self.from_lang, self.to_lang, self.pkg = source, target, pkg
+
+        def hypotheses(self, text, num_hypotheses=4):
+            return [translate.Hypothesis(self.pkg.package_version, 0)
+                    for _ in range(num_hypotheses)]
+
+    monkeypatch.setattr(translate, "PackageTranslation", VersionTranslation)
+
+    def install(source, target, version):
+        archive = tmp_path / "model.argosmodel"
+        with zipfile.ZipFile(archive, "w") as model:
+            model.writestr(f"{source}_{target}/metadata.json", json.dumps({
+                "from_code": source, "from_name": source,
+                "to_code": target, "to_name": target,
+                "package_version": version,
+            }))
+        package.install_from_path(archive)
+
+    translate.get_installed_languages.cache_clear()
+    try:
+        install("en", "es", "1")
+        assert translate.translate("hello", "en", "es") == "1"
+        install("en", "es", "2")
+        assert translate.translate("hello", "en", "es") == "2"
+        install("es", "fr", "1")
+        assert translate.get_translation_from_codes("en", "fr") is not None
+        languages = translate.get_installed_languages()
+        for language in languages:
+            for translation in language.translations_from:
+                assert translation.from_lang is language
+                assert translation.to_lang in languages
+        package.uninstall(package.Package(settings.package_data_dir / "es_fr"))
+        assert translate.get_language_from_code("fr") is None
+        assert [t.to_lang.code for t in translate.get_language_from_code("en").translations_from] == ["es", "en"]
+    finally:
+        translate.get_installed_languages.cache_clear()
+
+
+@pytest.mark.parametrize("text", ["", "\n", "\n\nHello", "Hello\n", "Hello\n\nworld", "\nHello\n"])
+@pytest.mark.parametrize("cached", [False, True])
+def test_paragraph_assembly_preserves_newlines_and_scores(text, cached, monkeypatch):
+    from types import SimpleNamespace
+
+    lang = translate.Language("en", "English")
+    translator = translate.PackageTranslation.__new__(translate.PackageTranslation)
+    translator.from_lang = translator.to_lang = lang
+    translator.pkg = SimpleNamespace()
+    translator.translator = object()
+    translator.sentencizer = object()
+
+    def apply(pkg, paragraph, model, sentencizer, count):
+        return [translate.Hypothesis(paragraph, -i) for i in range(count)]
+
+    monkeypatch.setattr(translate, "apply_packaged_translation", apply)
+    if cached:
+        translator = translate.CachedTranslation(translator)
+    for _ in range(2):
+        hypotheses = translator.hypotheses(text, 2)
+        assert [h.value for h in hypotheses] == [text, text]
+        assert [h.score for h in hypotheses] == [0, -len(text.split("\n"))]

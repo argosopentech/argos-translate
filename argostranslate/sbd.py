@@ -45,6 +45,16 @@ class ISentenceBoundaryDetectionModel:
         raise NotImplementedError
 
 
+class NoSentenceBoundaryDetection(ISentenceBoundaryDetectionModel):
+    """Pass each paragraph to translation without splitting it into sentences."""
+
+    def __init__(self, pkg: Package):
+        self.pkg = pkg
+
+    def split_sentences(self, text: str) -> List[str]:
+        return [text]
+
+
 # Spacy sentence boundary detection Sentencizer
 # https://community.libretranslate.com/t/sentence-boundary-detection-for-machine-translation/606/3
 # https://spacy.io/usage/linguistic-features/#sbd

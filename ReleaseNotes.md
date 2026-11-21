@@ -1,3 +1,11 @@
+Unreleased:
+- Support `ARGOS_CHUNK_TYPE=NONE` without loading a sentence splitter; preserve paragraph boundaries.
+- Accept package-index base URLs with or without a trailing slash.
+- Repair generated documentation and describe offline sentence-splitter preparation.
+
+For published releases newer than the historical notes below, see
+[GitHub releases](https://github.com/argosopentech/argos-translate/releases).
+
 1.10:
 - Spacy support
 

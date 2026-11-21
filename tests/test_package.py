@@ -74,4 +74,150 @@ class TestPackage:
         assert self.package.get_readme() == self.readme
 
     def test_get_description(self):
-        self.package.get_description() == self.readme
+        assert self.package.get_description() == self.readme
+
+
+def test_missing_index_download_failure_has_bounded_retries(tmp_path, monkeypatch):
+    from urllib.error import URLError
+    from unittest.mock import Mock
+    from argostranslate import argospm, settings
+
+    monkeypatch.setattr(settings, "local_package_index", tmp_path / "index.json")
+    download = Mock(side_effect=URLError("offline"))
+    monkeypatch.setattr(package.urllib.request, "urlopen", download)
+    with pytest.raises(URLError, match="offline"):
+        argospm.get_available_packages()
+    assert download.call_count == 4
+
+
+@pytest.mark.parametrize("failures", [1, 3])
+def test_missing_index_download_recovers_after_retries(tmp_path, monkeypatch, failures):
+    from io import BytesIO
+    from urllib.error import URLError
+    from unittest.mock import Mock
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "local_package_index", tmp_path / "index.json")
+    response = BytesIO(b'[{"from_code": "en", "to_code": "es"}]')
+    download = Mock(side_effect=[URLError("offline")] * failures + [response])
+    monkeypatch.setattr(package.urllib.request, "urlopen", download)
+    assert package.get_available_packages()[0].to_code == "es"
+    assert download.call_count == failures + 1
+    assert response.closed
+
+
+def test_index_response_read_failure_is_retried(tmp_path, monkeypatch):
+    from http.client import IncompleteRead
+    from io import BytesIO
+    from unittest.mock import MagicMock, Mock
+    from argostranslate import settings
+
+    index_path = tmp_path / "index.json"
+    monkeypatch.setattr(settings, "local_package_index", index_path)
+    failed_response = MagicMock()
+    failed_response.__enter__.return_value = failed_response
+    failed_response.read.side_effect = IncompleteRead(b"partial")
+    download = Mock(side_effect=[failed_response, BytesIO(b"[]")])
+    monkeypatch.setattr(package.urllib.request, "urlopen", download)
+    package.update_package_index()
+    assert index_path.read_bytes() == b"[]"
+    assert download.call_count == 2
+    failed_response.__exit__.assert_called_once()
+
+
+def test_missing_index_is_downloaded_once(tmp_path, monkeypatch):
+    from io import BytesIO
+    from unittest.mock import Mock
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "local_package_index", tmp_path / "index.json")
+    download = Mock(return_value=BytesIO(b'[{"from_code": "en", "to_code": "es"}]'))
+    monkeypatch.setattr(package.urllib.request, "urlopen", download)
+    assert package.get_available_packages()[0].to_code == "es"
+    assert package.get_available_packages()[0].from_code == "en"
+    assert download.call_count == 1
+
+
+def test_missing_index_after_update_does_not_recurse(tmp_path, monkeypatch):
+    from unittest.mock import Mock
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "local_package_index", tmp_path / "index.json")
+    update = Mock()
+    monkeypatch.setattr(package, "update_package_index", update)
+    with pytest.raises(FileNotFoundError):
+        package.get_available_packages()
+    assert update.call_count == 1
+
+
+@pytest.mark.parametrize("as_string", [False, True])
+def test_get_installed_packages_explicit_directory(as_string, monkeypatch):
+    from pathlib import Path
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "package_dirs", [])
+    directory = Path("tests/data")
+    packages = package.get_installed_packages(str(directory) if as_string else directory)
+    assert len(packages) == 1
+    assert packages[0].package_path == directory / "package"
+
+
+def test_get_installed_packages_uses_configured_directories(tmp_path, monkeypatch):
+    from pathlib import Path
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "package_dirs", [tmp_path, Path("tests/data")])
+    assert len(package.get_installed_packages()) == 1
+    assert package.get_installed_packages(tmp_path) == []
+
+
+def test_metadata_keeps_source_and_target_languages_separate():
+    pkg = package.IPackage()
+    pkg.load_metadata_from_json({
+        "from_code": "en", "from_name": "English",
+        "to_code": "es", "to_name": "Spanish",
+    })
+    assert pkg.source_languages == [{"code": "en", "name": "English"}]
+    assert pkg.target_languages == [{"code": "es", "name": "Spanish"}]
+
+
+def test_metadata_language_lists_are_not_mutated_or_duplicated():
+    import copy
+
+    metadata = {
+        "from_code": "en", "from_name": "English",
+        "to_code": "es", "to_name": "Spanish",
+        "source_languages": [{"code": "de"}],
+        "target_languages": [{"code": "fr"}],
+        "languages": [{"code": "it"}],
+    }
+    original = copy.deepcopy(metadata)
+    pkg = package.IPackage()
+    for _ in range(2):
+        pkg.load_metadata_from_json(metadata)
+        assert pkg.source_languages == [
+            {"code": "de"}, {"code": "en", "name": "English"}, {"code": "it"},
+        ]
+        assert pkg.target_languages == [
+            {"code": "fr"}, {"code": "es", "name": "Spanish"}, {"code": "it"},
+        ]
+        assert metadata == original
+
+
+def test_metadata_without_pair_does_not_add_empty_languages():
+    pkg = package.IPackage()
+    pkg.load_metadata_from_json({"languages": [{"code": "en"}]})
+    assert pkg.source_languages == [{"code": "en"}]
+    assert pkg.target_languages == [{"code": "en"}]
+
+
+@pytest.mark.parametrize("suffix", ["", "/", "///"])
+def test_package_index_base_url_accepts_optional_trailing_slash(tmp_path, monkeypatch, suffix):
+    import runpy
+    from argostranslate import settings
+
+    for directory in ("DATA", "CONFIG", "CACHE"):
+        monkeypatch.setenv(f"XDG_{directory}_HOME", str(tmp_path / directory))
+    monkeypatch.setenv("ARGOS_PACKAGE_INDEX", "https://example.com/models" + suffix)
+    loaded = runpy.run_path(settings.__file__)
+    assert loaded["remote_package_index"] == "https://example.com/models/index.json"

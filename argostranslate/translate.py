@@ -4,7 +4,6 @@ import ctypes
 import functools
 import threading
 from collections import OrderedDict
-from typing import List
 
 import ctranslate2
 # import sentencepiece as spm
@@ -211,7 +210,8 @@ class PackageTranslation(ITranslation):
             Sentencizer = MiniSBDSentencizer
         elif settings.chunk_type == settings.ChunkType.SPACY:
             Sentencizer = SpacySentencizerSmall
-
+        elif settings.chunk_type == settings.ChunkType.NONE:
+            Sentencizer = sbd.NoSentenceBoundaryDetection
         if Sentencizer is not None:
             self.sentencizer = Sentencizer(pkg)
         else:
@@ -257,15 +257,15 @@ class PackageTranslation(ITranslation):
         info("translated_paragraphs:", translated_paragraphs)
 
         # Construct new hypotheses using all paragraphs
-        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
-        for i in range(num_hypotheses):
-            for translated_paragraph in translated_paragraphs:
-                value = ITranslation.combine_paragraphs(
-                    [hypotheses_to_return[i].value, translated_paragraph[i].value]
-                )
-                score = hypotheses_to_return[i].score + translated_paragraph[i].score
-                hypotheses_to_return[i] = Hypothesis(value, score)
-            hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip("\n")
+        hypotheses_to_return = [
+            Hypothesis(
+                ITranslation.combine_paragraphs(
+                    [paragraph[i].value for paragraph in translated_paragraphs]
+                ),
+                sum(paragraph[i].score for paragraph in translated_paragraphs),
+            )
+            for i in range(num_hypotheses)
+        ]
         info("hypotheses_to_return:", hypotheses_to_return)
         return hypotheses_to_return
 
@@ -381,17 +381,15 @@ class CachedTranslation(ITranslation):
         self.cache = new_cache
 
         # Construct hypotheses
-        hypotheses_to_return = [Hypothesis("", 0) for i in range(num_hypotheses)]
-        for i in range(num_hypotheses):
-            for j in range(len(translated_paragraphs)):
-                value = ITranslation.combine_paragraphs(
-                    [hypotheses_to_return[i].value, translated_paragraphs[j][i].value]
-                )
-                score = (
-                    hypotheses_to_return[i].score + translated_paragraphs[j][i].score
-                )
-                hypotheses_to_return[i] = Hypothesis(value, score)
-            hypotheses_to_return[i].value = hypotheses_to_return[i].value.lstrip("\n")
+        hypotheses_to_return = [
+            Hypothesis(
+                ITranslation.combine_paragraphs(
+                    [paragraph[i].value for paragraph in translated_paragraphs]
+                ),
+                sum(paragraph[i].score for paragraph in translated_paragraphs),
+            )
+            for i in range(num_hypotheses)
+        ]
         return hypotheses_to_return
 
 
@@ -588,19 +586,6 @@ def apply_packaged_translation(
     return value_hypotheses
 
 
-class InstalledTranslate:
-    """
-    Global storage of instances of the CachedTranslation class by unique keys.
-    To avoid creating unnecessary objects in memory.
-    """
-
-    package_key: str
-    cached_translation: CachedTranslation
-
-
-installed_translates: List[InstalledTranslate] = []
-
-
 @functools.lru_cache()
 def get_installed_languages() -> list[Language]:
     """Returns a list of Languages installed from packages"""
@@ -634,25 +619,15 @@ def get_installed_languages() -> list[Language]:
             from_lang = language_of_code[pkg.from_code]
             to_lang = language_of_code[pkg.to_code]
 
-            package_key = f"{pkg.from_code}-{pkg.to_code}"
-            contain = list(
-                filter(lambda x: x.package_key == package_key, installed_translates)
-            )
-            translation_to_add: CachedTranslation
-            if len(contain) == 0:
-                try:
-                    translation_to_add = CachedTranslation(
-                        PackageTranslation(from_lang, to_lang, pkg)
-                    )
-                    saved_cache = InstalledTranslate()
-                    saved_cache.package_key = package_key
-                    saved_cache.cached_translation = translation_to_add
-                    installed_translates.append(saved_cache)
-                except NotImplementedError as e:
-                    info(f"Skipping package {package_key}: {e}")
-                    continue
-            else:
-                translation_to_add = contain[0].cached_translation
+            # The language cache owns these translators. Rebuild them with the
+            # graph after package changes so models and language references agree.
+            try:
+                translation_to_add = CachedTranslation(
+                    PackageTranslation(from_lang, to_lang, pkg)
+                )
+            except NotImplementedError as e:
+                info(f"Skipping package {pkg.from_code}-{pkg.to_code}: {e}")
+                continue
 
             from_lang.translations_from.append(translation_to_add)
             to_lang.translations_to.append(translation_to_add)
@@ -734,8 +709,7 @@ def load_installed_languages() -> list[Language]:
 def get_language_from_code(code: str) -> Language | None:
     """Gets a language object from a code
 
-    An exception will be thrown if an installed language with this
-    code can not be found.
+    Returns None if no installed language has this code.
 
     Args:
         code: The ISO 639 code of the language
@@ -749,8 +723,9 @@ def get_language_from_code(code: str) -> Language | None:
 def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation:
     """Gets a translation object from codes for from and to languages
 
-    An exception will be thrown if an installed translation between the from lang
-    and to lang can not be found.
+    Returns None if the source language exists but no translation route is found.
+    A missing source language raises AttributeError; check installed languages
+    before calling this helper.
 
     Args:
         from_code: The ISO 639 code of the source language
@@ -773,7 +748,11 @@ def translate(q: str, from_code: str, to_code: str) -> str:
         to_code: The ISO 639 code of the target language
 
     Returns:
-        The translated text
+        The translated text.
+
+    Raises:
+        AttributeError: If the source language or translation route is missing.
+            Check installed languages and routes before calling.
     """
     translation = get_translation_from_codes(from_code, to_code)
     return translation.translate(q)
