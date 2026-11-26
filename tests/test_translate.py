@@ -231,3 +231,121 @@ def test_paragraph_assembly_preserves_newlines_and_scores(text, cached, monkeypa
         hypotheses = translator.hypotheses(text, 2)
         assert [h.value for h in hypotheses] == [text, text]
         assert [h.score for h in hypotheses] == [0, -len(text.split("\n"))]
+
+
+@pytest.mark.parametrize(
+    "from_name,from_code,to_name,to_code,expected",
+    [
+        (
+            "English",
+            "en",
+            "Spanish",
+            "es",
+            "Translate to Spanish (es)\nFrom English (en)",
+        ),
+        ("English", "", "Spanish", "es", "Translate to Spanish (es)\nFrom English"),
+        ("English", "en", "Spanish", "", "Translate to Spanish\nFrom English (en)"),
+        ("", "en", "", "es", "Translate to  (es)\nFrom  (en)"),
+    ],
+)
+def test_fewshot_prompt_uses_requested_translation_direction(
+    from_name, from_code, to_name, to_code, expected
+):
+    from argostranslate import fewshot
+
+    prompt = fewshot.generate_prompt("Hello!", from_name, from_code, to_name, to_code)
+    assert (
+        prompt[len(fewshot.prompt) :] == expected + "\n==========\nHello!\n----------\n"
+    )
+
+
+@pytest.mark.parametrize(
+    "output,expected",
+    [
+        ("Hola!", "Hola!"),
+        ("Hola!\n==========\nnext example", "Hola!\n"),
+        ("Hola!\n----------\nnext response", "Hola!\n"),
+        ("Hola!----------next==========last", "Hola!"),
+        ("==========next", ""),
+        ("", ""),
+    ],
+)
+def test_fewshot_response_keeps_translation_before_first_separator(output, expected):
+    from argostranslate import fewshot
+
+    assert fewshot.parse_inference(output) == expected
+
+
+@pytest.mark.parametrize("text", ["!", "Hello.", "你好。", "Hello.!"])
+def test_fewshot_boundary_can_include_the_last_character(text):
+    from argostranslate import sbd
+
+    assert sbd.process_seq2seq_sbd(text, text + sbd.SENTENCE_BOUNDARY_TOKEN) == len(
+        text
+    )
+
+
+@pytest.mark.parametrize("text", ["!", "Hello.", "x" * 251, "x" * 501])
+@pytest.mark.parametrize(
+    "boundary_reply", ["no boundary", "\n<sentence-boundary>----------", None]
+)
+def test_fewshot_fallback_consumes_every_character_and_makes_progress(
+    text, boundary_reply
+):
+    from argostranslate import fewshot, sbd
+
+    class Model:
+        def __init__(self):
+            self.sentences = []
+            self.boundary_calls = 0
+
+        def infer(self, prompt):
+            if prompt.startswith(sbd.fewshot_prompt):
+                self.boundary_calls += 1
+                assert self.boundary_calls <= (len(text) + 249) // 250
+                return boundary_reply
+            header = "Translate to Spanish (es)\nFrom English (en)\n==========\n"
+            request = prompt[len(fewshot.prompt) :]
+            assert request.startswith(header)
+            sentence = request[len(header) : -len("\n----------\n")]
+            self.sentences.append(sentence)
+            return sentence + "==========unused continuation"
+
+    model = Model()
+    translation = translate.FewShotTranslation(
+        translate.Language("en", "English"), translate.Language("es", "Spanish"), model
+    )
+    result = translation.hypotheses(text, 2)
+    assert [hypothesis.value for hypothesis in result] == [text, text]
+    assert "".join(model.sentences) == text
+    assert all(0 < len(sentence) <= 250 for sentence in model.sentences)
+
+
+def test_fewshot_complete_sentence_is_translated_once():
+    from argostranslate import sbd
+
+    prompts = []
+
+    class Model:
+        def infer(self, prompt):
+            prompts.append(prompt)
+            if prompt.startswith(sbd.fewshot_prompt):
+                return "\nHello!" + sbd.SENTENCE_BOUNDARY_TOKEN + "----------"
+            return "Hola!==========unused continuation"
+
+    translation = translate.FewShotTranslation(
+        translate.Language("en", "English"),
+        translate.Language("es", "Spanish"),
+        Model(),
+    )
+    assert translation.translate("Hello!") == "Hola!"
+    assert len(prompts) == 2
+
+
+def test_fewshot_empty_input_does_not_call_the_model():
+    class Model:
+        def infer(self, prompt):
+            raise AssertionError("empty input must not call the model")
+
+    language = translate.Language("en", "English")
+    assert translate.FewShotTranslation(language, language, Model()).translate("") == ""
