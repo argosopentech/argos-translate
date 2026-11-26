@@ -221,3 +221,115 @@ def test_package_index_base_url_accepts_optional_trailing_slash(tmp_path, monkey
     monkeypatch.setenv("ARGOS_PACKAGE_INDEX", "https://example.com/models" + suffix)
     loaded = runpy.run_path(settings.__file__)
     assert loaded["remote_package_index"] == "https://example.com/models/index.json"
+
+
+@pytest.mark.parametrize(
+    "changed_metadata",
+    [
+        {"package_version": "2.0"},
+        {"argos_version": "2.0"},
+        {"links": ["https://example.com/replacement.argosmodel"]},
+        {"code": "alternate-model"},
+    ],
+)
+def test_download_cache_distinguishes_model_metadata(
+    tmp_path, monkeypatch, changed_metadata
+):
+    from unittest.mock import Mock
+
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "downloads_dir", tmp_path)
+    metadata = {
+        "package_version": "1.0",
+        "argos_version": "1.0",
+        "from_code": "en",
+        "to_code": "es",
+        "links": ["https://example.com/en_es.argosmodel"],
+    }
+    download = Mock(side_effect=[b"first model", b"replacement model"])
+    monkeypatch.setattr(package.networking, "get_from", download)
+
+    first = package.AvailablePackage(metadata)
+    replacement = package.AvailablePackage({**metadata, **changed_metadata})
+    first_path = first.download()
+    replacement_path = replacement.download()
+
+    assert first_path != replacement_path
+    assert first_path.read_bytes() == b"first model"
+    assert replacement_path.read_bytes() == b"replacement model"
+    # Reconstructing either package still reuses its own download.
+    assert package.AvailablePackage(metadata).download() == first_path
+    assert replacement.download() == replacement_path
+    assert download.call_count == 2
+
+
+def test_update_installs_new_model_when_previous_download_is_cached(
+    tmp_path, monkeypatch
+):
+    import json
+    import zipfile
+    from io import BytesIO
+    from unittest.mock import Mock
+
+    from argostranslate import settings
+
+    downloads = tmp_path / "downloads"
+    downloads.mkdir()
+    installed = tmp_path / "installed"
+    installed.mkdir()
+    monkeypatch.setattr(settings, "downloads_dir", downloads)
+    monkeypatch.setattr(settings, "package_data_dir", installed)
+    monkeypatch.setattr(settings, "package_dirs", [installed])
+
+    def model(version):
+        metadata = {
+            "package_version": version,
+            "argos_version": "1.0",
+            "from_code": "en",
+            "to_code": "es",
+            "links": ["https://example.com/en_es.argosmodel"],
+        }
+        data = BytesIO()
+        with zipfile.ZipFile(data, "w") as archive:
+            archive.writestr("translate-en_es/metadata.json", json.dumps(metadata))
+            archive.writestr("translate-en_es/model/version", version)
+        return package.AvailablePackage(metadata), data.getvalue()
+
+    original, original_data = model("1.0")
+    updated, updated_data = model("2.0")
+    download = Mock(side_effect=[original_data, updated_data])
+    monkeypatch.setattr(package.networking, "get_from", download)
+    monkeypatch.setattr(package, "get_available_packages", lambda: [updated])
+
+    package.install_from_path(original.download())
+    original_installed = package.get_installed_packages()[0]
+    assert original_installed.package_version == "1.0"
+    original_installed.update()
+
+    updated_installed = package.get_installed_packages()[0]
+    assert updated_installed.package_version == "2.0"
+    assert (updated_installed.package_path / "model" / "version").read_text() == "2.0"
+    assert download.call_count == 2
+
+
+def test_download_ignores_unversioned_legacy_cache(tmp_path, monkeypatch):
+    from unittest.mock import Mock
+
+    from argostranslate import settings
+
+    monkeypatch.setattr(settings, "downloads_dir", tmp_path)
+    legacy = tmp_path / "translate-en_es.argosmodel"
+    legacy.write_bytes(b"unknown old model")
+    download = Mock(return_value=b"current model")
+    monkeypatch.setattr(package.networking, "get_from", download)
+    available = package.AvailablePackage(
+        {"from_code": "en", "to_code": "es", "package_version": "../2.0"}
+    )
+
+    path = available.download()
+    assert path.parent == tmp_path
+    assert path.suffix == ".argosmodel"
+    assert path.read_bytes() == b"current model"
+    assert legacy.read_bytes() == b"unknown old model"
+    download.assert_called_once()
