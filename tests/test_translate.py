@@ -128,6 +128,99 @@ def test_none_chunk_type_translates_whole_paragraphs(text, monkeypatch):
     ]
 
 
+@pytest.mark.parametrize("num_hypotheses", [1, 3])
+@pytest.mark.parametrize("prefix", ["__es__", ""])
+def test_each_sentence_target_prefix_is_removed_before_decoding(prefix, num_hypotheses):
+    import copy
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    model = Mock()
+    outputs = [
+        SimpleNamespace(
+            hypotheses=[
+                ([prefix] if prefix else []) + [word, str(i)]
+                for i in range(num_hypotheses)
+            ],
+            scores=[-1.0 - i for i in range(num_hypotheses)],
+        )
+        for word in ["uno", "dos", "tres"]
+    ]
+    original = copy.deepcopy(outputs)
+    model.translate_batch.return_value = outputs
+    pkg = SimpleNamespace(
+        tokenizer=SimpleNamespace(
+            encode=lambda text: [text], decode=lambda tokens: " ".join(tokens)
+        ),
+        target_prefix=prefix,
+    )
+    sentencizer = SimpleNamespace(split_sentences=lambda text: text.split("|"))
+
+    result = translate.apply_packaged_translation(
+        pkg, "one|two|three", model, sentencizer, num_hypotheses
+    )
+
+    assert [item.value for item in result] == [
+        f"uno {i} dos {i} tres {i}" for i in range(num_hypotheses)
+    ]
+    assert [item.score for item in result] == [
+        -3.0 - 3 * i for i in range(num_hypotheses)
+    ]
+    assert outputs == original
+    expected_prefix = [[prefix]] * 3 if prefix else None
+    assert model.translate_batch.call_args.kwargs["target_prefix"] == expected_prefix
+
+
+def test_target_prefix_removal_keeps_subsequent_literal_tokens():
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    pkg = SimpleNamespace(
+        tokenizer=SimpleNamespace(
+            encode=lambda text: [text], decode=lambda tokens: " ".join(tokens)
+        ),
+        target_prefix="__es__",
+    )
+    model = Mock()
+    model.translate_batch.return_value = [
+        SimpleNamespace(hypotheses=[["__es__", "__es__", "literal"]], scores=[0])
+    ]
+    sentencizer = SimpleNamespace(split_sentences=lambda text: [text])
+
+    result = translate.apply_packaged_translation(pkg, "text", model, sentencizer, 1)
+
+    assert result[0].value == "__es__ literal"
+
+
+@pytest.mark.parametrize(
+    "tokens",
+    [
+        ["espanol", "fin", "es"],
+        ["inicio", "es", "fin"],
+        [],
+    ],
+)
+def test_target_prefix_removal_requires_a_complete_leading_token(tokens):
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    pkg = SimpleNamespace(
+        tokenizer=SimpleNamespace(
+            encode=lambda text: [text], decode=lambda tokens: " ".join(tokens)
+        ),
+        target_prefix="es",
+    )
+    model = Mock()
+    model.translate_batch.return_value = [
+        SimpleNamespace(hypotheses=[tokens], scores=[0])
+    ]
+    sentencizer = SimpleNamespace(split_sentences=lambda text: [text])
+
+    result = translate.apply_packaged_translation(pkg, "text", model, sentencizer, 1)
+
+    assert result[0].value == " ".join(tokens)
+
+
 class TestIdentityTranslation:
     def test_hypotheses(self):
         lang = translate.Language("es", "Spanish")

@@ -523,14 +523,17 @@ def apply_packaged_translation(
         translated_tokens = []
         cumulative_score = 0
         for translated_batch in translated_batches:
-            translated_tokens.extend(translated_batch.hypotheses[i])
+            sentence_tokens = translated_batch.hypotheses[i]
+            if (
+                pkg.target_prefix
+                and sentence_tokens
+                and sentence_tokens[0] == pkg.target_prefix
+            ):
+                sentence_tokens = sentence_tokens[1:]
+            translated_tokens.extend(sentence_tokens)
             cumulative_score += translated_batch.scores[i]
 
         value = pkg.tokenizer.decode(translated_tokens)
-
-        if pkg.target_prefix != "" and value.startswith(pkg.target_prefix):
-            # Remove target prefix
-            value = value[len(pkg.target_prefix) :]
 
         if len(value) > 0 and value[0] == " ":
             # Remove space at the beginning of the translation added
