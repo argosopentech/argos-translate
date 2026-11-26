@@ -44,3 +44,4 @@ jobs:
           tests/test_package.py
           tests/test_tokenizer.py
           tests/test_translate.py
+          tests/test_tags.py
