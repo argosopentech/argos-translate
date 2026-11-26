@@ -24,15 +24,15 @@ def generate_prompt(
     # TODO: document
     to_return = prompt
     to_return += "Translate to "
+    if to_name:
+        to_return += to_name
+    if to_code:
+        to_return += " (" + to_code + ")"
+    to_return += "\nFrom "
     if from_name:
         to_return += from_name
     if from_code:
         to_return += " (" + from_code + ")"
-    to_return += "\nFrom "
-    if to_name:
-        to_return += to_name
-    if from_code:
-        to_return += " (" + to_code + ")"
     to_return += "\n" + "=" * 10 + "\n"
     to_return += text
     to_return += "\n" + "-" * 10 + "\n"
@@ -40,10 +40,6 @@ def generate_prompt(
 
 
 def parse_inference(output: str) -> str:
-    end_index = output.find("=" * 10)
-    if end_index != -1:
-        return output[end_index]
-    end_index = output.find("-" * 10)
-    if end_index != -1:
-        return output[end_index]
-    return output
+    end_indices = [output.find(separator) for separator in ("=" * 10, "-" * 10)]
+    end_index = min((index for index in end_indices if index >= 0), default=len(output))
+    return output[:end_index]

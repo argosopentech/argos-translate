@@ -235,7 +235,7 @@ def process_seq2seq_sbd(input_text: str, sbd_translated_guess: str) -> int:
         info("sbd_translated_guess:", sbd_translated_guess)
         best_index = 0
         best_ratio = 0.0
-        for i in range(len(input_text)):
+        for i in range(len(input_text) + 1):
             candidate_sentence = input_text[:i]
             sm = SequenceMatcher()
             sm.set_seqs(candidate_sentence, sbd_translated_guess)

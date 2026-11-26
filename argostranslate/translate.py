@@ -393,15 +393,20 @@ class FewShotTranslation(ITranslation):
         DEFAULT_SENTENCE_LENGTH = 250
         sentences = []
         start_index = 0
-        while start_index < len(input_text) - 1:
+        while start_index < len(input_text):
             prompt = sbd.generate_fewshot_sbd_prompt(input_text[start_index:])
-            response = sbd.parse_fewshot_response(self.language_model.infer(prompt))
-            detected_sentence_index = sbd.process_seq2seq_sbd(
-                input_text[start_index:], response
+            inference = self.language_model.infer(prompt)
+            response = (
+                sbd.parse_fewshot_response(inference) if inference is not None else None
             )
-            if detected_sentence_index == -1:
-                # Couldn't find sentence boundary
-                sbd_index = start_index + DEFAULT_SENTENCE_LENGTH
+            detected_sentence_index = (
+                sbd.process_seq2seq_sbd(input_text[start_index:], response)
+                if response is not None
+                else -1
+            )
+            if detected_sentence_index <= 0:
+                # A missing or empty boundary must still make progress.
+                sbd_index = min(start_index + DEFAULT_SENTENCE_LENGTH, len(input_text))
             else:
                 sbd_index = start_index + detected_sentence_index
             sentences.append(input_text[start_index:sbd_index])
