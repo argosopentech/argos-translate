@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import shutil
+import tempfile
 import urllib.request
 import zipfile
 from http.client import HTTPException
@@ -359,7 +361,8 @@ def get_installed_packages(path: Path = None) -> list[Package]:
 def update_package_index():
     """Downloads the remote package index, retrying download failures three times.
 
-    After four failed attempts, the last download error is propagated.
+    After four failed attempts, the last download error is propagated. Validate
+    the downloaded JSON before atomically replacing the local index.
     """
     with package_lock:
         for attempt in range(4):
@@ -371,8 +374,32 @@ def update_package_index():
                 if attempt == 3:
                     raise
                 error(err)
-        with open(settings.local_package_index, "wb") as f:
-            f.write(data)
+        index = json.loads(data.decode("utf-8"))
+        if not isinstance(index, list) or any(
+            not isinstance(metadata, dict) for metadata in index
+        ):
+            raise ValueError("Package index must be a list of metadata objects")
+
+        index_path = Path(settings.local_package_index)
+        temporary_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="wb",
+                dir=index_path.parent,
+                prefix=".argos-index-",
+                suffix=".tmp",
+                delete=False,
+            ) as index_file:
+                temporary_path = Path(index_file.name)
+                index_file.write(data)
+            if os.name == "posix" and index_path.exists():
+                shutil.copymode(index_path, temporary_path)
+            # Close the temporary file before replacing it, including on Windows.
+            temporary_path.replace(index_path)
+            temporary_path = None
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
 
 
 def get_available_packages() -> list[AvailablePackage]:
@@ -381,11 +408,11 @@ def get_available_packages() -> list[AvailablePackage]:
     Download and index parsing errors are propagated to the caller.
     """
     try:
-        with open(settings.local_package_index) as index_file:
+        with open(settings.local_package_index, encoding="utf-8") as index_file:
             index = json.load(index_file)
     except FileNotFoundError:
         update_package_index()
-        with open(settings.local_package_index) as index_file:
+        with open(settings.local_package_index, encoding="utf-8") as index_file:
             index = json.load(index_file)
     return [AvailablePackage(metadata) for metadata in index]
 

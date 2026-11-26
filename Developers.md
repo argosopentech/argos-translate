@@ -9,7 +9,8 @@ Install `pytest` and `pytest-socket`, then run the same model-free tests as CI:
 
 ```sh
 ARGOS_CHUNK_TYPE=NONE python -m pytest --disable-socket -v \
-  tests/test_package.py tests/test_tokenizer.py tests/test_translate.py
+  tests/test_package.py tests/test_package_index.py \
+  tests/test_tokenizer.py tests/test_translate.py
 ```
 
 CI uses Ubuntu and Python 3.11. Dependency installation needs internet access;
