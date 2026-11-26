@@ -5,6 +5,7 @@ import json
 import shutil
 import urllib.request
 import zipfile
+from http.client import HTTPException
 from pathlib import Path
 from threading import Lock
 
@@ -62,21 +63,23 @@ class IPackage:
     in its root the .argosmodel file extension. By default, an
     OpenNMT CTranslate2 directory named model/ is expected in the root directory
     along with a sentencepiece model named sentencepiece.model or a bpe.model
-    for tokenizing and Stanza data for sentence boundary detection.
+    for tokenizing. Sentence boundary detection data may also be included,
+    for example in a minisbd/ or stanza/ directory.
     Packages may also optionally have a README.md in the root.
 
     from_code and to_code should be ISO 639 codes if applicable.
 
-    Example metadata.json
-    {
-        "package_version": "1.0",
-        "argos_version": "1.0",
-        "from_code": "en",
-        "from_name": "English",
-        "to_code": "es",
-        "to_name": "Spanish",
-        "links": ["https://example.com/en_es.argosmodel"]
-    }
+    Example ``metadata.json``::
+
+        {
+            "package_version": "1.0",
+            "argos_version": "1.0",
+            "from_code": "en",
+            "from_name": "English",
+            "to_code": "es",
+            "to_name": "Spanish",
+            "links": ["https://example.com/en_es.argosmodel"]
+        }
     """
 
     code: str
@@ -117,26 +120,26 @@ class IPackage:
         self.type = metadata.get("type", "translate")
         self.languages = metadata.get("languages", list())
         self.dependencies = metadata.get("dependencies", list())
-        self.source_languages = metadata.get("source_languages", list())
-        self.target_languages = metadata.get("target_languages", list())
+        self.source_languages = copy.deepcopy(metadata.get("source_languages", []))
+        self.target_languages = copy.deepcopy(metadata.get("target_languages", []))
         self.target_prefix = metadata.get("target_prefix", "")
 
         # Add all package source and target languages to
         # source_languages and target_languages
-        if self.from_code is not None or self.from_name is not None:
+        if self.from_code or self.from_name:
             from_lang = dict()
             if self.from_code is not None:
                 from_lang["code"] = self.from_code
             if self.from_name is not None:
                 from_lang["name"] = self.from_name
             self.source_languages.append(from_lang)
-        if self.to_code is not None or self.to_name is not None:
+        if self.to_code or self.to_name:
             to_lang = dict()
             if self.to_code is not None:
                 to_lang["code"] = self.to_code
             if self.to_name is not None:
                 to_lang["name"] = self.to_name
-            self.source_languages.append(to_lang)
+            self.target_languages.append(to_lang)
         self.source_languages += copy.deepcopy(self.languages)
         self.target_languages += copy.deepcopy(self.languages)
 
@@ -333,10 +336,10 @@ def uninstall(pkg: Package):
 def get_installed_packages(path: Path = None) -> list[Package]:
     """Return a list of installed Packages
 
-    Looks for packages in <home>/.argos-translate/local/share/packages by
-    default. Will also look in the directory specified
-    in the ARGOS_PACKAGE_DIR environment variable
-    if it is set.
+    Searches the configured package directories by default, normally
+    ``~/.local/share/argos-translate/packages``. ``ARGOS_PACKAGES_DIR``
+    overrides the installed package directory; XDG data overrides also apply.
+    An explicit path searches only that directory.
 
     Args:
         path: Path to look for installed package directories in.
@@ -345,7 +348,7 @@ def get_installed_packages(path: Path = None) -> list[Package]:
     """
     with package_lock:
         to_return = []
-        packages_path = settings.package_dirs if path is None else path
+        packages_path = settings.package_dirs if path is None else [Path(path)]
         for directory in packages_path:
             for path in directory.iterdir():
                 if path.is_dir():
@@ -354,49 +357,37 @@ def get_installed_packages(path: Path = None) -> list[Package]:
 
 
 def update_package_index():
-    """Downloads remote package index"""
+    """Downloads the remote package index, retrying download failures three times.
+
+    After four failed attempts, the last download error is propagated.
+    """
     with package_lock:
-        try:
-            response = urllib.request.urlopen(settings.remote_package_index)
-        except Exception as err:
-            error(err)
-            return
-        data = response.read()
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(settings.remote_package_index) as response:
+                    data = response.read()
+                break
+            except (OSError, HTTPException) as err:
+                if attempt == 3:
+                    raise
+                error(err)
         with open(settings.local_package_index, "wb") as f:
             f.write(data)
 
 
 def get_available_packages() -> list[AvailablePackage]:
-    """Returns a list of AvailablePackages from the package index."""
+    """Returns available packages, fetching a missing index with bounded retries.
 
+    Download and index parsing errors are propagated to the caller.
+    """
     try:
         with open(settings.local_package_index) as index_file:
             index = json.load(index_file)
-            packages = []
-            for metadata in index:
-                package = AvailablePackage(metadata)
-                packages.append(package)
-            """
-            # If stanza not available filter for sbd available
-            if not settings.stanza_available:
-                installed_and_available_packages = packages + get_installed_packages()
-                sbd_packages = list(
-                    filter(lambda x: x.type == "sbd", installed_and_available_packages)
-                )
-                sbd_available_codes = set()
-                for sbd_package in sbd_packages:
-                    sbd_available_codes = sbd_available_codes.union(
-                        sbd_package.from_codes
-                    )
-                packages = list(
-                    filter(lambda x: x.from_code in sbd_available_codes, packages)
-                )
-                return packages + sbd_packages
-            """
-            return packages
     except FileNotFoundError:
         update_package_index()
-        return get_available_packages()
+        with open(settings.local_package_index) as index_file:
+            index = json.load(index_file)
+    return [AvailablePackage(metadata) for metadata in index]
 
 
 def argospm_package_name(pkg: IPackage) -> str:

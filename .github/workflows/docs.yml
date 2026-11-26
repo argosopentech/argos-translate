@@ -1,0 +1,34 @@
+name: Documentation
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ARGOS_CHUNK_TYPE: NONE
+    steps:
+      - name: Configure isolated Argos directories
+        # Runner paths are only available after the job starts.
+        run: |
+          echo "XDG_DATA_HOME=$RUNNER_TEMP/argos-docs/data" >> "$GITHUB_ENV"
+          echo "XDG_CONFIG_HOME=$RUNNER_TEMP/argos-docs/config" >> "$GITHUB_ENV"
+          echo "XDG_CACHE_HOME=$RUNNER_TEMP/argos-docs/cache" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e . -r docs/requirements.txt pytest pytest-socket
+      - run: python -m sphinx -W --keep-going -b html docs docs/_build/html
+      - run: python -m pytest --disable-socket -q tests/test_docs.py
+      - name: Check external links on request
+        if: github.event_name == 'workflow_dispatch'
+        run: python -m sphinx -W --keep-going -b linkcheck docs docs/_build/linkcheck
