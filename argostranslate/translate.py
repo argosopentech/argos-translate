@@ -331,7 +331,9 @@ class CachedTranslation(ITranslation):
         paragraphs = ITranslation.split_into_paragraphs(input_text)
         translated_paragraphs = []
         for paragraph in paragraphs:
-            translated_paragraph = self.cache.get(paragraph)
+            translated_paragraph = new_cache.get(paragraph)
+            if translated_paragraph is None:
+                translated_paragraph = self.cache.get(paragraph)
             # If len() of our cached items are different from `num_hypotheses` it means that
             # the search parameter is changed by caller, so we can't re-use cache, and should update it.
             if (

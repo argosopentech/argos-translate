@@ -156,7 +156,45 @@ class TestCompositeTranslation:
 
 
 class TestCachedTranslation:
-    NotImplemented
+    @pytest.mark.parametrize("num_hypotheses", [1, 3])
+    def test_reuses_repeated_paragraphs_in_one_request(self, num_hypotheses):
+        class CountingTranslation(translate.IdentityTranslation):
+            def __init__(self):
+                super().__init__(translate.Language("en", "English"))
+                self.calls = []
+
+            def hypotheses(self, text, count):
+                self.calls.append((text, count))
+                return [
+                    translate.Hypothesis(text.upper(), -len(text) - i)
+                    for i in range(count)
+                ]
+
+        underlying = CountingTranslation()
+        cached = translate.CachedTranslation(underlying)
+        text = "red\nblue\nred\n\nblue\n"
+        results = cached.hypotheses(text, num_hypotheses)
+
+        assert underlying.calls == [
+            ("red", num_hypotheses),
+            ("blue", num_hypotheses),
+            ("", num_hypotheses),
+        ]
+        assert [item.value for item in results] == [text.upper()] * num_hypotheses
+        assert [item.score for item in results] == [
+            -14 - 6 * i for i in range(num_hypotheses)
+        ]
+
+        # Retain the previous-request cache while also caching new paragraphs.
+        cached.hypotheses("red\ngreen\ngreen", num_hypotheses)
+        assert underlying.calls[-1] == ("green", num_hypotheses)
+        assert len(underlying.calls) == 4
+        assert set(cached.cache) == {"red", "green"}
+
+        # A changed hypothesis count requires one fresh inference per text.
+        cached.hypotheses("green\ngreen", num_hypotheses + 1)
+        assert underlying.calls[-1] == ("green", num_hypotheses + 1)
+        assert len(underlying.calls) == 5
 
 
 def test_package_changes_rebuild_models_and_pivot_routes(tmp_path, monkeypatch):
