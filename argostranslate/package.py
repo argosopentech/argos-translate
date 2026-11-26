@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import shutil
 import urllib.request
@@ -283,7 +284,14 @@ class AvailablePackage(IPackage):
 
     def download(self) -> Path:
         """Downloads the AvailablePackage and returns its path"""
-        filename = argospm_package_name(self) + ".argosmodel"
+        # A retained download must not stand in for a newer model or a different
+        # package with the same language pair. Hash metadata rather than putting
+        # arbitrary version strings or URLs into the filesystem path.
+        cache_key = json.dumps(
+            [self.code, self.package_version, self.argos_version, self.links]
+        ).encode("utf-8")
+        digest = hashlib.sha256(cache_key).hexdigest()
+        filename = f"{argospm_package_name(self)}-{digest}.argosmodel"
         """
         # Install sbd package if needed
         if self.type == "translate" and not settings.stanza_available:
