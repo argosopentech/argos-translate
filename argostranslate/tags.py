@@ -66,7 +66,7 @@ def depth(tag: ITag | str) -> int:
         return 0
     if len(tag.children) == 0:
         return 0
-    return max([depth(t) for t in tag.children])
+    return 1 + max(depth(t) for t in tag.children)
 
 
 def translate_preserve_formatting(
@@ -112,6 +112,17 @@ def inject_tags_inference(
     if len(text) > MAX_SEQUENCE_LENGTH:
         return None
 
+    # Only inject text-only child tags. Protected and empty nested tags must
+    # retain their structure and take the recursive translation path.
+    for child in tag.children:
+        if type(child) is not str and (
+            not child.translateable
+            or depth(child) != 1
+            or not child.text()
+            or any(type(grandchild) is not str for grandchild in child.children)
+        ):
+            return None
+
     translated_text = translate_preserve_formatting(underlying_translation, text)
 
     class InjectionTag:
@@ -135,6 +146,8 @@ def inject_tags_inference(
             translated = translate_preserve_formatting(
                 underlying_translation, child.text()
             )
+            if not translated:
+                return None
             injection_tags.append(InjectionTag(translated, child))
         elif type(child) is not str:
             info("inject_tags_inference", "can't inject depth 0 ITag")
@@ -160,7 +173,7 @@ def inject_tags_inference(
         next_injection_tag = injection_tags[i + 1]
         if (
             injection_tag.injection_index + len(injection_tag.text)
-            >= next_injection_tag.injection_index
+            > next_injection_tag.injection_index
         ):
             info(
                 "inject_tags_inference",
@@ -175,6 +188,7 @@ def inject_tags_inference(
     for injection_tag in injection_tags:
         if i < injection_tag.injection_index:
             to_return.append(translated_text[i : injection_tag.injection_index])
+        injection_tag.tag.children = [injection_tag.text]
         to_return.append(injection_tag.tag)
         i = injection_tag.injection_index + len(injection_tag.text)
     if i < len(translated_text):
@@ -206,9 +220,9 @@ def translate_tags(underlying_translation: ITranslation, tag: ITag | str) -> ITa
         if tag_injection is not None:
             info("translate_tags", "tag injection successful")
             return tag_injection
-    else:
-        tag.children = [
-            translate_tags(underlying_translation, child) for child in tag.children
-        ]
+
+    tag.children = [
+        translate_tags(underlying_translation, child) for child in tag.children
+    ]
 
     return tag
