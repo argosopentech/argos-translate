@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+from collections import deque
 
 import ctranslate2
 # import sentencepiece as spm
@@ -591,31 +592,37 @@ def get_installed_languages() -> list[Language]:
 
         languages = list(language_of_code.values())
 
+        # Traverse only installed model edges. Routes built for an earlier
+        # source language must not hide a shorter route for a later one.
+        direct_translations = {
+            language.code: tuple(language.translations_from) for language in languages
+        }
+
         # Add translations so everything can translate to itself
         for language in languages:
             identity_translation = IdentityTranslation(language)
             language.translations_from.append(identity_translation)
             language.translations_to.append(identity_translation)
 
-        # Pivot through intermediate languages to add translations
-        # that don't already exist
+        # Breadth-first traversal selects the fewest model invocations needed
+        # for each destination while keeping installed direct routes first.
         for language in languages:
-            keep_adding_translations = True
-            while keep_adding_translations:
-                keep_adding_translations = False
-                for translation in language.translations_from:
-                    for translation_2 in translation.to_lang.translations_from:
-                        if language.get_translation(translation_2.to_lang) is None:
-                            # The language currently doesn't have a way to translate
-                            # to this language
-                            keep_adding_translations = True
-                            composite_translation = CompositeTranslation(
-                                translation, translation_2
-                            )
-                            language.translations_from.append(composite_translation)
-                            translation_2.to_lang.translations_to.append(
-                                composite_translation
-                            )
+            reachable = {
+                translation.to_lang.code for translation in language.translations_from
+            }
+            pending = deque(direct_translations[language.code])
+            while pending:
+                translation = pending.popleft()
+                for translation_2 in direct_translations[translation.to_lang.code]:
+                    if translation_2.to_lang.code in reachable:
+                        continue
+                    reachable.add(translation_2.to_lang.code)
+                    composite_translation = CompositeTranslation(
+                        translation, translation_2
+                    )
+                    language.translations_from.append(composite_translation)
+                    translation_2.to_lang.translations_to.append(composite_translation)
+                    pending.append(composite_translation)
 
     elif settings.model_provider == settings.ModelProvider.LIBRETRANSLATE:
         # TODO: Add API key and custom URL support

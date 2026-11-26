@@ -231,3 +231,69 @@ def test_paragraph_assembly_preserves_newlines_and_scores(text, cached, monkeypa
         hypotheses = translator.hypotheses(text, 2)
         assert [h.value for h in hypotheses] == [text, text]
         assert [h.score for h in hypotheses] == [0, -len(text.split("\n"))]
+
+
+@pytest.mark.parametrize(
+    "edges",
+    [
+        [("b", "d"), ("d", "e"), ("a", "b"), ("a", "c"), ("c", "e")],
+        [("d", "e"), ("b", "d"), ("a", "b"), ("a", "c"), ("c", "e")],
+        [("a", "b"), ("b", "d"), ("d", "e"), ("a", "c"), ("c", "e")],
+    ],
+)
+@pytest.mark.parametrize("cycle", [False, True])
+def test_pivot_route_uses_fewest_models_regardless_of_package_order(
+    edges, cycle, monkeypatch
+):
+    from types import SimpleNamespace
+
+    from argostranslate import package, settings
+
+    calls = []
+
+    class RecordingTranslation(translate.ITranslation):
+        def __init__(self, source, target, pkg):
+            self.from_lang, self.to_lang = source, target
+
+        def hypotheses(self, text, num_hypotheses=4):
+            edge = f"{self.from_lang.code}-{self.to_lang.code}"
+            calls.append(edge)
+            return [
+                translate.Hypothesis(text + "|" + edge, -1)
+                for _ in range(num_hypotheses)
+            ]
+
+    edges = edges + ([("e", "b")] if cycle else [])
+    packages = [
+        SimpleNamespace(
+            type="translate",
+            from_code=source,
+            from_name=source,
+            to_code=target,
+            to_name=target,
+        )
+        for source, target in edges
+    ]
+    monkeypatch.setattr(package, "get_installed_packages", lambda: packages)
+    monkeypatch.setattr(translate, "PackageTranslation", RecordingTranslation)
+    monkeypatch.setattr(settings, "model_provider", settings.ModelProvider.OPENNMT)
+    translate.get_installed_languages.cache_clear()
+    try:
+        languages = {lang.code: lang for lang in translate.get_installed_languages()}
+        route = languages["a"].get_translation(languages["e"])
+        result = route.hypotheses("payload", 1)[0]
+
+        assert result.value == "payload|a-c|c-e"
+        assert result.score == -2
+        assert calls == ["a-c", "c-e"]
+        assert route in languages["e"].translations_to
+        assert languages["e"].get_translation(languages["a"]) is None
+        assert (
+            languages["a"].get_translation(languages["a"]).translate("same") == "same"
+        )
+        assert calls == ["a-c", "c-e"]
+        direct = languages["a"].get_translation(languages["c"])
+        assert direct.translate("direct") == "direct|a-c"
+        assert calls == ["a-c", "c-e", "a-c"]
+    finally:
+        translate.get_installed_languages.cache_clear()
