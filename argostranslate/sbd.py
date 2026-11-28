@@ -15,7 +15,8 @@ try:
 except ImportError:
     stanza = None
 
-from minisbd import SBDetect, models as minisbd_models
+from minisbd import SBDetect
+from minisbd import models as minisbd_models
 
 from argostranslate import package, settings
 from argostranslate.networking import cache_spacy
@@ -23,6 +24,7 @@ from argostranslate.package import Package
 from argostranslate.utils import info, warning
 
 minisbd_models.cache_dir = str(settings.data_dir / "minisbd")
+
 
 def get_stanza_processors(lang_code: str, resources: dict) -> str:
     """Get appropriate processors for a language, including MWT if available."""
@@ -69,7 +71,9 @@ class SpacySentencizerSmall(ISentenceBoundaryDetectionModel):
         """
         self.pkg = pkg
         if spacy is None:
-            raise RuntimeError("SpaCy is not installed. Install spacy or change ChunkType settings")
+            raise RuntimeError(
+                "SpaCy is not installed. Install spacy or change ChunkType settings"
+            )
 
         if pkg.packaged_sbd_path is not None and "spacy" in str(pkg.packaged_sbd_path):
             self.nlp = spacy.load(pkg.packaged_sbd_path, exclude=["parser"])
@@ -94,7 +98,6 @@ class MiniSBDSentencizer(ISentenceBoundaryDetectionModel):
         "zt": "zh-hant",
         "zh": "zh-hans",
         "pb": "pt",
-
         # Fallback languages, a model for these is not available
         # so we map to a close language
         "az": "tr",
@@ -111,24 +114,24 @@ class MiniSBDSentencizer(ISentenceBoundaryDetectionModel):
         model_file = None
 
         if sbd_path.exists():
-            model_files = [f for f in os.listdir(sbd_path) if f.endswith('.onnx')]
+            model_files = [f for f in os.listdir(sbd_path) if f.endswith(".onnx")]
             if model_files:
                 model_file = str(sbd_path / model_files[0])
-        
+
         if model_file is not None:
             # Use provided model
             lang = model_file
         else:
             # Download/use cached models from MiniSBD
-            lang = self.LANGUAGE_CODE_MAPPING.get(
-                pkg.from_code, pkg.from_code
-            )
+            lang = self.LANGUAGE_CODE_MAPPING.get(pkg.from_code, pkg.from_code)
 
             # Fallback to English
             if lang not in minisbd_models.list_models():
-                warning(f"{self.pkg.from_code} is not available in MiniSBD, falling back to en")
+                warning(
+                    f"{self.pkg.from_code} is not available in MiniSBD, falling back to en"
+                )
                 lang = "en"
-        
+
         self.lang = lang
         self.detector = None
         self._init_lock = Lock()
@@ -137,7 +140,9 @@ class MiniSBDSentencizer(ISentenceBoundaryDetectionModel):
         if self.detector is None:
             with self._init_lock:
                 if self.detector is None:
-                    self.detector = SBDetect(self.lang, use_gpu=settings.device == "cuda")
+                    self.detector = SBDetect(
+                        self.lang, use_gpu=settings.device == "cuda"
+                    )
         return self.detector
 
     def split_sentences(self, text: str) -> List[str]:
@@ -162,7 +167,7 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
 
         self.stanza_pipeline = None
         self._init_lock = Lock()
-    
+
     def lazy_pipeline(self):
         if self.stanza_pipeline is None:
             with self._init_lock:

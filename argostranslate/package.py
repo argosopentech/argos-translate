@@ -205,7 +205,9 @@ class Package(IPackage):
         stanza_package = package_path / "stanza"
         spacy_package = package_path / "spacy"
 
-        if minisbd_package.exists(): # MiniSBD model within the package (prioritize over stanza if both are there)
+        if (
+            minisbd_package.exists()
+        ):  # MiniSBD model within the package (prioritize over stanza if both are there)
             self.packaged_sbd_path = minisbd_package
         elif stanza_package.exists():  # Stanza tokenizer within the package
             self.packaged_sbd_path = stanza_package

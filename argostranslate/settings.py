@@ -195,7 +195,7 @@ class ChunkType(Enum):
     NONE = 2  # No sentence splitting
     STANZA = 3  # Use only Stanza
     SPACY = 4  # Use only SpaCy
-    MINISBD = 5 # Use only MiniSBD
+    MINISBD = 5  # Use only MiniSBD
 
 
 chunk_type_mapping = {

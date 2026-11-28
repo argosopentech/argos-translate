@@ -23,7 +23,9 @@ class SentencePieceTokenizer(Tokenizer):
         if self.processor is None:
             with self._init_lock:
                 if self.processor is None:
-                    self.processor = spm.SentencePieceProcessor(model_file=str(self.model_file))
+                    self.processor = spm.SentencePieceProcessor(
+                        model_file=str(self.model_file)
+                    )
         return self.processor
 
     def encode(self, sentence: str) -> List[str]:
@@ -37,11 +39,7 @@ class SentencePieceTokenizer(Tokenizer):
         return detokenized.replace("▁", " ")
         """
         # Replace the SentencePiece space marker while preserving literal underscores.
-        return (
-            self.lazy_processor()
-            .decode_pieces(tokens)
-            .replace("▁", " ")
-        )
+        return self.lazy_processor().decode_pieces(tokens).replace("▁", " ")
 
 
 class BPETokenizer(Tokenizer):
@@ -61,7 +59,9 @@ class BPETokenizer(Tokenizer):
                 if self.tokenizer is not None:
                     return
                 from sacremoses.normalize import MosesPunctNormalizer
-                from sacremoses.tokenize import MosesDetokenizer, MosesTokenizer
+                from sacremoses.tokenize import (MosesDetokenizer,
+                                                 MosesTokenizer)
+
                 from argostranslate.apply_bpe import BPE
 
                 tokenizer = MosesTokenizer(self.from_code)

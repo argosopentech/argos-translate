@@ -10,7 +10,8 @@ from ctranslate2 import Translator
 from argostranslate import apis, fewshot, package, sbd, settings
 from argostranslate.models import ILanguageModel
 from argostranslate.package import Package
-from argostranslate.sbd import SpacySentencizerSmall, StanzaSentencizer, MiniSBDSentencizer
+from argostranslate.sbd import (MiniSBDSentencizer, SpacySentencizerSmall,
+                                StanzaSentencizer)
 from argostranslate.utils import info
 
 
@@ -163,16 +164,19 @@ class PackageTranslation(ITranslation):
         self.translator = None
         self._init_lock = Lock()
 
-        stanza_not_installed = (sbd.stanza is None)
+        stanza_not_installed = sbd.stanza is None
 
         Sentencizer = None
-        if settings.chunk_type in [settings.ChunkType.ARGOSTRANSLATE, settings.ChunkType.DEFAULT]:
+        if settings.chunk_type in [
+            settings.ChunkType.ARGOSTRANSLATE,
+            settings.ChunkType.DEFAULT,
+        ]:
             if "stanza" in str(pkg.packaged_sbd_path) and not stanza_not_installed:
                 Sentencizer = StanzaSentencizer
             elif "minisbd" in str(pkg.packaged_sbd_path):
                 Sentencizer = MiniSBDSentencizer
             else:
-                Sentencizer = MiniSBDSentencizer # Default to MiniSBD if no stanza model is available
+                Sentencizer = MiniSBDSentencizer  # Default to MiniSBD if no stanza model is available
         elif settings.chunk_type == settings.ChunkType.STANZA:
             Sentencizer = StanzaSentencizer
         elif settings.chunk_type == settings.ChunkType.MINISBD:
@@ -181,7 +185,7 @@ class PackageTranslation(ITranslation):
             Sentencizer = SpacySentencizerSmall
         elif settings.chunk_type == settings.ChunkType.NONE:
             Sentencizer = sbd.NoSentenceBoundaryDetection
-            
+
         if Sentencizer is not None:
             self.sentencizer = Sentencizer(pkg)
         else:
@@ -549,11 +553,13 @@ def apply_packaged_translation(
 
 def _with_package_lock(cached_function):
     """Serialize cache publication and invalidation with package changes."""
+
     def locked(function):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
             with package.package_lock:
                 return function(*args, **kwargs)
+
         return wrapper
 
     wrapper = locked(cached_function)
