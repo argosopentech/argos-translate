@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+from threading import Lock
 
 import ctranslate2
 # import sentencepiece as spm
@@ -160,6 +161,7 @@ class PackageTranslation(ITranslation):
         self.to_lang = to_lang
         self.pkg = pkg
         self.translator = None
+        self._init_lock = Lock()
 
         stanza_not_installed = (sbd.stanza is None)
 
@@ -188,16 +190,18 @@ class PackageTranslation(ITranslation):
 
     def hypotheses(self, input_text: str, num_hypotheses: int = 4) -> list[Hypothesis]:
         if self.translator is None:
-            model_path = str(self.pkg.package_path / "model")
-            params = {
-                "model_path": model_path,
-                "device": settings.device,
-                "inter_threads": settings.inter_threads,
-                "intra_threads": settings.intra_threads,
-            }
-            if settings.compute_type != "auto":
-                params["compute_type"] = settings.compute_type
-            self.translator = ctranslate2.Translator(**params)
+            with self._init_lock:
+                if self.translator is None:
+                    model_path = str(self.pkg.package_path / "model")
+                    params = {
+                        "model_path": model_path,
+                        "device": settings.device,
+                        "inter_threads": settings.inter_threads,
+                        "intra_threads": settings.intra_threads,
+                    }
+                    if settings.compute_type != "auto":
+                        params["compute_type"] = settings.compute_type
+                    self.translator = ctranslate2.Translator(**params)
         paragraphs = ITranslation.split_into_paragraphs(input_text)
         info("paragraphs:", paragraphs)
         translated_paragraphs = []
@@ -543,6 +547,23 @@ def apply_packaged_translation(
     return value_hypotheses
 
 
+def _with_package_lock(cached_function):
+    """Serialize cache publication and invalidation with package changes."""
+    def locked(function):
+        @functools.wraps(function)
+        def wrapper(*args, **kwargs):
+            with package.package_lock:
+                return function(*args, **kwargs)
+        return wrapper
+
+    wrapper = locked(cached_function)
+    wrapper.cache_clear = locked(cached_function.cache_clear)
+    wrapper.cache_info = locked(cached_function.cache_info)
+    wrapper.cache_parameters = cached_function.cache_parameters
+    return wrapper
+
+
+@_with_package_lock
 @functools.lru_cache()
 def get_installed_languages() -> list[Language]:
     """Returns a list of Languages installed from packages"""

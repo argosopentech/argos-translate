@@ -1,4 +1,5 @@
 from pathlib import Path
+from threading import Lock
 from typing import List
 
 import sentencepiece as spm
@@ -16,10 +17,13 @@ class SentencePieceTokenizer(Tokenizer):
     def __init__(self, model_file: Path):
         self.model_file = model_file
         self.processor = None
+        self._init_lock = Lock()
 
     def lazy_processor(self) -> spm.SentencePieceProcessor:
         if self.processor is None:
-            self.processor = spm.SentencePieceProcessor(model_file=str(self.model_file))
+            with self._init_lock:
+                if self.processor is None:
+                    self.processor = spm.SentencePieceProcessor(model_file=str(self.model_file))
         return self.processor
 
     def encode(self, sentence: str) -> List[str]:
@@ -49,20 +53,28 @@ class BPETokenizer(Tokenizer):
         self.detokenizer = None
         self.bpe_source = None
         self.normalizer = None
+        self._init_lock = Lock()
 
     def lazy_load(self):
         if self.tokenizer is None:
-            from sacremoses.normalize import MosesPunctNormalizer
-            from sacremoses.tokenize import MosesDetokenizer, MosesTokenizer
+            with self._init_lock:
+                if self.tokenizer is not None:
+                    return
+                from sacremoses.normalize import MosesPunctNormalizer
+                from sacremoses.tokenize import MosesDetokenizer, MosesTokenizer
+                from argostranslate.apply_bpe import BPE
 
-            self.tokenizer = MosesTokenizer(self.from_code)
-            self.detokenizer = MosesDetokenizer(self.to_code)
-            self.normalizer = MosesPunctNormalizer(self.from_code)
+                tokenizer = MosesTokenizer(self.from_code)
+                detokenizer = MosesDetokenizer(self.to_code)
+                normalizer = MosesPunctNormalizer(self.from_code)
+                with open(str(self.model_file), "r", encoding="utf-8") as f:
+                    bpe_source = BPE(f)
 
-            from argostranslate.apply_bpe import BPE
-
-            with open(str(self.model_file), "r", encoding="utf-8") as f:
-                self.bpe_source = BPE(f)
+                self.detokenizer = detokenizer
+                self.normalizer = normalizer
+                self.bpe_source = bpe_source
+                # Publish the ready marker only after every dependency is loaded.
+                self.tokenizer = tokenizer
 
     def encode(self, sentence: str) -> List[str]:
         self.lazy_load()

@@ -7,7 +7,7 @@ import urllib.request
 import zipfile
 from http.client import HTTPException
 from pathlib import Path
-from threading import Lock
+from threading import RLock
 
 import packaging.version
 
@@ -34,8 +34,9 @@ for available_package in available_packages:
 """
 
 # Threading logic
-# Hold lock while installing or uninstalling packages
-package_lock = Lock()
+# Protect package changes and language graph publication. Reentrant because
+# graph construction reads packages, and package changes clear the graph cache.
+package_lock = RLock()
 
 
 class IPackage:

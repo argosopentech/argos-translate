@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from difflib import SequenceMatcher
+from threading import Lock
 from typing import List
 
 try:
@@ -130,10 +131,13 @@ class MiniSBDSentencizer(ISentenceBoundaryDetectionModel):
         
         self.lang = lang
         self.detector = None
+        self._init_lock = Lock()
 
     def lazy_detector(self):
         if self.detector is None:
-            self.detector = SBDetect(self.lang, use_gpu=settings.device == "cuda")
+            with self._init_lock:
+                if self.detector is None:
+                    self.detector = SBDetect(self.lang, use_gpu=settings.device == "cuda")
         return self.detector
 
     def split_sentences(self, text: str) -> List[str]:
@@ -157,16 +161,19 @@ class StanzaSentencizer(ISentenceBoundaryDetectionModel):
         )
 
         self.stanza_pipeline = None
+        self._init_lock = Lock()
     
     def lazy_pipeline(self):
         if self.stanza_pipeline is None:
-            self.stanza_pipeline = stanza.Pipeline(
-                lang=self.stanza_lang_code,
-                dir=str(self.pkg.package_path / "stanza"),
-                processors="tokenize",
-                use_gpu=settings.device == "cuda",
-                logging_level="WARNING",
-            )
+            with self._init_lock:
+                if self.stanza_pipeline is None:
+                    self.stanza_pipeline = stanza.Pipeline(
+                        lang=self.stanza_lang_code,
+                        dir=str(self.pkg.package_path / "stanza"),
+                        processors="tokenize",
+                        use_gpu=settings.device == "cuda",
+                        logging_level="WARNING",
+                    )
         return self.stanza_pipeline
 
     def split_sentences(self, text: str) -> List[str]:
