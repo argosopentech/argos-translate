@@ -269,3 +269,48 @@ def test_paragraph_assembly_preserves_newlines_and_scores(text, cached, monkeypa
         hypotheses = translator.hypotheses(text, 2)
         assert [h.value for h in hypotheses] == [text, text]
         assert [h.score for h in hypotheses] == [0, -len(text.split("\n"))]
+
+
+@pytest.mark.parametrize("boundary_response", [None, "no boundary marker"])
+def test_fewshot_missing_boundary_uses_fallback(boundary_response):
+    from unittest.mock import Mock
+
+    model = Mock()
+    model.infer.side_effect = [boundary_response, "Hola"]
+    translation = translate.FewShotTranslation(
+        translate.Language("en", "English"), translate.Language("es", "Spanish"), model
+    )
+
+    assert translation.translate("Hello") == "Hola"
+    assert model.infer.call_count == 2
+
+
+def test_fewshot_missing_translation_raises():
+    from unittest.mock import Mock
+
+    model = Mock()
+    model.infer.side_effect = [None, None]
+    translation = translate.FewShotTranslation(
+        translate.Language("en", "English"), translate.Language("es", "Spanish"), model
+    )
+
+    with pytest.raises(RuntimeError, match="returned no translation"):
+        translation.translate("Hello")
+
+
+def test_translation_lookup_handles_missing_languages_and_routes(monkeypatch):
+    en = translate.Language("en", "English")
+    es = translate.Language("es", "Spanish")
+    identity = translate.IdentityTranslation(en)
+    en.translations_from.append(identity)
+    monkeypatch.setattr(translate, "get_installed_languages", lambda: [en, es])
+
+    assert translate.get_language_from_code("en") is en
+    assert translate.get_language_from_code("fr") is None
+    assert translate.get_translation_from_codes("en", "en") is identity
+    for target in ("es", "fr"):
+        assert translate.get_translation_from_codes("en", target) is None
+        with pytest.raises(AttributeError, match="No translation route"):
+            translate.translate("Hello", "en", target)
+    with pytest.raises(AttributeError, match="Source language is not installed"):
+        translate.get_translation_from_codes("fr", "en")

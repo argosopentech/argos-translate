@@ -29,6 +29,7 @@ class ITag:
                 should not be translated
     """
 
+    children: list[ITag | str]
     translateable: bool
 
     def text(self) -> str:
@@ -44,13 +45,16 @@ class ITag:
 
 
 class Tag(ITag):
-    def __init__(self, children: ITag | str, translateable: bool = True):
+    def __init__(self, children: list[ITag | str], translateable: bool = True):
         self.children = children
         self.translateable = translateable
 
     def text(self) -> str:
         return "".join(
-            [(child.text() if type(child) != str else child) for child in self.children]
+            [
+                (child.text() if not isinstance(child, str) else child)
+                for child in self.children
+            ]
         )
 
 
@@ -62,7 +66,7 @@ def depth(tag: ITag | str) -> int:
     Args:
         tag: The ITag or string to get the depth of.
     """
-    if type(tag) is str:
+    if isinstance(tag, str):
         return 0
     if len(tag.children) == 0:
         return 0
@@ -127,16 +131,16 @@ def inject_tags_inference(
         def __init__(self, text: str, tag: ITag):
             self.text = text
             self.tag = tag
-            self.injection_index = None
+            self.injection_index = -1
 
     injection_tags = []
     for child in tag.children:
-        if depth(child) == 1:
+        if not isinstance(child, str) and depth(child) == 1:
             translated = translate_preserve_formatting(
                 underlying_translation, child.text()
             )
             injection_tags.append(InjectionTag(translated, child))
-        elif type(child) is not str:
+        elif not isinstance(child, str):
             info("inject_tags_inference", "can't inject depth 0 ITag")
             return None
 
@@ -170,7 +174,7 @@ def inject_tags_inference(
             )
             return None
 
-    to_return = []
+    to_return: list[ITag | str] = []
     i = 0
     for injection_tag in injection_tags:
         if i < injection_tag.injection_index:
@@ -197,7 +201,7 @@ def translate_tags(underlying_translation: ITranslation, tag: ITag | str) -> ITa
     Returns:
         The translated tag tree
     """
-    if type(tag) is str:
+    if isinstance(tag, str):
         return translate_preserve_formatting(underlying_translation, tag)
     elif tag.translateable is False:
         return tag

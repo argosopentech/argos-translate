@@ -19,6 +19,13 @@ explicit file list: `test_english_translations.py` requires installed models, an
 `integration-tests/` contains separate manual scripts. Add new model-free test
 files to `.github/workflows/python-package.yml` as needed.
 
+## Type checking
+
+Install `mypy`, then run `./scripts/type_check.sh` from the repository root.
+`mypy.ini` limits missing-import exceptions to the runtime NLP dependencies
+that do not consistently ship typing information. Install the runtime dependencies
+separately to run tests; a passing type check does not verify their availability.
+
 ## Formatting
 
 Install `black` and `isort`, then run:

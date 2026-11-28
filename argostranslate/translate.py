@@ -2,16 +2,21 @@ from __future__ import annotations
 
 import functools
 from threading import Lock
+from typing import Callable
 
 import ctranslate2
+
 # import sentencepiece as spm
 from ctranslate2 import Translator
 
 from argostranslate import apis, fewshot, package, sbd, settings
 from argostranslate.models import ILanguageModel
 from argostranslate.package import Package
-from argostranslate.sbd import (MiniSBDSentencizer, SpacySentencizerSmall,
-                                StanzaSentencizer)
+from argostranslate.sbd import (
+    MiniSBDSentencizer,
+    SpacySentencizerSmall,
+    StanzaSentencizer,
+)
 from argostranslate.utils import info
 
 
@@ -166,7 +171,9 @@ class PackageTranslation(ITranslation):
 
         stanza_not_installed = sbd.stanza is None
 
-        Sentencizer = None
+        Sentencizer: Callable[[Package], sbd.ISentenceBoundaryDetectionModel] | None = (
+            None
+        )
         if settings.chunk_type in [
             settings.ChunkType.ARGOSTRANSLATE,
             settings.ChunkType.DEFAULT,
@@ -405,9 +412,14 @@ class FewShotTranslation(ITranslation):
         start_index = 0
         while start_index < len(input_text) - 1:
             prompt = sbd.generate_fewshot_sbd_prompt(input_text[start_index:])
-            response = sbd.parse_fewshot_response(self.language_model.infer(prompt))
-            detected_sentence_index = sbd.process_seq2seq_sbd(
-                input_text[start_index:], response
+            inference = self.language_model.infer(prompt)
+            response = (
+                sbd.parse_fewshot_response(inference) if inference is not None else None
+            )
+            detected_sentence_index = (
+                sbd.process_seq2seq_sbd(input_text[start_index:], response)
+                if response is not None
+                else -1
             )
             if detected_sentence_index == -1:
                 # Couldn't find sentence boundary
@@ -432,6 +444,8 @@ class FewShotTranslation(ITranslation):
             info("fewshot prompt", prompt)
             response = self.language_model.infer(prompt)
             info("fewshot response", response)
+            if response is None:
+                raise RuntimeError("Language model returned no translation")
             result = fewshot.parse_inference(response)
             info("fewshot result", result)
             to_return += result
@@ -703,10 +717,10 @@ def get_language_from_code(code: str) -> Language | None:
     Returns:
         The language object
     """
-    return next(filter(lambda x: x.code == code, get_installed_languages()), None)
+    return next((lang for lang in get_installed_languages() if lang.code == code), None)
 
 
-def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation:
+def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation | None:
     """Gets a translation object from codes for from and to languages
 
     Returns None if the source language exists but no translation route is found.
@@ -722,6 +736,10 @@ def get_translation_from_codes(from_code: str, to_code: str) -> ITranslation:
     """
     from_lang = get_language_from_code(from_code)
     to_lang = get_language_from_code(to_code)
+    if from_lang is None:
+        raise AttributeError(f"Source language is not installed: {from_code}")
+    if to_lang is None:
+        return None
     return from_lang.get_translation(to_lang)
 
 
@@ -741,4 +759,6 @@ def translate(q: str, from_code: str, to_code: str) -> str:
             Check installed languages and routes before calling.
     """
     translation = get_translation_from_codes(from_code, to_code)
+    if translation is None:
+        raise AttributeError(f"No translation route from {from_code} to {to_code}")
     return translation.translate(q)

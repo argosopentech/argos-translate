@@ -13,7 +13,7 @@ from threading import RLock
 import packaging.version
 
 from argostranslate import networking, settings
-from argostranslate.tokenizer import BPETokenizer, SentencePieceTokenizer
+from argostranslate.tokenizer import BPETokenizer, SentencePieceTokenizer, Tokenizer
 from argostranslate.utils import error, info, warning
 
 """
@@ -94,7 +94,6 @@ class IPackage:
     to_code: str
     to_codes: list
     to_name: str
-    links: list
     type: str
     languages: list
     dependencies: list
@@ -145,7 +144,7 @@ class IPackage:
         self.source_languages += copy.deepcopy(self.languages)
         self.target_languages += copy.deepcopy(self.languages)
 
-    def get_readme(self) -> str:
+    def get_readme(self) -> str | None:
         """Returns the text of the README.md in this package.
 
         Returns:
@@ -181,6 +180,9 @@ class IPackage:
 
 class Package(IPackage):
     """An installed package"""
+
+    packaged_sbd_path: Path | None
+    tokenizer: Tokenizer
 
     def __init__(self, package_path: Path):
         """Create a new Package from path.
@@ -442,7 +444,7 @@ def install_package_for_language_pair(from_code: str, to_code: str) -> bool:
     return True
 
 
-def load_available_packages() -> list[Package]:
+def load_available_packages() -> list[AvailablePackage]:
     """Deprecated 1.2, use get_available_packages"""
     info(
         "Using deprecated function load_available_packages, use get_available_packages instead"

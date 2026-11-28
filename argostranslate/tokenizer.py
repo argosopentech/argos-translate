@@ -1,6 +1,14 @@
+from __future__ import annotations
+
 from pathlib import Path
 from threading import Lock
-from typing import List
+from typing import TYPE_CHECKING, List
+
+if TYPE_CHECKING:
+    from sacremoses.normalize import MosesPunctNormalizer
+    from sacremoses.tokenize import MosesDetokenizer, MosesTokenizer
+
+    from argostranslate.apply_bpe import BPE
 
 import sentencepiece as spm
 
@@ -16,7 +24,7 @@ class Tokenizer:
 class SentencePieceTokenizer(Tokenizer):
     def __init__(self, model_file: Path):
         self.model_file = model_file
-        self.processor = None
+        self.processor: spm.SentencePieceProcessor | None = None
         self._init_lock = Lock()
 
     def lazy_processor(self) -> spm.SentencePieceProcessor:
@@ -47,20 +55,19 @@ class BPETokenizer(Tokenizer):
         self.model_file = model_file
         self.from_code = from_code
         self.to_code = to_code
-        self.tokenizer = None
-        self.detokenizer = None
-        self.bpe_source = None
-        self.normalizer = None
+        self.tokenizer: MosesTokenizer | None = None
+        self.detokenizer: MosesDetokenizer | None = None
+        self.bpe_source: BPE | None = None
+        self.normalizer: MosesPunctNormalizer | None = None
         self._init_lock = Lock()
 
-    def lazy_load(self):
+    def lazy_load(self) -> None:
         if self.tokenizer is None:
             with self._init_lock:
                 if self.tokenizer is not None:
                     return
                 from sacremoses.normalize import MosesPunctNormalizer
-                from sacremoses.tokenize import (MosesDetokenizer,
-                                                 MosesTokenizer)
+                from sacremoses.tokenize import MosesDetokenizer, MosesTokenizer
 
                 from argostranslate.apply_bpe import BPE
 
@@ -79,6 +86,9 @@ class BPETokenizer(Tokenizer):
     def encode(self, sentence: str) -> List[str]:
         self.lazy_load()
 
+        assert self.normalizer is not None
+        assert self.tokenizer is not None
+        assert self.bpe_source is not None
         normalized = self.normalizer.normalize(sentence)
         tokenized = " ".join(self.tokenizer.tokenize(normalized))
         segmented = self.bpe_source.segment_tokens(tokenized.strip("\r\n ").split(" "))
@@ -88,6 +98,7 @@ class BPETokenizer(Tokenizer):
     def decode(self, tokens: List[str]) -> str:
         self.lazy_load()
 
+        assert self.detokenizer is not None
         return self.detokenizer.detokenize(
             " ".join(tokens).replace("@@ ", "").split(" ")
         )
